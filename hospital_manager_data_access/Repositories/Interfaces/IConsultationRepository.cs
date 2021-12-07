@@ -1,6 +1,6 @@
-﻿using hospital_manager_data_access.Entities;
+﻿using voting_data_access.Entities;
 
-namespace hospital_manager_data_access.Repositories.Interfaces
+namespace voting_data_access.Repositories.Interfaces
 {
     public interface IConsultationRepository : IRepository<ConsultationData>
     {

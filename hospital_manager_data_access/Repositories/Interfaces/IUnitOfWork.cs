@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace hospital_manager_data_access.Repositories.Interfaces
+namespace voting_data_access.Repositories.Interfaces
 {
     public interface IUnitOfWork : IDisposable
     {

@@ -3,17 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29409.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "hospital_manager_data_access", "hospital_manager_data_access\hospital_manager_data_access.csproj", "{1AB18E5D-1924-4459-80D1-3910239EA56A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "voting_data_access", "hospital_manager_data_access\voting_data_access.csproj", "{1AB18E5D-1924-4459-80D1-3910239EA56A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "hospital_manager_bl", "hospital_manager_bu\hospital_manager_bl.csproj", "{FBD76A16-3798-42F2-A478-74E96F21E450}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "voting_bl", "hospital_manager_bu\voting_bl.csproj", "{FBD76A16-3798-42F2-A478-74E96F21E450}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "hospital_manager_exceptions", "hospital_manager_exceptions\hospital_manager_exceptions.csproj", "{358B2D90-A0F9-42B8-8427-28F6970173DE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "voting_exceptions", "hospital_manager_exceptions\voting_exceptions.csproj", "{358B2D90-A0F9-42B8-8427-28F6970173DE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "hospital_manager_models", "hospital_manager_models\hospital_manager_models.csproj", "{C4E117A3-DA63-470A-8A45-DB391106C9D9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "voting_models", "hospital_manager_models\voting_models.csproj", "{C4E117A3-DA63-470A-8A45-DB391106C9D9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "authentication_api", "oauth_api\authentication_api.csproj", "{4C90E657-87FF-475D-BD58-0D54DD92B836}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "hospital_manager_api", "hospital_manager_api\hospital_manager_api.csproj", "{3F45FB71-0CA8-49FF-BA26-6DB54D57A074}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "voting_api", "hospital_manager_api\voting_api.csproj", "{3F45FB71-0CA8-49FF-BA26-6DB54D57A074}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

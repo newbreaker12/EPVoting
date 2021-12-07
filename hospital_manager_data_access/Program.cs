@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace hospital_manager_data_access
+namespace voting_data_access
 {
     class Program
     {

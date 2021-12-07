@@ -1,4 +1,4 @@
-﻿namespace hospital_manager_models.Models
+﻿namespace voting_models.Models
 {
     public class SpecialityResponse
     {

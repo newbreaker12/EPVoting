@@ -6,7 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace hospital_manager_api.Util
+namespace voting_api.Util
 {
     public class ExceptionMiddleware
     {

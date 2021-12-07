@@ -1,7 +1,7 @@
-﻿using hospital_manager_models.Models;
+﻿using voting_models.Models;
 using System.Collections.Generic;
 
-namespace hospital_manager_data_access.Entities
+namespace voting_data_access.Entities
 {
     public class DoctorResponse
     {

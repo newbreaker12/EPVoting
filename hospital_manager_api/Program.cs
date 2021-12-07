@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
-namespace hospital_manager_api
+namespace voting_api
 {
     public class Program
     {

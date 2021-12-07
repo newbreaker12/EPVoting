@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace hospital_manager_exceptions.Exceptions
+namespace voting_exceptions.Exceptions
 {
     public class InvalidSpeciality : Exception
     {

@@ -1,11 +1,11 @@
-﻿using hospital_manager_models.Models;
+﻿using voting_models.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
-namespace hospital_manager_data_access.Entities
+namespace voting_data_access.Entities
 {
     public class ConsultationResponse
     {

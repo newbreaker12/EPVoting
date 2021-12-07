@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace hospital_manager_models
+namespace voting_models
 {
     class Program
     {

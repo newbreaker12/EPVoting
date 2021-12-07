@@ -1,12 +1,12 @@
-﻿using hospital_manager_data_access.Data;
-using hospital_manager_data_access.Repositories.Interfaces;
+﻿using voting_data_access.Data;
+using voting_data_access.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace hospital_manager_data_access.Repositories.Implementation
+namespace voting_data_access.Repositories.Implementation
 {
     public class Repository<T> : IRepository<T> where T : class
     {

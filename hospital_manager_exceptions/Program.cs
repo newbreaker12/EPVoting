@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace hospital_manager_exceptions
+namespace voting_exceptions
 {
     class Program
     {

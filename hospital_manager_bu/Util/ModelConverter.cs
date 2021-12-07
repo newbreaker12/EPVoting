@@ -1,10 +1,10 @@
-﻿using hospital_manager_data_access.Entities;
-using hospital_manager_data_access.Repositories.Interfaces;
-using hospital_manager_models.Models;
+﻿using voting_data_access.Entities;
+using voting_data_access.Repositories.Interfaces;
+using voting_models.Models;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace hospital_manager_bl.Util
+namespace voting_bl.Util
 {
     public class ModelConverter
     {

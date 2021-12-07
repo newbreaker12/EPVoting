@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\hospital_manager_models\hospital_manager_models.csproj" />
+    <ProjectReference Include="..\hospital_manager_models\voting_models.csproj" />
   </ItemGroup>
 
 </Project>

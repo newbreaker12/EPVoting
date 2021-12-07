@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace hospital_manager_models.Models
+namespace voting_models.Models
 {
     public class RoomResponse
     {

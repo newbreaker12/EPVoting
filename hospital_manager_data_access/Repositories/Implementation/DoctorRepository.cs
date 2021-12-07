@@ -1,11 +1,11 @@
-﻿using hospital_manager_data_access.Data;
-using hospital_manager_data_access.Entities;
-using hospital_manager_data_access.Repositories.Interfaces;
+﻿using voting_data_access.Data;
+using voting_data_access.Entities;
+using voting_data_access.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace hospital_manager_data_access.Repositories.Implementation
+namespace voting_data_access.Repositories.Implementation
 {
     public class DoctorRepository : Repository<DoctorData>, IDoctorRepository
     {

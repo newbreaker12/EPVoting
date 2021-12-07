@@ -1,8 +1,8 @@
-﻿using hospital_manager_data_access.Repositories.Implementation;
-using hospital_manager_data_access.Repositories.Interfaces;
+﻿using voting_data_access.Repositories.Implementation;
+using voting_data_access.Repositories.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace hospital_manager_api.Configuration
+namespace voting_api.Configuration
 {
     public static class ApplicationServiceExtensions
     {

@@ -1,9 +1,9 @@
-﻿using hospital_manager_data_access.Data;
-using hospital_manager_data_access.Repositories.Interfaces;
+﻿using voting_data_access.Data;
+using voting_data_access.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
 using System;
 
-namespace hospital_manager_data_access.Repositories.Implementation
+namespace voting_data_access.Repositories.Implementation
 {
     public class UnitOfWork : IUnitOfWork
     {

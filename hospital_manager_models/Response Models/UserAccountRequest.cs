@@ -1,6 +1,6 @@
-﻿using hospital_manager_data_access.Entities;
+﻿using voting_data_access.Entities;
 
-namespace hospital_manager_models.Models
+namespace voting_models.Models
 {
     public class UserAccountRequest
     {

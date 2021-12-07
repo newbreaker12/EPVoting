@@ -1,8 +1,8 @@
-﻿using hospital_manager_models.Models;
+﻿using voting_models.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace hospital_manager_data_access.Entities
+namespace voting_data_access.Entities
 {
     [Table(name: "Appointment")]
     public class AppointmentData

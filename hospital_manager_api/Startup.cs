@@ -1,9 +1,9 @@
 using System;
 using System.IO;
 using System.Reflection;
-using hospital_manager_api.Configuration;
-using hospital_manager_api.Util;
-using hospital_manager_data_access.Data;
+using voting_api.Configuration;
+using voting_api.Util;
+using voting_data_access.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 
-namespace hospital_manager_api
+namespace voting_api
 {
     public class Startup
     {

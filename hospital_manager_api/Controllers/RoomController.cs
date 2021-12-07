@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using hospital_manager_bl.Service;
-using hospital_manager_data_access.Entities;
+using voting_bl.Service;
+using voting_data_access.Entities;
 using Microsoft.AspNetCore.Authorization;
-using hospital_manager_models.Models;
+using voting_models.Models;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Net.Http.Headers;
-using hospital_manager_data_access.Repositories.Interfaces;
-using hospital_manager_exceptions.Exceptions;
+using voting_data_access.Repositories.Interfaces;
+using voting_exceptions.Exceptions;
 
-namespace hospital_manager_api.Controllers
+namespace voting_api.Controllers
 {
     [Produces("application/json")]
     [Route("room")]

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
-namespace hospital_manager_data_access.Repositories.Interfaces
+namespace voting_data_access.Repositories.Interfaces
 {
     public interface IRepository<T> : IDisposable where T : class
     {

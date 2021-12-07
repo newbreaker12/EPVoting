@@ -1,10 +1,10 @@
-﻿using hospital_manager_bl.Util;
-using hospital_manager_data_access.Entities;
-using hospital_manager_data_access.Repositories.Interfaces;
+﻿using voting_bl.Util;
+using voting_data_access.Entities;
+using voting_data_access.Repositories.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace hospital_manager_bl.Service
+namespace voting_bl.Service
 {
     public class DoctorService
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace hospital_manager_bu
+namespace voting_bl
 {
     class Program
     {

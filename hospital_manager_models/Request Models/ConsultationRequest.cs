@@ -1,4 +1,4 @@
-﻿namespace hospital_manager_data_access.Entities
+﻿namespace voting_models.Entities
 {
     public class ConsultationRequest
     {

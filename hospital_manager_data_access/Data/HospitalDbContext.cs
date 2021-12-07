@@ -1,7 +1,7 @@
-﻿using hospital_manager_data_access.Entities;
+﻿using voting_data_access.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace hospital_manager_data_access.Data
+namespace voting_data_access.Data
 {
     public class HospitalDbContext : DbContext
     {
