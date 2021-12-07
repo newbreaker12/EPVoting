@@ -10,8 +10,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using hospital_manager_models.Models;
-using static hospital_manager_models.Models.UserAccountRequest;
+using voting_models.Models;
+using static voting_models.Models.UserAccountRequest;
 
 namespace authentication_api.Controllers
 {

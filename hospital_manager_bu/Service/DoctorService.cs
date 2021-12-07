@@ -3,6 +3,7 @@ using voting_data_access.Entities;
 using voting_data_access.Repositories.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
+using voting_models.Models;
 
 namespace voting_bl.Service
 {

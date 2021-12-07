@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace voting_data_access.Entities
+namespace voting_models.Models
 {
     public class DoctorRequest
     {

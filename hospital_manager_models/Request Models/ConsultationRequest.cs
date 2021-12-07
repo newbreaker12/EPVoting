@@ -1,4 +1,4 @@
-﻿namespace voting_models.Entities
+﻿namespace voting_models.Models
 {
     public class ConsultationRequest
     {

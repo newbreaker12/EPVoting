@@ -1,6 +1,4 @@
-﻿using voting_data_access.Entities;
-
-namespace voting_models.Models
+﻿namespace voting_models.Models
 {
     public class UserAccountRequest
     {
