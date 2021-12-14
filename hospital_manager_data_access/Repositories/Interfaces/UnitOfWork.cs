@@ -10,22 +10,22 @@ namespace voting_data_access.Repositories.Implementation
         private VotingDbContext _context;
         private bool _disposed;
 
-        public IVoteRepository Vote { get; private set; }
-        public IVotingArticleRepository VotingArticle { get; private set; }
-        public IVotingGroupsRepository VotingGroups { get; private set; }
-        public IVotingRolesRepository VotingRoles { get; private set; }
-        public IVotingSessionRepository VotingSession { get; private set; }
-        public IVotingUsersRepository VotingUsers { get; private set; }
+        public IAppointmentRepository Appointment { get; private set; }
+        public IVotingArticleRepository Consultation { get; private set; }
+        public IVotingGroupsRepository Doctor { get; private set; }
+        public IVotingRolesRepository Hospital { get; private set; }
+        public IVotingSessionRepository Room { get; private set; }
+        public IVotingUsersRepository Speciality { get; private set; }
 
         public UnitOfWork(VotingDbContext context, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
-            Vote = new VoteRepository(_context);
-            VotingArticle = new VotingArticleRepository(_context);
-            VotingGroups = new VotingGroupsRepository(_context);
-            VotingRoles = new VotingRolesRepository(_context);
-            VotingSession = new VotingSessionRepository(_context);
-            VotingUsers = new VotingUsersRepository(_context);
+            Appointment = new VoteRepository(_context);
+            Consultation = new VotingArticleRepository(_context);
+            Doctor = new VotingGroupsRepository(_context);
+            Hospital = new VotingRolesRepository(_context);
+            Room = new VotingSessionRepository(_context);
+            Speciality = new VotingUsersRepository(_context);
         }
 
         public int Save()

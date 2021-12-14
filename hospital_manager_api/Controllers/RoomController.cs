@@ -36,7 +36,7 @@ namespace voting_api.Controllers
 
         [HttpPost]
         //[Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMIN")]
-        public ActionResult<RoomResponse> SaveRoom(RoomRequest room)
+        public ActionResult<VotingUsersResponse> SaveRoom(VotingGroupsRequest room)
         {
             try
             {
@@ -56,7 +56,7 @@ namespace voting_api.Controllers
         }
 
         [HttpGet("{id}")]
-        public ActionResult<RoomResponse> GetRoom(long id)
+        public ActionResult<VotingUsersResponse> GetRoom(long id)
         {
             return Ok(new
             {

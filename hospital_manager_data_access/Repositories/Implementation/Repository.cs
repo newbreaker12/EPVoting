@@ -10,10 +10,10 @@ namespace voting_data_access.Repositories.Implementation
 {
     public class Repository<T> : IRepository<T> where T : class
     {
-        protected readonly HospitalDbContext Db;
+        protected readonly VotingDbContext Db;
         protected readonly DbSet<T> DbSet;
 
-        public Repository(HospitalDbContext db)
+        public Repository(VotingDbContext db)
         {
             Db = db;
             DbSet = db.Set<T>();

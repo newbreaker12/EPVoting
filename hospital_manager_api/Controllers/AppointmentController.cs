@@ -36,7 +36,7 @@ namespace voting_api.Controllers
 
         [HttpPost]
         //[Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMIN")]
-        public ActionResult<AppointmentData> SaveAppointment(AppointmentRequest appointment)
+        public ActionResult<AppointmentData> SaveAppointment(VoteRequest appointment)
         {
             try
             {

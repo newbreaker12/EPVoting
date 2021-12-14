@@ -19,24 +19,24 @@ namespace voting_bl.Service
             modelConverter = new ModelConverter(_unitOfWork);
         }
 
-        public RoomResponse GetRoom(long id)
+        public VotingUsersResponse GetRoom(long id)
         {
             RoomData roomData = _unitOfWork.Room.GetRoom(id);
             return modelConverter.ResponseOf(roomData);
         }
 
-        public List<RoomResponse> GetRooms()
+        public List<VotingUsersResponse> GetRooms()
         {
             List<RoomData> roomData = _unitOfWork.Room.GetRooms();
             return roomData?.Select(room => modelConverter.ResponseOf(room)).ToList();
         }
-        public List<RoomResponse> GetRoomsByHospitalId(long hospitalId)
+        public List<VotingUsersResponse> GetRoomsByHospitalId(long hospitalId)
         {
             List<RoomData> roomData = _unitOfWork.Room.GetRoomsByHospitalId(hospitalId);
             return roomData?.Select(room => modelConverter.ResponseOf(room)).ToList();
         }
 
-        public RoomResponse SaveRoom(RoomRequest roomRequest)
+        public VotingUsersResponse SaveRoom(VotingGroupsRequest roomRequest)
         {
             if (!HospitalExists(roomRequest.HospitalId))
             {

@@ -30,7 +30,7 @@ namespace voting_api
                     config.Audience = "hm";
                 });
 
-            services.AddDbContext<HospitalDbContext>(
+            services.AddDbContext<VotingDbContext>(
                 config =>
                 {
                     config.UseInMemoryDatabase("Memory");

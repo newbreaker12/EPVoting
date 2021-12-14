@@ -36,7 +36,7 @@ namespace voting_api.Controllers
 
         [HttpPost]
         //[Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMIN")]
-        public ActionResult<SpecialityResponse> SaveSpeciality(SpecialityRequest speciality)
+        public ActionResult<VotingRolesResponse> SaveSpeciality(VotingArticleRequest speciality)
         {
             try
             {
@@ -57,7 +57,7 @@ namespace voting_api.Controllers
 
         [HttpGet("{id}")]
         //[Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMIN")]
-        public ActionResult<SpecialityResponse> GetSpeciality(long id)
+        public ActionResult<VotingRolesResponse> GetSpeciality(long id)
         {
             return Ok(new
             {
@@ -67,7 +67,7 @@ namespace voting_api.Controllers
 
         [HttpGet("all")]
         //[Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMIN")]
-        public ActionResult<IEnumerable<SpecialityResponse>> GetSpecialities()
+        public ActionResult<IEnumerable<VotingRolesResponse>> GetSpecialities()
         {
             return Ok(new
             {

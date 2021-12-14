@@ -28,7 +28,7 @@ namespace voting_bl.Service
             return _unitOfWork.Appointment.All();
         }
 
-        public AppointmentData SaveAppointment(AppointmentRequest appointment)
+        public AppointmentData SaveAppointment(VoteRequest appointment)
         {
             if (appointment == null)
             {

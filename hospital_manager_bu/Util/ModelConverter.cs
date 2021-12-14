@@ -14,7 +14,7 @@ namespace voting_bl.Util
         {
             _unitOfWork = unitOfWork;
         }
-        public AppointmentData EnvelopeOf(AppointmentRequest appointment)
+        public AppointmentData EnvelopeOf(VoteRequest appointment)
         {
             return new AppointmentData
             {
@@ -29,7 +29,7 @@ namespace voting_bl.Util
                 To = appointment.To
             };
         }
-        public DoctorData EnvelopeOf(DoctorRequest doctorRequest)
+        public DoctorData EnvelopeOf(VotingSessionRequest doctorRequest)
         {
             return new DoctorData
             {
@@ -38,9 +38,9 @@ namespace voting_bl.Util
                 Specialities = EnvelopeOfSpecialityToDoctor(doctorRequest.SpecialityIds)
             };
         }
-        public DoctorResponse ResponseOf(DoctorData doctorData)
+        public VotingGroupsResponse ResponseOf(DoctorData doctorData)
         {
-            var doctorResponse = new DoctorResponse
+            var doctorResponse = new VotingGroupsResponse
             {
                 Username = doctorData.Username,
                 Consultations = ResponseOf(doctorData.Consultations)
@@ -50,9 +50,9 @@ namespace voting_bl.Util
                 );
             return doctorResponse;
         }
-        public HospitalResponse ResponseOf(HospitalData hospitalData)
+        public VotingSessionResponse ResponseOf(HospitalData hospitalData)
         {
-            var hospitalResponse = new HospitalResponse
+            var hospitalResponse = new VotingSessionResponse
             {
                 Id = hospitalData.Id,
                 Name = hospitalData.Name,
@@ -88,7 +88,7 @@ namespace voting_bl.Util
                 MinuteTo = openingHours.MinuteTo
             }).ToList();
         }
-        public ConsultationData EnvelopeOf(ConsultationRequest consultationRequest)
+        public ConsultationData EnvelopeOf(VotingUsersRequest consultationRequest)
         {
             return new ConsultationData
             {
@@ -98,15 +98,15 @@ namespace voting_bl.Util
                 Duration = consultationRequest.Duration
             };
         }
-        public List<ConsultationData> EnvelopeOf(List<ConsultationRequest> consultationRequest)
+        public List<ConsultationData> EnvelopeOf(List<VotingUsersRequest> consultationRequest)
         {
             return consultationRequest?.Select(consultation => EnvelopeOf(consultation)).ToList();
         }
-        public ConsultationResponse ResponseOf(ConsultationData consultationData)
+        public VotingArticleResponse ResponseOf(ConsultationData consultationData)
         {
-            HospitalResponse hospital = ResponseOf(_unitOfWork.Hospital.GetHospital(consultationData.HospitalId));
-            SpecialityResponse speciality = ResponseOf(_unitOfWork.Speciality.Get(consultationData.SpecialityId));
-            return new ConsultationResponse
+            VotingSessionResponse hospital = ResponseOf(_unitOfWork.Hospital.GetHospital(consultationData.HospitalId));
+            VotingRolesResponse speciality = ResponseOf(_unitOfWork.Speciality.Get(consultationData.SpecialityId));
+            return new VotingArticleResponse
             {
                 Id = consultationData.Id,
                 Hospital = hospital,
@@ -114,11 +114,11 @@ namespace voting_bl.Util
                 Duration = consultationData.Duration
             };
         }
-        public List<ConsultationResponse> ResponseOf(List<ConsultationData> consultationData)
+        public List<VotingArticleResponse> ResponseOf(List<ConsultationData> consultationData)
         {
             return consultationData?.Select(consultation => ResponseOf(consultation)).ToList();
         }
-        public RoomData EnvelopeOf(RoomRequest roomRequest)
+        public RoomData EnvelopeOf(VotingGroupsRequest roomRequest)
         {
             return new RoomData
             {
@@ -128,9 +128,9 @@ namespace voting_bl.Util
                 Specialities = EnvelopeOfSpecialityToRoom(roomRequest.SpecialityIds)
             };
         }
-        public RoomResponse ResponseOf(RoomData roomData)
+        public VotingUsersResponse ResponseOf(RoomData roomData)
         {
-            var roomResponse = new RoomResponse
+            var roomResponse = new VotingUsersResponse
             {
                 Id = roomData.Id,
                 Name = roomData.Name
@@ -140,14 +140,14 @@ namespace voting_bl.Util
                 );
             return roomResponse;
         }
-        public List<RoomResponse> ResponseOf(List<RoomData> roomDatas)
+        public List<VotingUsersResponse> ResponseOf(List<RoomData> roomDatas)
         {
             return roomDatas?.Select(roomData => ResponseOf(roomData)).ToList();
         }
 
-        public SpecialityResponse ResponseOf(SpecialityData speciality)
+        public VotingRolesResponse ResponseOf(SpecialityData speciality)
         {
-            return new SpecialityResponse
+            return new VotingRolesResponse
             {
                 Id = speciality.Id,
                 Name = speciality.Name
@@ -173,7 +173,7 @@ namespace voting_bl.Util
                 }).ToList()
             };
         }
-        public SpecialityData EnvelopeOf(SpecialityRequest speciality)
+        public SpecialityData EnvelopeOf(VotingArticleRequest speciality)
         {
             return new SpecialityData
             {
@@ -193,9 +193,9 @@ namespace voting_bl.Util
                 BoxNumber = address.BoxNumber
             };
         }
-        public List<SpecialityResponse> ResponseOf(List<SpecialityData> specialities)
+        public List<VotingRolesResponse> ResponseOf(List<SpecialityData> specialities)
         {
-            return specialities?.Select(speciality => new SpecialityResponse()
+            return specialities?.Select(speciality => new VotingRolesResponse()
             {
                 Id = speciality.Id,
                 Name = speciality.Name

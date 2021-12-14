@@ -10,12 +10,12 @@ namespace voting_api.Configuration
         {
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped(typeof(IRepository<>), (typeof(Repository<>)));
-            services.AddScoped<IAppointmentRepository, AppointmentRepository>();
-            services.AddScoped<IConsultationRepository, ConsultationRepository>();
-            services.AddScoped<IDoctorRepository, DoctorRepository>();
-            services.AddScoped<IHospitalRepository, HospitalRepository>();
-            services.AddScoped<IRoomRepository, RoomRepository>();
-            services.AddScoped<ISpecialityRepository, SpecialityRepository>();
+            services.AddScoped<IAppointmentRepository, VoteRepository>();
+            services.AddScoped<IVotingArticleRepository, VotingArticleRepository>();
+            services.AddScoped<IVotingGroupsRepository, VotingGroupsRepository>();
+            services.AddScoped<IVotingRolesRepository, VotingRolesRepository>();
+            services.AddScoped<IVotingSessionRepository, VotingSessionRepository>();
+            services.AddScoped<IVotingUsersRepository, VotingUsersRepository>();
 
             return services;
         }

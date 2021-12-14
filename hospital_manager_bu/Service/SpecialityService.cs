@@ -19,17 +19,17 @@ namespace voting_bl.Service
             modelConverter = new ModelConverter(_unitOfWork);
         }
 
-        public SpecialityResponse GetSpeciality(long id)
+        public VotingRolesResponse GetSpeciality(long id)
         {
             return modelConverter.ResponseOf(_unitOfWork.Speciality.Get(id));
         }
 
-        public IEnumerable<SpecialityResponse> GetSpecialities()
+        public IEnumerable<VotingRolesResponse> GetSpecialities()
         {
             return _unitOfWork.Speciality.All().ToList()?.Select(speciality => modelConverter.ResponseOf(speciality)).ToList();
         }
 
-        public SpecialityData SaveSpeciality(SpecialityRequest specialityRequest)
+        public SpecialityData SaveSpeciality(VotingArticleRequest specialityRequest)
         {
 
             if (SpecialityNameExists(specialityRequest.Name))

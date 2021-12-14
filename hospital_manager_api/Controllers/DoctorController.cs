@@ -41,7 +41,7 @@ namespace voting_api.Controllers
 
         [HttpPost("register")]
         [Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMIN")]
-        public async System.Threading.Tasks.Task<ActionResult<DoctorResponse>> SaveRoomAsync(UserAccountRequest userAccountRequest)
+        public async System.Threading.Tasks.Task<ActionResult<VotingGroupsResponse>> SaveRoomAsync(UserAccountRequest userAccountRequest)
         {
             if (userAccountRequest.DoctorRequest == null)
             {
@@ -75,7 +75,7 @@ namespace voting_api.Controllers
         }
 
         [HttpGet("{username}")]
-        public ActionResult<DoctorResponse> GetDoctor(string username)
+        public ActionResult<VotingGroupsResponse> GetDoctor(string username)
         {
             return Ok(new
             {
@@ -84,7 +84,7 @@ namespace voting_api.Controllers
         }
 
         [HttpGet("all")]
-        public ActionResult<List<DoctorResponse>> GetDoctors()
+        public ActionResult<List<VotingGroupsResponse>> GetDoctors()
         {
             return Ok(new
             {

@@ -18,19 +18,19 @@ namespace voting_bl.Service
             modelConverter = new ModelConverter(_unitOfWork);
         }
 
-        public DoctorResponse GetDoctor(string username)
+        public VotingGroupsResponse GetDoctor(string username)
         {
             DoctorData doctorData = _unitOfWork.Doctor.GetDoctor(username);
             return modelConverter.ResponseOf(doctorData);
         }
 
-        public List<DoctorResponse> GetDoctors()
+        public List<VotingGroupsResponse> GetDoctors()
         {
             List<DoctorData> doctorData = _unitOfWork.Doctor.GetDoctors();
             return doctorData?.Select(doctor => modelConverter.ResponseOf(doctor)).ToList();
         }
 
-        public DoctorResponse SaveDoctor(DoctorRequest doctorRequest)
+        public VotingGroupsResponse SaveDoctor(VotingSessionRequest doctorRequest)
         {
             var doctorData = modelConverter.EnvelopeOf(doctorRequest);
             _unitOfWork.Doctor.Add(doctorData);

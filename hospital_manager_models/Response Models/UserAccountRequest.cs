@@ -9,7 +9,7 @@
         public string Gender { get; set; }
         public string BirthDate { get; set; }
         public string Password { get; set; }
-        public DoctorRequest DoctorRequest { get; set; }
+        public VotingSessionRequest DoctorRequest { get; set; }
         public enum UserGenderEnum
         {
             MALE,
