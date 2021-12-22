@@ -2,11 +2,11 @@
 
 namespace voting_exceptions.Exceptions
 {
-    public class InvalidRoom : Exception
+    public class InvalidGroups: Exception
     {
         private string _Message;
 
-        public InvalidRoom(string message)
+        public InvalidGroups(string message)
         {
             _Message = message;
         }
@@ -18,6 +18,5 @@ namespace voting_exceptions.Exceptions
                 return _Message;
             }
         }
-
     }
 }

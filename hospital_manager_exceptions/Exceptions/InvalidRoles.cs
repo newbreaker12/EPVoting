@@ -2,11 +2,11 @@
 
 namespace voting_exceptions.Exceptions
 {
-    public class InvalidHospital: Exception
+    public class InvalidRoles : Exception
     {
         private string _Message;
 
-        public InvalidHospital(string message)
+        public InvalidRoles(string message)
         {
             _Message = message;
         }

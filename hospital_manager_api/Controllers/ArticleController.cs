@@ -15,16 +15,16 @@ using voting_exceptions.Exceptions;
 namespace voting_api.Controllers
 {
     [Produces("application/json")]
-    [Route("room")]
+    [Route("article")]
     [ApiController]
-    public class RoomController : Controller
+    public class ArticleController : Controller
     {
-        private readonly RoomService _roomService;
+        private readonly VotingArticleService _articleService;
         private readonly JwtSecurityTokenHandler _tokenHandler;
 
-        public RoomController(IUnitOfWork unitOfWork)
+        public ArticleController(IUnitOfWork unitOfWork)
         {
-            _roomService = new RoomService(unitOfWork);
+            _articleService = new VotingArticleService(unitOfWork);
             _tokenHandler = new JwtSecurityTokenHandler();
         }
 
@@ -36,17 +36,17 @@ namespace voting_api.Controllers
 
         [HttpPost]
         //[Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMIN")]
-        public ActionResult<VotingUsersResponse> SaveRoom(VotingGroupsRequest room)
+        public ActionResult<VotingArticle> SaveArticle(VotingArticle article)
         {
             try
             {
-                var roomResponse = _roomService.SaveRoom(room);
+                _articleService.SaveArticle(article);
                 return Ok(new
                 {
-                    data = roomResponse
+                    data = "ok"
                 });
             }
-            catch (InvalidRoom e)
+            catch (InvalidArticle e)
             {
                 return BadRequest(new
                 {
@@ -56,31 +56,22 @@ namespace voting_api.Controllers
         }
 
         [HttpGet("{id}")]
-        public ActionResult<VotingUsersResponse> GetRoom(long id)
+        public ActionResult<VotingArticle> GetArticle(long id)
         {
             return Ok(new
             {
-                data = _roomService.GetRoom(id)
+                data = _articleService.GetArticle(id)
             });
         }
-
-        [HttpGet("hospital/{id}")]
-        public ActionResult<IEnumerable<RoomData>> GetRoomsByHospitalId(long hospitalId)
-        {
-            return Ok(new
-            {
-                data = _roomService.GetRoomsByHospitalId(hospitalId)
-            });
-        }
-
         [HttpGet("all")]
-        public ActionResult<IEnumerable<RoomData>> GetRooms()
+        public ActionResult<IEnumerable<VotingArticle>> GetArticles()
         {
             return Ok(new
             {
-                data = _roomService.GetRooms()
+                data = _articleService.GetArticles()
             });
         }
+
         private string GetClaim(string name)
         {
             var accessTokenString = Request.Headers[HeaderNames.Authorization].ToString();

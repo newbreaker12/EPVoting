@@ -2,11 +2,11 @@
 
 namespace voting_exceptions.Exceptions
 {
-    public class InvalidSpeciality : Exception
+    public class InvalidArticle : Exception
     {
         private string _Message;
 
-        public InvalidSpeciality(string message)
+        public InvalidArticle(string message)
         {
             _Message = message;
         }
@@ -18,5 +18,6 @@ namespace voting_exceptions.Exceptions
                 return _Message;
             }
         }
+
     }
 }

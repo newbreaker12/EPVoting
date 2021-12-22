@@ -2,11 +2,11 @@
 
 namespace voting_exceptions.Exceptions
 {
-    public class InvalidAppointment : Exception
+    public class InvalidUsers : Exception
     {
         private string _Message;
 
-        public InvalidAppointment(string message)
+        public InvalidUsers(string message)
         {
             _Message = message;
         }

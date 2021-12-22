@@ -81,6 +81,9 @@ namespace voting_api
             services.TryAddSingleton<IActionContextAccessor, ActionContextAccessor>();
         }
 
+        /*dotnet ef migrations add InitialVoteManagerDefaultDbMigration -c VoteDbContext -o Data/Migrations/DefaultVoteDbContext
+         dotnet ef migrations add InitialVoteManagerDefaultDbMigration -c VoteDbContext -o Data/Migrations/DefaultVoteDbContext*/
+
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
