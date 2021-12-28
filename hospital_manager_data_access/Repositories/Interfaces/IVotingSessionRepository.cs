@@ -6,6 +6,6 @@ namespace voting_data_access.Repositories.Interfaces
 {
     public interface IVotingSessionRepository : IRepository<VotingSession>
     {
-
+        List<VotingSession> GetSession();
     }
 }

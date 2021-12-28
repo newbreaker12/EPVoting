@@ -5,7 +5,7 @@ namespace voting_data_access.Repositories.Interfaces
     public interface IUnitOfWork : IDisposable
     {
         IVoteRepository Vote { get; }
-        IVotingArticleRepository votingArticle { get; }
+        IVotingArticleRepository VotingArticle { get; }
         IVotingGroupsRepository VotingGroups { get; }
         IVotingRolesRepository VotingRoles { get; }
         IVotingSessionRepository VotingSession { get; }

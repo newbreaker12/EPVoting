@@ -5,5 +5,6 @@ namespace voting_data_access.Repositories.Interfaces
 {
     public interface IVotingRolesRepository : IRepository<VotingRoles>
     {
+        List<VotingRoles> GetRoles();
     }
 }

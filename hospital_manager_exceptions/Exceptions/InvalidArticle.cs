@@ -2,11 +2,11 @@
 
 namespace voting_exceptions.Exceptions
 {
-    public class InvalidArticle : Exception
+    public class InvalidVote : Exception
     {
         private string _Message;
 
-        public InvalidArticle(string message)
+        public InvalidVote(string message)
         {
             _Message = message;
         }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace voting_models.Models
 {
@@ -6,7 +7,7 @@ namespace voting_models.Models
     {
         public long Id { get; set; }
         public string Name { get; set; }
-        public long ReadableId { get; set; }
-        public string CreatedAt { get; set; }
+        public string ReadableId { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }

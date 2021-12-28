@@ -6,6 +6,7 @@ using voting_models.Models;
 using System.Collections.Generic;
 using System.Linq;
 
+
 namespace voting_bl.Service
 {
     public class VotingRolesService
@@ -15,6 +16,24 @@ namespace voting_bl.Service
         public VotingRolesService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
+        }
+
+        public VotingRoles GetRoles(long id)
+        {
+            VotingRoles rolesData = _unitOfWork.VotingRoles.Get(id);
+            return rolesData;
+        }
+
+        public List<VotingRoles> GetRoles()
+        {
+            List<VotingRoles> rolesData = _unitOfWork.VotingRoles.GetRoles();
+            return rolesData;
+        }
+
+        public void SaveRoles(VotingRoles votingRoles)
+        {
+            _unitOfWork.VotingRoles.Add(votingRoles);
+            _unitOfWork.Save();
         }
     }
 }

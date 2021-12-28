@@ -16,5 +16,23 @@ namespace voting_bl.Service
             _unitOfWork = unitOfWork;
         }
 
+        public VotingUsers GetUsers(long id)
+        {
+            VotingUsers usersData = _unitOfWork.VotingUsers.Get(id);
+            return usersData;
+        }
+
+        public List<VotingUsers> GetUsers()
+        {
+            List<VotingUsers> usersData = _unitOfWork.VotingUsers.GetUsers();
+            return usersData;
+        }
+
+        public void SaveUsers(VotingUsers votingUsers)
+        {
+            _unitOfWork.VotingUsers.Add(votingUsers);
+            _unitOfWork.Save();
+        }
+
     }
 }

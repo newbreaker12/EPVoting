@@ -11,5 +11,9 @@ namespace voting_data_access.Repositories.Implementation
     {
         public VotingRolesRepository(VotingDbContext context) : base(context) { }
 
+        public List<VotingRoles> GetRoles()
+        {
+            return Db.VotingRoles.ToList();
+        }
     }
 }

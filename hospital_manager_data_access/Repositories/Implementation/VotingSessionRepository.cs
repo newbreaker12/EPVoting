@@ -12,5 +12,9 @@ namespace voting_data_access.Repositories.Implementation
     {
         public VotingSessionRepository(VotingDbContext context) : base(context) { }
 
+        public List<VotingSession> GetSession()
+        {
+            return Db.VotingSession.ToList();
+        }
     }
 }

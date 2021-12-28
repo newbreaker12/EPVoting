@@ -5,6 +5,6 @@ namespace voting_data_access.Repositories.Interfaces
 {
     public interface IVotingGroupsRepository : IRepository<VotingGroups>
     {
-       
+        List<VotingGroups> GetGroups();
     }
 }

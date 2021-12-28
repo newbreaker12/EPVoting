@@ -9,5 +9,10 @@ namespace voting_data_access.Repositories.Implementation
     public class VotingUsersRepository : Repository<VotingUsers>, IVotingUsersRepository
     {
         public VotingUsersRepository(VotingDbContext context) : base(context) { }
+
+        public List<VotingUsers> GetUsers()
+        {
+            return Db.VotingUsers.ToList();
+        }
     }
 }

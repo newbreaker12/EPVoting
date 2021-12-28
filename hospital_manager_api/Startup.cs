@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Reflection;
 using voting_api.Configuration;
-using voting_api.Util;
 using voting_data_access.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -23,12 +22,6 @@ namespace voting_api
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddAuthentication("Bearer")
-                .AddJwtBearer("Bearer", config =>
-                {
-                    config.Authority = "https://localhost:44321/";
-                    config.Audience = "hm";
-                });
 
             services.AddDbContext<VotingDbContext>(
                 config =>
@@ -55,8 +48,8 @@ namespace voting_api
                 c.SwaggerDoc("V1", new OpenApiInfo
                 {
                     Version = "v1",
-                    Title = "API Hospital Manager",
-                    Description = "Project SGBD - Creation of an Hospital Manager application. ",
+                    Title = "API Voting Manager",
+                    Description = "Creation of an Voting Manager application. ",
                     TermsOfService = new Uri("https://example.com/terms"),
                     Contact = new OpenApiContact
                     {

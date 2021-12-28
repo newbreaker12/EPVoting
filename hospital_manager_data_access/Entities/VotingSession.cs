@@ -11,11 +11,11 @@ namespace voting_data_access.Entities
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
-        public long GroupsId { get; set; }
+        public long ArticleId { get; set; }
         public string Name { get; set; }
-        public long Description { get; set; }
-        public string From { get; set; }
-        public string To { get; set; }
+        public string Description { get; set; }
+        public DateTime From { get; set; }
+        public DateTime To { get; set; }
 
     }
 }

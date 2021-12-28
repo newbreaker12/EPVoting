@@ -17,5 +17,23 @@ namespace voting_bl.Service
             _unitOfWork = unitOfWork;
         }
 
+        public VotingGroups GetGroups(long id)
+        {
+            VotingGroups groupsData = _unitOfWork.VotingGroups.Get(id);
+            return groupsData;
+        }
+
+        public List<VotingGroups> GetGroups()
+        { 
+            List<VotingGroups> groupsData = _unitOfWork.VotingGroups.GetGroups();
+            return groupsData;
+        }
+
+        public void SaveGroups(VotingGroups groupsData)
+        {
+            _unitOfWork.VotingGroups.Add(groupsData);
+            _unitOfWork.Save();
+        }
+
     }
 }

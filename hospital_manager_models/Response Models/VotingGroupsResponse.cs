@@ -1,5 +1,6 @@
 ﻿using voting_models.Models;
 using System.Collections.Generic;
+using System;
 
 namespace voting_data_access.Entities
 {
@@ -7,8 +8,8 @@ namespace voting_data_access.Entities
     {
         public long Id { get; set; }
         public string Name { get; set; }
-        public long ReadableId { get; set; }
-        public string CreatedAt { get; set; }
+        public string ReadableId { get; set; }
+        public DateTime CreatedAt { get; set; }
 
     }
 }

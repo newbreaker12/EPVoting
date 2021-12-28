@@ -11,8 +11,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "voting_exceptions", "hospit
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "voting_models", "hospital_manager_models\voting_models.csproj", "{C4E117A3-DA63-470A-8A45-DB391106C9D9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "authentication_api", "oauth_api\authentication_api.csproj", "{4C90E657-87FF-475D-BD58-0D54DD92B836}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "voting_api", "hospital_manager_api\voting_api.csproj", "{3F45FB71-0CA8-49FF-BA26-6DB54D57A074}"
 EndProject
 Global
@@ -37,10 +35,6 @@ Global
 		{C4E117A3-DA63-470A-8A45-DB391106C9D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C4E117A3-DA63-470A-8A45-DB391106C9D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C4E117A3-DA63-470A-8A45-DB391106C9D9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4C90E657-87FF-475D-BD58-0D54DD92B836}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4C90E657-87FF-475D-BD58-0D54DD92B836}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4C90E657-87FF-475D-BD58-0D54DD92B836}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4C90E657-87FF-475D-BD58-0D54DD92B836}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3F45FB71-0CA8-49FF-BA26-6DB54D57A074}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3F45FB71-0CA8-49FF-BA26-6DB54D57A074}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3F45FB71-0CA8-49FF-BA26-6DB54D57A074}.Release|Any CPU.ActiveCfg = Release|Any CPU
