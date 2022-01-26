@@ -17,12 +17,12 @@ namespace voting_api.Controllers
     public class ArticleController : Controller
     {
         private readonly VotingArticleService _articleService;
-        private readonly JwtSecurityTokenHandler _tokenHandler;
+        private readonly VotingUsersService _usersService;
 
         public ArticleController(IUnitOfWork unitOfWork)
         {
             _articleService = new VotingArticleService(unitOfWork);
-            _tokenHandler = new JwtSecurityTokenHandler();
+            _usersService = new VotingUsersService(unitOfWork);
         }
 
         [HttpGet("ping")]
@@ -35,6 +35,12 @@ namespace voting_api.Controllers
         //[Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMIN")]
         public ActionResult<VotingArticle> SaveArticle(VotingArticle article)
         {
+            string getAuthentication = GetAuthorization();
+            var up = getAuthentication.Split(":");
+            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            {
+                return Unauthorized();
+            }
             try
             {
                 _articleService.SaveArticle(article);
@@ -55,38 +61,89 @@ namespace voting_api.Controllers
         [HttpGet("{id}")]
         public ActionResult<VotingArticle> GetArticle(long id)
         {
+            string getAuthentication = GetAuthorization();
+            var up = getAuthentication.Split(":");
+            if(up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            {
+                return Unauthorized();
+            }
+
             return Ok(new
             {
                 data = _articleService.GetArticle(id)
             });
         }
+
+
         [HttpGet("all")]
         public ActionResult<IEnumerable<VotingArticle>> GetArticles()
         {
+            string getAuthentication = GetAuthorization();
+            var up = getAuthentication.Split(":");
+            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            {
+                return Unauthorized();
+            }
+            var rs = _usersService.getRoles(up[0]);
+            if (rs.SingleOrDefault(r => r.Name == "ADMIN" || r.Name == "PG") == null)
+            {
+                return Unauthorized();
+            }
+                
             return Ok(new
             {
                 data = _articleService.GetArticles()
             });
         }
 
-        private string GetClaim(string name)
+
+
+        [HttpGet("user")]
+        public ActionResult<List<VotingArticleResponse>> GetArticleForUser()
+        {
+            string getAuthentication = GetAuthorization();
+            var up = getAuthentication.Split(":");
+            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            {
+                return Unauthorized();
+            }
+            try
+            {
+                return Ok(new
+                {
+                    data = _articleService.GetArticlesForUser(GetUsername())
+            });
+            }
+            catch (InvalidVote e)
+            {
+                return BadRequest(new
+                {
+                    data = e.Message
+                });
+            }
+        }
+
+        private string GetUsername()
         {
             var accessTokenString = Request.Headers[HeaderNames.Authorization].ToString();
 
-            if (accessTokenString == null || !accessTokenString.Contains("Bearer "))
+            if (accessTokenString == null)
             {
                 return "NONE";
             }
 
             try
             {
-                var accessToken = _tokenHandler.ReadToken(accessTokenString.Replace("Bearer ", "")) as JwtSecurityToken;
-                return accessToken.Claims.Single(claim => claim.Type == name).Value;
+                return accessTokenString.Split(":")[0];
             }
             catch (ArgumentException)
             {
                 return "NONE";
             }
+        }
+        private string GetAuthorization()
+        {
+            return Request.Headers[HeaderNames.Authorization].ToString();
         }
     }
 }

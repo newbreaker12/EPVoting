@@ -3,9 +3,8 @@
     public class VoteResponse
     {
         public long Id { get; set; }
-        public string UserId { get; set; }
+        public string UserEmail { get; set; }
         public long SessionId { get; set; }
-        public long UserEmail { get; set; }
-        public string ArticleId { get; set; }
+        public long ArticleId { get; set; }
     }
 }

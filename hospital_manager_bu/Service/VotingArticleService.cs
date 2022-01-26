@@ -18,20 +18,25 @@ namespace voting_bl.Service
 
         public VotingArticle GetArticle(long id)
         {
-            VotingArticle articleData = _unitOfWork.votingArticle.Get(id);
+            VotingArticle articleData = _unitOfWork.VotingArticle.Get(id);
             return articleData;
         }
 
-        public List<VotingArticle> GetArticles()
+        public List<VotingArticleResponse> GetArticles()
         {
-            List<VotingArticle> articleData = _unitOfWork.votingArticle.GetArticles();
+            List<VotingArticleResponse> articleData = _unitOfWork.VotingArticle.GetArticles();
             return articleData;
         }
 
         public void SaveArticle(VotingArticle votingArticle)
         {
-            _unitOfWork.votingArticle.Add(votingArticle);
+            _unitOfWork.VotingArticle.Add(votingArticle);
             _unitOfWork.Save();
+        }
+        public List<VotingArticleResponse> GetArticlesForUser(string email)
+        {
+            List<VotingArticleResponse> articleData = _unitOfWork.VotingArticle.GetArticleForUser(email);
+            return articleData;
         }
     }
 }

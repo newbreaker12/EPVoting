@@ -17,18 +17,24 @@ namespace voting_api.Controllers
     public class UsersController : Controller
     {
         private readonly VotingUsersService _usersService;
-        private readonly JwtSecurityTokenHandler _tokenHandler;
 
         public UsersController(IUnitOfWork unitOfWork)
         {
             _usersService = new VotingUsersService(unitOfWork);
-            _tokenHandler = new JwtSecurityTokenHandler();
         }
 
         [HttpGet("ping")]
         public string Ping()
         {
             return "OK";
+        }
+
+       [HttpGet("login")]
+       public ActionResult<string> Authenticate()
+        {
+            string getAuthentication = GetAuthorization();
+            var up = getAuthentication.Split(":");
+            return _usersService.Authenticate(up[0], up[1]).ToString().ToUpper();
         }
 
         [HttpPost]
@@ -69,24 +75,9 @@ namespace voting_api.Controllers
             });
         }
 
-        private string GetClaim(string name)
+        private string GetAuthorization()
         {
-            var accessTokenString = Request.Headers[HeaderNames.Authorization].ToString();
-
-            if (accessTokenString == null || !accessTokenString.Contains("Bearer "))
-            {
-                return "NONE";
-            }
-
-            try
-            {
-                var accessToken = _tokenHandler.ReadToken(accessTokenString.Replace("Bearer ", "")) as JwtSecurityToken;
-                return accessToken.Claims.Single(claim => claim.Type == name).Value;
-            }
-            catch (ArgumentException)
-            {
-                return "NONE";
-            }
+            return Request.Headers[HeaderNames.Authorization].ToString();
         }
     }
 }

@@ -2,10 +2,10 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.Collections.Generic;
 using voting_bl.Service;
 using voting_data_access.Entities;
 using voting_data_access.Repositories.Interfaces;
-using voting_models.Models;
 
 namespace voting_api
 {
@@ -18,6 +18,8 @@ namespace voting_api
             AddGroups(host);
             AddArticle(host);
             AddSession(host);
+            AddRoles(host);
+            AddUser(host);
             host.Run();
         }
 
@@ -27,6 +29,85 @@ namespace voting_api
                 {
                     webBuilder.UseStartup<Startup>();
                 });
+
+
+
+        private static void AddUser(IHost host)
+        {
+            var scope = host.Services.CreateScope();
+            DateTime now = DateTime.Now;
+            var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            VotingUsersService _userService = new VotingUsersService(unitOfWork);
+            _userService.SaveUsers(
+                new VotingUsers
+                {
+                    Id = 1,
+                    Email = "psr007700@students.ephec.be",
+                    FirstName = "Francesco",
+                    LastName = "Bigi",
+                    Password = "pss",
+                    IsMEP = true,
+                    Roles = new List<UserToRole> {
+                        new UserToRole
+                        {
+                            RoleId = 1
+                        }
+                    },
+                    Groups = new List<UserToGroup> {
+                        new UserToGroup
+                        {
+                            GroupId = 1
+                        }
+                    }
+
+                });
+            _userService.SaveUsers(
+                new VotingUsers
+                {
+                    Id =2,
+                    Email = "admin",
+                    FirstName = "admin",
+                    LastName = "admin",
+                    Password = "pss",
+                    IsMEP = true,
+                    Roles = new List<UserToRole> {
+                        new UserToRole
+                        {
+                            RoleId = 2
+                        }
+                    }
+
+                });
+        }
+
+        private static void AddRoles(IHost host)
+        {
+            var scope = host.Services.CreateScope();
+            DateTime now = DateTime.Now;
+            var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            VotingRolesService _roleService = new VotingRolesService(unitOfWork);
+            _roleService.SaveRoles(
+                new VotingRoles
+                {
+                    Id = 1,
+                    Name = "MEP"
+
+                });
+            _roleService.SaveRoles(
+                new VotingRoles
+                {
+                    Id = 2,
+                    Name = "ADMIN"
+
+                });
+            _roleService.SaveRoles(
+                new VotingRoles
+                {
+                    Id = 3,
+                    Name = "PG"
+
+                });
+        }
 
         private static void AddGroups(IHost host)
         {
@@ -39,7 +120,7 @@ namespace voting_api
                 {
                     Id = 1,
                     Name = "BUDGET",
-                    ReadableId ="BG",
+                    ReadableId = "BG",
                     CreatedAt = new DateTime(now.Year, now.Month, 1, 7, 0, 0)
 
                 });
@@ -60,6 +141,15 @@ namespace voting_api
                     Description = "Article n.7",
                     CreatedAt = new DateTime(now.Year, now.Month, 1, 7, 0, 0)
                 });
+            _articleService.SaveArticle(
+                new VotingArticle
+                {
+                    Id = 2,
+                    GroupsId = 1,
+                    Name = "CT",
+                    Description = "Article n.52237",
+                    CreatedAt = new DateTime(now.Year, now.Month, 1, 4, 0, 0)
+                });
         }
         private static void AddSession(IHost host)
         {
@@ -74,8 +164,8 @@ namespace voting_api
                     ArticleId = 1,
                     Name = "BG",
                     Description = "Transfers Other sections (single votes)Draft amending budget(2021 Brexit Adjustment Reserve)(3 AMs)",
-                    From = new DateTime(now.Year, now.Month, now.Day, 7, 0, 0),
-                    To = new DateTime(now.Year, now.Month, now.Day + 1, 7, 0, 0)
+                    From = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0),
+                    To = new DateTime(now.Year, now.Month, now.Day + 1, 23, 59, 0)
                 });
         }
     }

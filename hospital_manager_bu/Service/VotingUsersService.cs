@@ -1,8 +1,5 @@
-﻿using voting_bl.Util;
-using voting_data_access.Entities;
+﻿using voting_data_access.Entities;
 using voting_data_access.Repositories.Interfaces;
-using voting_exceptions.Exceptions;
-using voting_models.Models;
 using System.Collections.Generic;
 
 namespace voting_bl.Service
@@ -34,5 +31,13 @@ namespace voting_bl.Service
             _unitOfWork.Save();
         }
 
+        public bool Authenticate(string email, string password)
+        {
+           return _unitOfWork.VotingUsers.AuthenticateUser(email, password);
+        }
+        public List<VotingRoles> getRoles(string username)
+        {
+            return _unitOfWork.VotingUsers.getRoles(username) ;
+        }
     }
 }

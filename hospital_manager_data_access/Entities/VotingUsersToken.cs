@@ -6,16 +6,12 @@ using System.Text;
 
 namespace voting_data_access.Entities
 {
-    [Table(name: "Vote")]
-    public class Vote
+    [Table(name: "VotingUsersToken")]
+    public class VotingUsersToken
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
-
-        public string type { get; set; }
-        public string UserEmail { get; set; }
-        public long SessionId { get; set; }
-        public long ArticleId { get; set; }
-
+        public string Email { get; set; }
+        public DateTime ExpirationDate { get; set; }
     }
 }
