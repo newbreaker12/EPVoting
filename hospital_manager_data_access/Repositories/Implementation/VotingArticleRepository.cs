@@ -13,6 +13,83 @@ namespace voting_data_access.Repositories.Implementation
     {
         public VotingArticleRepository(VotingDbContext context) : base(context) { }
 
+        public VotingArticleResponse getArticle(long id)
+        {
+
+            VotingArticleResponse result = new VotingArticleResponse();
+            VotingArticle article = Db.VotingArticle.SingleOrDefault(s => s.Id == id);
+            List<VotingSubArticle> subArticles = Db.VotingSubArticle.Where(s => s.ArticleId == article.Id).ToList();
+            VotingSession session = Db.VotingSession.SingleOrDefault(s => s.ArticleId == article.Id);
+
+            VotingGroups group = Db.VotingGroups.SingleOrDefault(s => s.Id == article.GroupsId);
+
+            if (session != null)
+            {
+                result = new VotingArticleResponse
+                {
+                    Id = article.Id,
+                    GroupsId = article.GroupsId,
+                    Name = article.Name,
+                    Description = article.Description,
+                    CreatedAt = article.CreatedAt,
+                    SubArticles = subArticles?.Select(subArticle => new VotingSubArticleResponse()
+                    {
+                        Id = subArticle.Id,
+                        Name = subArticle.Name,
+                        ArticleId = subArticle.ArticleId,
+                        CreatedAt = subArticle.CreatedAt,
+                        Description = subArticle.Description,
+                    }).ToList(),
+                    Session = new VotingSessionResponse()
+                    {
+                        Id = session.Id,
+                        ArticleId = session.ArticleId,
+                        Name = session.Name,
+                        Description = session.Description,
+                        From = session.From,
+                        To = session.To,
+
+                    },
+                    Group = new VotingGroupsResponse()
+                    {
+                        Id = group.Id,
+                        Name = group.Name,
+                        CreatedAt = group.CreatedAt,
+                        ReadableId = group.ReadableId
+
+                    }
+                };
+            } else
+            {
+                result = new VotingArticleResponse
+                {
+                    Id = article.Id,
+                    GroupsId = article.GroupsId,
+                    Name = article.Name,
+                    Description = article.Description,
+                    CreatedAt = article.CreatedAt,
+                    SubArticles = subArticles?.Select(subArticle => new VotingSubArticleResponse()
+                    {
+                        Id = subArticle.Id,
+                        Name = subArticle.Name,
+                        ArticleId = subArticle.ArticleId,
+                        CreatedAt = subArticle.CreatedAt,
+                        Description = subArticle.Description,
+                    }).ToList(),
+                    Group = new VotingGroupsResponse()
+                    {
+                        Id = group.Id,
+                        Name = group.Name,
+                        CreatedAt = group.CreatedAt,
+                        ReadableId = group.ReadableId
+
+                    }
+                };
+
+            }
+            return result;
+
+        }
         public List<VotingArticleResponse> GetArticles()
         {
             DateTime now = DateTime.Now;
@@ -20,7 +97,7 @@ namespace voting_data_access.Repositories.Implementation
             List<VotingArticleResponse> result = new List<VotingArticleResponse>();
             foreach (VotingArticle article in articles)
             {
-                    VotingGroups group = Db.VotingGroups.SingleOrDefault(s => s.Id == article.GroupsId);
+                VotingGroups group = Db.VotingGroups.SingleOrDefault(s => s.Id == article.GroupsId);
                 VotingSession session = Db.VotingSession.SingleOrDefault(s => s.ArticleId == article.Id);
                 if (session != null)
                 {
@@ -50,7 +127,8 @@ namespace voting_data_access.Repositories.Implementation
 
                         }
                     });
-                } else
+                }
+                else
                 {
                     result.Add(new VotingArticleResponse
                     {
@@ -112,36 +190,54 @@ namespace voting_data_access.Repositories.Implementation
                 {
 
                     VotingGroups group = Db.VotingGroups.SingleOrDefault(s => s.Id == article.GroupsId);
-                    Vote vote = Db.Vote.SingleOrDefault(s => s.ArticleId == article.Id && s.SessionId == session.Id && s.UserEmail == email);
-                        string StateVote = vote == null ? "DIDNT VOTE" : "VOTED";
 
-                        result.Add(new VotingArticleResponse
+                    VotingArticleResponse votingArticleResponse = new VotingArticleResponse
+                    {
+                        Id = article.Id,
+                        GroupsId = article.GroupsId,
+                        Name = article.Name,
+                        Description = article.Description,
+                        CreatedAt = article.CreatedAt,
+                        Session = new VotingSessionResponse()
                         {
-                            Id = article.Id,
-                            GroupsId = article.GroupsId,
-                            Name = article.Name,
-                            Description = article.Description,
-                            CreatedAt = article.CreatedAt,
-                            StatusVote = StateVote,
-                            Session = new VotingSessionResponse()
-                            {
-                                Id = session.Id,
-                                ArticleId = session.ArticleId,
-                                Name = session.Name,
-                                Description = session.Description,
-                                From = session.From,
-                                To = session.To,
+                            Id = session.Id,
+                            ArticleId = session.ArticleId,
+                            Name = session.Name,
+                            Description = session.Description,
+                            From = session.From,
+                            To = session.To,
 
-                            },
-                            Group = new VotingGroupsResponse()
-                            {
-                                Id = group.Id,
-                                Name = group.Name,
-                                CreatedAt = group.CreatedAt,
-                                ReadableId = group.ReadableId
+                        },
+                        Group = new VotingGroupsResponse()
+                        {
+                            Id = group.Id,
+                            Name = group.Name,
+                            CreatedAt = group.CreatedAt,
+                            ReadableId = group.ReadableId
 
-                            }
-                        });
+                        }
+                    };
+
+                    List<VotingSubArticle> subArticles = Db.VotingSubArticle.Where(s => s.ArticleId == article.Id).ToList();
+                    foreach (VotingSubArticle subArticle in subArticles)
+                    {
+
+                        Vote vote = Db.Vote.SingleOrDefault(s => s.SubArticleId == subArticle.Id && s.SessionId == session.Id && s.UserEmail == email);
+                        string StateVote = vote == null ? "DIDNT VOTE" : "VOTED";
+                        VotingSubArticleResponse subArticleResponse = new VotingSubArticleResponse()
+                        {
+                            Id = subArticle.Id,
+                            Name = subArticle.Name,
+                            ArticleId = subArticle.ArticleId,
+                            CreatedAt = subArticle.CreatedAt,
+                            Description = subArticle.Description,
+                            StatusVote = StateVote
+
+                        };
+                        votingArticleResponse.SubArticles.Add(subArticleResponse);
+                    }
+
+                    result.Add(votingArticleResponse);
                 }
             }
             return result;

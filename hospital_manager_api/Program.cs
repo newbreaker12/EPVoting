@@ -17,6 +17,7 @@ namespace voting_api
 
             AddGroups(host);
             AddArticle(host);
+            AddSubArticle(host);
             AddSession(host);
             AddRoles(host);
             AddUser(host);
@@ -146,6 +147,41 @@ namespace voting_api
                 {
                     Id = 2,
                     GroupsId = 1,
+                    Name = "CT",
+                    Description = "Article n.52237",
+                    CreatedAt = new DateTime(now.Year, now.Month, 1, 4, 0, 0)
+                });
+        }
+
+        private static void AddSubArticle(IHost host)
+        {
+            var scope = host.Services.CreateScope();
+            DateTime now = DateTime.Now;
+            var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            VotingSubArticleService _articleService = new VotingSubArticleService(unitOfWork);
+            _articleService.SaveSubArticle(
+                new VotingSubArticle
+                {
+                    Id = 1,
+                    ArticleId = 1,
+                    Name = "BG",
+                    Description = "Article n.7",
+                    CreatedAt = new DateTime(now.Year, now.Month, 1, 7, 0, 0)
+                });
+            _articleService.SaveSubArticle(
+                new VotingSubArticle
+                {
+                    Id = 2,
+                    ArticleId = 1,
+                    Name = "BG",
+                    Description = "Article n.7",
+                    CreatedAt = new DateTime(now.Year, now.Month, 1, 7, 0, 0)
+                });
+            _articleService.SaveSubArticle(
+                new VotingSubArticle
+                {
+                    Id = 3,
+                    ArticleId = 1,
                     Name = "CT",
                     Description = "Article n.52237",
                     CreatedAt = new DateTime(now.Year, now.Month, 1, 4, 0, 0)

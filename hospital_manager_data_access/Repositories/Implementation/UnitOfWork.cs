@@ -12,6 +12,7 @@ namespace voting_data_access.Repositories.Implementation
 
         public IVoteRepository Vote { get; private set; }
         public IVotingArticleRepository VotingArticle { get; private set; }
+        public IVotingSubArticleRepository VotingSubArticle { get; private set; }
         public IVotingGroupsRepository VotingGroups { get; private set; }
         public IVotingRolesRepository VotingRoles { get; private set; }
         public IVotingSessionRepository VotingSession { get; private set; }
@@ -22,6 +23,7 @@ namespace voting_data_access.Repositories.Implementation
             _context = context;
             Vote = new VoteRepository(_context);
             VotingArticle = new VotingArticleRepository(_context);
+            VotingSubArticle = new VotingSubArticleRepository(_context);
             VotingGroups = new VotingGroupsRepository(_context);
             VotingRoles = new VotingRolesRepository(_context);
             VotingSession = new VotingSessionRepository(_context);

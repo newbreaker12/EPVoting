@@ -32,12 +32,16 @@ namespace voting_api.Controllers
         }
 
         [HttpPost]
-        //[Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMIN")]
         public ActionResult<VotingArticle> SaveArticle(VotingArticle article)
         {
             string getAuthentication = GetAuthorization();
             var up = getAuthentication.Split(":");
             if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            {
+                return Unauthorized();
+            }
+            var rs = _usersService.getRoles(up[0]);
+            if (rs.SingleOrDefault(r => r.Name == "ADMIN" || r.Name == "PG") == null)
             {
                 return Unauthorized();
             }
@@ -57,9 +61,39 @@ namespace voting_api.Controllers
                 });
             }
         }
+        [HttpPut]
+        public ActionResult<VotingArticle> EditArticle(VotingArticle article)
+        {
+            string getAuthentication = GetAuthorization();
+            var up = getAuthentication.Split(":");
+            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            {
+                return Unauthorized();
+            }
+            var rs = _usersService.getRoles(up[0]);
+            if (rs.SingleOrDefault(r => r.Name == "ADMIN" || r.Name == "PG") == null)
+            {
+                return Unauthorized();
+            }
+            try
+            {
+                _articleService.EditArticle(article.Id, article.Description);
+                return Ok(new
+                {
+                    data = "ok"
+                });
+            }
+            catch (InvalidVote e)
+            {
+                return BadRequest(new
+                {
+                    data = e.Message
+                });
+            }
+        }
 
         [HttpGet("{id}")]
-        public ActionResult<VotingArticle> GetArticle(long id)
+        public ActionResult<VotingArticleResponse> GetArticle(long id)
         {
             string getAuthentication = GetAuthorization();
             var up = getAuthentication.Split(":");

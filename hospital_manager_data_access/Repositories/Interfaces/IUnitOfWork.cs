@@ -6,6 +6,7 @@ namespace voting_data_access.Repositories.Interfaces
     {
         IVoteRepository Vote { get; }
         IVotingArticleRepository VotingArticle { get; }
+        IVotingSubArticleRepository VotingSubArticle { get; }
         IVotingGroupsRepository VotingGroups { get; }
         IVotingRolesRepository VotingRoles { get; }
         IVotingSessionRepository VotingSession { get; }
