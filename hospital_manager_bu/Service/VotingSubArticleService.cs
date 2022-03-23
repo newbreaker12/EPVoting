@@ -17,12 +17,32 @@ namespace voting_bl.Service
             _unitOfWork = unitOfWork;
         }
 
+
+        public void EditSubArticle(long id, string name, string description)
+        {
+            VotingSubArticle votingSubArticle = _unitOfWork.VotingSubArticle.Get(id);
+            votingSubArticle.Name = name;
+            votingSubArticle.Description = description;
+            _unitOfWork.VotingSubArticle.Update(votingSubArticle);
+            _unitOfWork.Save();
+        }
+
         public void SaveSubArticle(VotingSubArticle votingSubArticle)
         {
             DateTime now = DateTime.Now;
             votingSubArticle.CreatedAt = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second);
             _unitOfWork.VotingSubArticle.Add(votingSubArticle);
             _unitOfWork.Save();
+        }
+
+        public List<VotingSubArticle> GetSubAsByArticleId(long id)
+        {
+            return _unitOfWork.VotingSubArticle.GetSubArticlesByArticleId(id);
+        }
+
+        public List<VotingSubArticleResponse> GetSubAsByArticleIdAndEmail(long id, string email)
+        {
+            return _unitOfWork.VotingSubArticle.GetSubArticlesByArticleIdAndEmail(id, email);
         }
     }
 }

@@ -222,7 +222,7 @@ namespace voting_data_access.Repositories.Implementation
                     foreach (VotingSubArticle subArticle in subArticles)
                     {
 
-                        Vote vote = Db.Vote.SingleOrDefault(s => s.SubArticleId == subArticle.Id && s.SessionId == session.Id && s.UserEmail == email);
+                        Vote vote = Db.Vote.SingleOrDefault(s => s.SubArticleId == subArticle.Id && s.UserEmail == email);
                         string StateVote = vote == null ? "DIDNT VOTE" : "VOTED";
                         VotingSubArticleResponse subArticleResponse = new VotingSubArticleResponse()
                         {

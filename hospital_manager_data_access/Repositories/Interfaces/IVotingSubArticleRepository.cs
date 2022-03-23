@@ -5,5 +5,8 @@ namespace voting_data_access.Repositories.Interfaces
 {
     public interface IVotingSubArticleRepository : IRepository<VotingSubArticle>
     {
+        List<VotingSubArticle> GetSubArticlesByArticleId(long articleId);
+
+        List<VotingSubArticleResponse> GetSubArticlesByArticleIdAndEmail(long articleId, string email);
     }
 }

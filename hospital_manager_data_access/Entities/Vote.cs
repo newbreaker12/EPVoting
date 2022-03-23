@@ -11,10 +11,7 @@ namespace voting_data_access.Entities
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
-
-        public string type { get; set; }
         public string UserEmail { get; set; }
-        public long SessionId { get; set; }
         public long SubArticleId { get; set; }
 
     }

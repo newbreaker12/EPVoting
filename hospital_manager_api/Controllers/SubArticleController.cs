@@ -12,16 +12,16 @@ using voting_exceptions.Exceptions;
 namespace voting_api.Controllers
 {
     [Produces("application/json")]
-    [Route("vote")]
+    [Route("subarticle")]
     [ApiController]
-    public class VoteController : Controller
+    public class SubArticleController : Controller
     {
-        private readonly VoteService _voteService;
+        private readonly VotingSubArticleService _votingSubArticleService;
         private readonly JwtSecurityTokenHandler _tokenHandler;
 
-        public VoteController(IUnitOfWork unitOfWork)
+        public SubArticleController(IUnitOfWork unitOfWork)
         {
-            _voteService = new VoteService(unitOfWork);
+            _votingSubArticleService = new VotingSubArticleService(unitOfWork);
             _tokenHandler = new JwtSecurityTokenHandler();
         }
 
@@ -33,11 +33,11 @@ namespace voting_api.Controllers
 
         [HttpPost]
         //[Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMIN")]
-        public ActionResult<Vote> SaveVote(Vote vote)
+        public ActionResult<VotingSubArticle> SaveVote(VotingSubArticle subArticle)
         {
             try
             {
-                _voteService.SaveVote(vote);
+                _votingSubArticleService.SaveSubArticle(subArticle);
                 return Ok(new
                 {
                     data = "ok"
@@ -51,31 +51,22 @@ namespace voting_api.Controllers
                 });
             }
         }
-        [HttpGet("subarticle/{id}/vote")]
-        public ActionResult<Vote> Vote(long id)
+
+        [HttpGet("admin/article/{id}")]
+        public ActionResult<List<VotingSubArticle>> GetSubAsByArticleIdForAdmin(long id)
+        {
+            return Ok(new
+            {
+                data = _votingSubArticleService.GetSubAsByArticleId(id)
+            });
+        }
+        [HttpGet("article/{id}")]
+        public ActionResult<List<VotingSubArticleResponse>> GetSubAsByArticleIdForUser(long id)
         {
             string email = GetUsername();
-            _voteService.SaveVote(new Vote() { SubArticleId = id, UserEmail = email, });
             return Ok(new
             {
-                data = "VOTED"
-            });
-        }
-
-        [HttpGet("{id}")]
-        public ActionResult<Vote> GetVote(long id)
-        {
-            return Ok(new
-            {
-                data = _voteService.GetVote(id)
-            });
-        }
-        [HttpGet("all")]
-        public ActionResult<IEnumerable<Vote>> GetVote()
-        {
-            return Ok(new
-            {
-                data = _voteService.GetVote()
+                data = _votingSubArticleService.GetSubAsByArticleIdAndEmail(id, email)
             });
         }
 
