@@ -91,21 +91,24 @@ namespace voting_api
                 new VotingRoles
                 {
                     Id = 1,
-                    Name = "MEP"
+                    Name = "MEP",
+                    Description = "Member of European Parliament"
 
                 });
             _roleService.SaveRoles(
                 new VotingRoles
                 {
                     Id = 2,
-                    Name = "ADMIN"
+                    Name = "ADMIN",
+                    Description = "Administrator of the application"
 
                 });
             _roleService.SaveRoles(
                 new VotingRoles
                 {
                     Id = 3,
-                    Name = "PG"
+                    Name = "PG",
+                    Description = "Political Groups"
 
                 });
         }

@@ -18,11 +18,17 @@ namespace voting_bl.Service
         }
 
 
-        public void EditSubArticle(long id, string name, string description)
+        public void Delete(long id)
         {
-            VotingSubArticle votingSubArticle = _unitOfWork.VotingSubArticle.Get(id);
-            votingSubArticle.Name = name;
-            votingSubArticle.Description = description;
+            _unitOfWork.VotingSubArticle.Remove(_unitOfWork.VotingSubArticle.Get(id));
+            _unitOfWork.Save();
+        }
+
+        public void EditSubArticle(VotingSubArticle votingSubArticleRequest)
+        {
+            VotingSubArticle votingSubArticle = _unitOfWork.VotingSubArticle.Get(votingSubArticleRequest.Id);
+            votingSubArticle.Name = votingSubArticleRequest.Name;
+            votingSubArticle.Description = votingSubArticleRequest.Description;
             _unitOfWork.VotingSubArticle.Update(votingSubArticle);
             _unitOfWork.Save();
         }

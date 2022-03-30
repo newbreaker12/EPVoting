@@ -1,6 +1,7 @@
 ﻿using voting_data_access.Entities;
 using voting_data_access.Repositories.Interfaces;
 using System.Collections.Generic;
+using voting_models.Models;
 
 namespace voting_bl.Service
 {
@@ -13,15 +14,20 @@ namespace voting_bl.Service
             _unitOfWork = unitOfWork;
         }
 
+        public VotingUsersResponse GetUserBEmail(string email)
+        {
+            VotingUsersResponse usersData = _unitOfWork.VotingUsers.GetUserByEmail(email);
+            return usersData;
+        }
         public VotingUsers GetUsers(long id)
         {
             VotingUsers usersData = _unitOfWork.VotingUsers.Get(id);
             return usersData;
         }
 
-        public List<VotingUsers> GetUsers()
+        public List<VotingUsersResponse> GetUsers()
         {
-            List<VotingUsers> usersData = _unitOfWork.VotingUsers.GetUsers();
+            List<VotingUsersResponse> usersData = _unitOfWork.VotingUsers.GetUsers();
             return usersData;
         }
 

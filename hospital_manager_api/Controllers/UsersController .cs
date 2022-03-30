@@ -59,11 +59,27 @@ namespace voting_api.Controllers
         }
 
         [HttpGet("{id}")]
-        public ActionResult<VotingUsers> GetUsers(long id)
+        public ActionResult<VotingUsers> GetUser(long id)
         {
             return Ok(new
             {
                 data = _usersService.GetUsers(id)
+            });
+        }
+
+        [HttpGet("email")]
+        public ActionResult<VotingUsers> GetUserByEmail()
+        {
+            string getAuthentication = GetAuthorization();
+            var up = getAuthentication.Split(":");
+            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            {
+                return Unauthorized();
+            }
+
+            return Ok(new
+            {
+                data = _usersService.GetUserBEmail(up[0])
             });
         }
         [HttpGet("all")]

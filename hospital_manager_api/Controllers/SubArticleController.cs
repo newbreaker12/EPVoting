@@ -18,11 +18,13 @@ namespace voting_api.Controllers
     {
         private readonly VotingSubArticleService _votingSubArticleService;
         private readonly JwtSecurityTokenHandler _tokenHandler;
+        private readonly VotingUsersService _usersService;
 
         public SubArticleController(IUnitOfWork unitOfWork)
         {
             _votingSubArticleService = new VotingSubArticleService(unitOfWork);
             _tokenHandler = new JwtSecurityTokenHandler();
+            _usersService = new VotingUsersService(unitOfWork);
         }
 
         [HttpGet("ping")]
@@ -33,11 +35,53 @@ namespace voting_api.Controllers
 
         [HttpPost]
         //[Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMIN")]
-        public ActionResult<VotingSubArticle> SaveVote(VotingSubArticle subArticle)
+        public ActionResult<VotingSubArticle> SaveSubArticle(VotingSubArticle subArticle)
         {
+            string getAuthentication = GetAuthorization();
+            var up = getAuthentication.Split(":");
+            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            {
+                return Unauthorized();
+            }
+            var rs = _usersService.getRoles(up[0]);
+            if (rs.SingleOrDefault(r => r.Name == "ADMIN" || r.Name == "PG") == null)
+            {
+                return Unauthorized();
+            }
             try
             {
                 _votingSubArticleService.SaveSubArticle(subArticle);
+                return Ok(new
+                {
+                    data = "ok"
+                });
+            }
+            catch (InvalidVote e)
+            {
+                return BadRequest(new
+                {
+                    data = e.Message
+                });
+            }
+        }
+        [HttpPut]
+        //[Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMIN")]
+        public ActionResult<VotingSubArticle> UpdateSubArticle(VotingSubArticle subArticle)
+        {
+            string getAuthentication = GetAuthorization();
+            var up = getAuthentication.Split(":");
+            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            {
+                return Unauthorized();
+            }
+            var rs = _usersService.getRoles(up[0]);
+            if (rs.SingleOrDefault(r => r.Name == "ADMIN" || r.Name == "PG") == null)
+            {
+                return Unauthorized();
+            }
+            try
+            {
+                _votingSubArticleService.EditSubArticle(subArticle);
                 return Ok(new
                 {
                     data = "ok"
@@ -69,6 +113,34 @@ namespace voting_api.Controllers
                 data = _votingSubArticleService.GetSubAsByArticleIdAndEmail(id, email)
             });
         }
+        [HttpDelete("{id}")]
+        public ActionResult<string> Delete(long id)
+        {
+            string getAuthentication = GetAuthorization();
+            var up = getAuthentication.Split(":");
+            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            {
+                return Unauthorized();
+            }
+            var rs = _usersService.getRoles(up[0]);
+            if (rs.SingleOrDefault(r => r.Name == "ADMIN" || r.Name == "PG") == null)
+            {
+                return Unauthorized();
+            }
+            try {
+                _votingSubArticleService.Delete(id);
+            return Ok(new
+            {
+                data = "ok"
+            });
+        } catch (InvalidVote e)
+            {
+                return BadRequest(new
+                {
+                    data = e.Message
+                });
+            }
+        }
 
         private string GetUsername()
         {
@@ -87,6 +159,10 @@ namespace voting_api.Controllers
             {
                 return "NONE";
             }
+        }
+        private string GetAuthorization()
+        {
+            return Request.Headers[HeaderNames.Authorization].ToString();
         }
     }
 }

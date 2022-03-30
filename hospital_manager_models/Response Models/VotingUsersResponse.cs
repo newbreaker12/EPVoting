@@ -10,7 +10,7 @@ namespace voting_models.Models
         public string LastName { get; set; }
         public string Password { get; set; }
         public bool IsMEP { get; set; }
-        public List<UserToRoleResponse> Roles { get; set; }
+        public List<VotingRolesResponse> Roles { get; set; }
         public List<UserToGroupResponse> Groups { get; set; }
     }
 
@@ -20,9 +20,4 @@ namespace voting_models.Models
         public long GroupId { get; set; }
     }
 
-    public class UserToRoleResponse
-    {
-        public long Id { get; set; }
-        public long RoleId { get; set; }
-    }
 }
