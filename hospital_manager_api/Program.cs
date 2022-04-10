@@ -48,18 +48,8 @@ namespace voting_api
                     LastName = "Bigi",
                     Password = "pss",
                     IsMEP = true,
-                    Roles = new List<UserToRole> {
-                        new UserToRole
-                        {
-                            RoleId = 1
-                        }
-                    },
-                    Groups = new List<UserToGroup> {
-                        new UserToGroup
-                        {
-                            GroupId = 1
-                        }
-                    }
+                    RoleId = 1,
+                    GroupId = 1
 
                 });
             _userService.SaveUsers(
@@ -71,12 +61,7 @@ namespace voting_api
                     LastName = "admin",
                     Password = "pss",
                     IsMEP = true,
-                    Roles = new List<UserToRole> {
-                        new UserToRole
-                        {
-                            RoleId = 2
-                        }
-                    }
+                    RoleId = 2
 
                 });
         }
@@ -90,7 +75,6 @@ namespace voting_api
             _roleService.SaveRoles(
                 new VotingRoles
                 {
-                    Id = 1,
                     Name = "MEP",
                     Description = "Member of European Parliament"
 
@@ -98,7 +82,6 @@ namespace voting_api
             _roleService.SaveRoles(
                 new VotingRoles
                 {
-                    Id = 2,
                     Name = "ADMIN",
                     Description = "Administrator of the application"
 
@@ -106,7 +89,13 @@ namespace voting_api
             _roleService.SaveRoles(
                 new VotingRoles
                 {
-                    Id = 3,
+                    Name = "SU",
+                    Description = "SU of the political groups"
+
+                });
+            _roleService.SaveRoles(
+                new VotingRoles
+                {
                     Name = "PG",
                     Description = "Political Groups"
 

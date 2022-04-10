@@ -8,6 +8,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Net.Http.Headers;
 using voting_data_access.Repositories.Interfaces;
 using voting_exceptions.Exceptions;
+using voting_models.Models;
 
 namespace voting_api.Controllers
 {
@@ -67,8 +68,40 @@ namespace voting_api.Controllers
             });
         }
 
+
+        [HttpPut]
+        public ActionResult<VotingArticle> EditUser(VotingUsers user)
+        {
+            string getAuthentication = GetAuthorization();
+            var up = getAuthentication.Split(":");
+            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            {
+                return Unauthorized();
+            }
+            var rs = _usersService.getRole(up[0]);
+            if (rs.Name != "ADMIN")
+            {
+                return Unauthorized();
+            }
+            try
+            {
+                _usersService.EditUser(user.Id, user);
+                return Ok(new
+                {
+                    data = "ok"
+                });
+            }
+            catch (InvalidVote e)
+            {
+                return BadRequest(new
+                {
+                    data = e.Message
+                });
+            }
+        }
+
         [HttpGet("email")]
-        public ActionResult<VotingUsers> GetUserByEmail()
+        public ActionResult<VotingUsersResponse> GetUserByEmail()
         {
             string getAuthentication = GetAuthorization();
             var up = getAuthentication.Split(":");
@@ -83,7 +116,7 @@ namespace voting_api.Controllers
             });
         }
         [HttpGet("all")]
-        public ActionResult<IEnumerable<VotingUsers>> GetUsers()
+        public ActionResult<IEnumerable<VotingUsersResponse>> GetUsers()
         {
             return Ok(new
             {

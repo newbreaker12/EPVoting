@@ -155,11 +155,11 @@ namespace voting_data_access.Repositories.Implementation
         {
             DateTime now = DateTime.Now;
             List<VotingArticleResponse> result = new List<VotingArticleResponse>();
-            List<long> groupIds = Db.VotingUsers.Include(u => u.Roles).Include(u => u.Groups).SingleOrDefault(u => u.Email == email).Groups?.Select(group => group.GroupId).ToList();
+            long groupId = Db.VotingUsers.SingleOrDefault(u => u.Email == email).GroupId;
 
-            if (groupIds != null)
+            if (groupId != null)
             {
-                return GetArticleForGroups(groupIds, email);
+                return GetArticleForGroups(groupId, email);
             }
             else
             {
@@ -167,15 +167,10 @@ namespace voting_data_access.Repositories.Implementation
             }
         }
 
-        public List<VotingArticleResponse> GetArticleForGroups(List<long> groupIds, string email)
+        public List<VotingArticleResponse> GetArticleForGroups(long groupId, string email)
         {
             DateTime now = DateTime.Now;
-            List<VotingArticleResponse> result = new List<VotingArticleResponse>();
-            foreach (long groupId in groupIds)
-            {
-                result.AddRange(GetArticleForGroup(groupId, email));
-            }
-            return result;
+           return GetArticleForGroup(groupId, email);
         }
 
         public List<VotingArticleResponse> GetArticleForGroup(long groupId, string email)
@@ -234,6 +229,7 @@ namespace voting_data_access.Repositories.Implementation
                             StatusVote = StateVote
 
                         };
+                        votingArticleResponse.SubArticles = new List<VotingSubArticleResponse>();
                         votingArticleResponse.SubArticles.Add(subArticleResponse);
                     }
 

@@ -9,7 +9,7 @@ namespace voting_data_access.Repositories.Interfaces
         VotingUsersResponse GetUserByEmail(string email);
         List<VotingUsersResponse> GetUsers();
         bool AuthenticateUser(string email, string password);
-        List<VotingRoles> getRoles(string username);
+        VotingRoles getRole(string username);
     }
 
 }

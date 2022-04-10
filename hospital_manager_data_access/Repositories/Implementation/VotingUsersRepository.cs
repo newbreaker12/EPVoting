@@ -14,58 +14,81 @@ namespace voting_data_access.Repositories.Implementation
 
         public VotingUsersResponse GetUserByEmail(string email)
         {
-            List<VotingRoles> vr = Db.VotingRoles.ToList();
-            VotingUsers vu = Db.VotingUsers.Include(u => u.Roles).Include(u => u.Groups).SingleOrDefault(u => u.Email == email);
-            return new VotingUsersResponse()
+            VotingUsers vu = Db.VotingUsers.SingleOrDefault(u => u.Email == email);
+            VotingRoles vr = Db.VotingRoles.SingleOrDefault(r => r.Id == vu.RoleId);
+            VotingGroups vg = Db.VotingGroups.SingleOrDefault(r => r.Id == vu.GroupId);
+            VotingUsersResponse vur = new VotingUsersResponse()
             {
                 Id = vu.Id,
                 Email = vu.Email,
                 FirstName = vu.FirstName,
                 LastName = vu.LastName,
                 Password = vu.Password,
-                IsMEP = vu.IsMEP,
-                Roles = vr.Where(r => vu.Roles.SingleOrDefault(rr => rr.Id == r.Id) != null)?.Select(vrr => new VotingRolesResponse()
-                {
-                    Id = vrr.Id,
-                    Name = vrr.Name,
-                    Description = vrr.Description,
-                }).ToList(),
-                Groups = vu.Groups?.Select(vrr => new UserToGroupResponse()
-                {
-                    Id = vrr.Id,
-                    GroupId = vrr.GroupId,
-                }).ToList(),
+                IsMEP = vu.IsMEP
             };
+            if (vg != null)
+            {
+
+                vur.Groups = new VotingGroupsResponse()
+                {
+                    Id = vg.Id,
+                    Name = vg.Name,
+                    CreatedAt = vg.CreatedAt,
+                    ReadableId = vg.ReadableId
+                };
+            }
+            if (vr != null)
+            {
+
+                vur.Role = new VotingRolesResponse()
+                {
+                    Id = vr.Id,
+                    Name = vr.Name,
+                    Description = vr.Description,
+                };
+            }
+            return vur;
         }
 
         public List<VotingUsersResponse> GetUsers()
         {
-            List<VotingRoles> vr = Db.VotingRoles.ToList();
-            var users = Db.VotingUsers.Include(u => u.Roles).Include(u => u.Groups).ToList(); ;
+            var users = Db.VotingUsers.ToList(); ;
             List <VotingUsersResponse> result = new List<VotingUsersResponse>();
             foreach (VotingUsers vu in users)
             {
-                result.Add(new VotingUsersResponse()
+                VotingRoles vr = Db.VotingRoles.SingleOrDefault(r => r.Id == vu.RoleId);
+                VotingGroups vg = Db.VotingGroups.SingleOrDefault(r => r.Id == vu.GroupId);
+                VotingUsersResponse vur = new VotingUsersResponse()
                 {
                     Id = vu.Id,
                     Email = vu.Email,
                     FirstName = vu.FirstName,
                     LastName = vu.LastName,
                     Password = vu.Password,
-                    IsMEP = vu.IsMEP,
-                    Roles = vr.Where(r => vu.Roles.SingleOrDefault(rr => rr.Id == r.Id) != null)?.Select(vrr => new VotingRolesResponse()
-                    {
-                        Id = vrr.Id,
-                        Name = vrr.Name,
-                        Description = vrr.Description,
-                    }).ToList(),
-                    Groups = vu.Groups?.Select(vrr => new UserToGroupResponse()
-                    {
-                        Id = vrr.Id,
-                        GroupId = vrr.GroupId,
-                    }).ToList(),
+                    IsMEP = vu.IsMEP
+                };
+                if (vg != null)
+                {
 
-                });
+                    vur.Groups = new VotingGroupsResponse()
+                    {
+                        Id = vg.Id,
+                        Name = vg.Name,
+                        CreatedAt = vg.CreatedAt,
+                        ReadableId = vg.ReadableId
+                    };
+                }
+                if (vr != null)
+                {
+
+                    vur.Role = new VotingRolesResponse()
+                    {
+                        Id = vr.Id,
+                        Name = vr.Name,
+                        Description = vr.Description,
+                    };
+                }
+                result.Add(vur);
             }
             return result;
         }
@@ -75,15 +98,10 @@ namespace voting_data_access.Repositories.Implementation
             var user = Db.VotingUsers.SingleOrDefault(u => u.Email == email && u.Password == password);
             return user != null;
         }
-        public List<VotingRoles> getRoles(string username)
+        public VotingRoles getRole(string email)
         {
-            List<VotingRoles> result = new List<VotingRoles>();
-            List<UserToRole> roleIds = Db.VotingUsers.Include(u => u.Roles).Single(u => u.Email == username).Roles.ToList();
-            foreach (UserToRole ri in roleIds)
-            {
-                result.Add(Db.VotingRoles.Single(r => r.Id == ri.Id));
-            }
-            return result;
+            VotingUsers vu = Db.VotingUsers.SingleOrDefault(u => u.Email == email);
+            return Db.VotingRoles.SingleOrDefault(r => r.Id == vu.RoleId);
         }
     }
 }

@@ -40,8 +40,8 @@ namespace voting_api.Controllers
             {
                 return Unauthorized();
             }
-            var rs = _usersService.getRoles(up[0]);
-            if (rs.SingleOrDefault(r => r.Name == "ADMIN" || r.Name == "PG") == null)
+            var rs = _usersService.getRole(up[0]);
+            if (rs.Name != "ADMIN" && rs.Name != "PG")
             {
                 return Unauthorized();
             }
@@ -70,8 +70,8 @@ namespace voting_api.Controllers
             {
                 return Unauthorized();
             }
-            var rs = _usersService.getRoles(up[0]);
-            if (rs.SingleOrDefault(r => r.Name == "ADMIN" || r.Name == "PG") == null)
+            var rs = _usersService.getRole(up[0]);
+            if (rs.Name != "ADMIN" && rs.Name != "PG")
             {
                 return Unauthorized();
             }
@@ -118,8 +118,8 @@ namespace voting_api.Controllers
             {
                 return Unauthorized();
             }
-            var rs = _usersService.getRoles(up[0]);
-            if (rs.SingleOrDefault(r => r.Name == "ADMIN" || r.Name == "PG") == null)
+            var rs = _usersService.getRole(up[0]);
+            if (rs.Name != "ADMIN" && rs.Name != "PG")
             {
                 return Unauthorized();
             }

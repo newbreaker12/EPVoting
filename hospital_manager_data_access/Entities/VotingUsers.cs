@@ -16,26 +16,8 @@ namespace voting_data_access.Entities
         public string LastName { get; set; }
         public string Password { get; set; }
         public bool IsMEP { get; set; }
-        public List<UserToRole> Roles { get; set; }
-        public List<UserToGroup> Groups { get; set; }
-    }
-
-    [Table(name: "UserToGroup")]
-    public class UserToGroup
-    {
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public long Id { get; set; }
-
-        public long GroupId { get; set; }
-
-    }
-    [Table(name: "UserToRole")]
-    public class UserToRole
-    {
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public long Id { get; set; }
-
         public long RoleId { get; set; }
-
+        public long GroupId { get; set; }
     }
+
 }

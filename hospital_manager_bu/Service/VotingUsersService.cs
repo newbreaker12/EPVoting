@@ -2,6 +2,7 @@
 using voting_data_access.Repositories.Interfaces;
 using System.Collections.Generic;
 using voting_models.Models;
+using System;
 
 namespace voting_bl.Service
 {
@@ -41,9 +42,22 @@ namespace voting_bl.Service
         {
            return _unitOfWork.VotingUsers.AuthenticateUser(email, password);
         }
-        public List<VotingRoles> getRoles(string username)
+        public VotingRoles getRole(string username)
         {
-            return _unitOfWork.VotingUsers.getRoles(username) ;
+            return _unitOfWork.VotingUsers.getRole(username) ;
+        }
+
+        public void EditUser(long id, VotingUsers user)
+        {
+            VotingUsers votingUser = _unitOfWork.VotingUsers.Get(id);
+            votingUser.FirstName = user.FirstName;
+            votingUser.LastName = user.LastName;
+            votingUser.GroupId = user.GroupId;
+            votingUser.Password = user.Password;
+            votingUser.RoleId = user.RoleId;
+            votingUser.IsMEP = user.IsMEP;
+            _unitOfWork.VotingUsers.Update(votingUser);
+            _unitOfWork.Save();
         }
     }
 }

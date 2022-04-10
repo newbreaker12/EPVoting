@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System;
 
-namespace voting_data_access.Entities
+namespace voting_models.Models
 {
     public class VotingGroupsResponse
     {
