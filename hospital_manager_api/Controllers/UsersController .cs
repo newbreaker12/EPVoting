@@ -35,7 +35,19 @@ namespace voting_api.Controllers
         {
             string getAuthentication = GetAuthorization();
             var up = getAuthentication.Split(":");
-            return _usersService.Authenticate(up[0], up[1]).ToString().ToUpper();
+            if(_usersService.Authenticate(up[0], up[1]))
+            {
+                return Ok(new
+                {
+                    data = "ok"
+                });
+            } else
+            {
+                return Unauthorized(new
+                {
+                    data = "wrong username or password"
+                });
+            }
         }
 
         [HttpPost]

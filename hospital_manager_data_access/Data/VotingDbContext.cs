@@ -16,6 +16,7 @@ namespace voting_data_access.Data
         public DbSet<VotingSession> VotingSession { get; set; }
         public DbSet<VotingUsers> VotingUsers { get; set; }
         public DbSet<Vote> Vote { get; set; }
-        
+        public DbSet<VoteSubmit> VoteSubmit { get; set; }
+
     }
 }

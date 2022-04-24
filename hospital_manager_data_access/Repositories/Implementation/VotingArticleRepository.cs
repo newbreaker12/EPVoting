@@ -185,6 +185,22 @@ namespace voting_data_access.Repositories.Implementation
                 {
 
                     VotingGroups group = Db.VotingGroups.SingleOrDefault(s => s.Id == article.GroupsId);
+                    VoteSubmit voteSubmit = Db.VoteSubmit.SingleOrDefault(s => s.ArticleId == article.Id);
+                    bool submitted = false;
+                    VoteSubmitResponse voteSubmitResponse;
+                    if (voteSubmit != null)
+                    {
+                        submitted = true;
+                        voteSubmitResponse = new VoteSubmitResponse()
+                        {
+                            Id = voteSubmit.Id,
+                            UserEmail = voteSubmit.UserEmail,
+                            ArticleId = voteSubmit.ArticleId
+                        };
+                    } else
+                    {
+                        voteSubmitResponse = null;
+                    }
 
                     VotingArticleResponse votingArticleResponse = new VotingArticleResponse
                     {
@@ -210,15 +226,18 @@ namespace voting_data_access.Repositories.Implementation
                             CreatedAt = group.CreatedAt,
                             ReadableId = group.ReadableId
 
-                        }
+                        },
+                        VoteSubmitResponse = voteSubmitResponse,
+                        Submitted = submitted
                     };
+                    votingArticleResponse.SubArticles = new List<VotingSubArticleResponse>();
 
                     List<VotingSubArticle> subArticles = Db.VotingSubArticle.Where(s => s.ArticleId == article.Id).ToList();
                     foreach (VotingSubArticle subArticle in subArticles)
                     {
 
                         Vote vote = Db.Vote.SingleOrDefault(s => s.SubArticleId == subArticle.Id && s.UserEmail == email);
-                        string StateVote = vote == null ? "DIDNT VOTE" : "VOTED";
+                        int StateVote = vote == null ? -1 : vote.Type;
                         VotingSubArticleResponse subArticleResponse = new VotingSubArticleResponse()
                         {
                             Id = subArticle.Id,
@@ -226,10 +245,9 @@ namespace voting_data_access.Repositories.Implementation
                             ArticleId = subArticle.ArticleId,
                             CreatedAt = subArticle.CreatedAt,
                             Description = subArticle.Description,
-                            StatusVote = StateVote
+                            VoteType = StateVote
 
                         };
-                        votingArticleResponse.SubArticles = new List<VotingSubArticleResponse>();
                         votingArticleResponse.SubArticles.Add(subArticleResponse);
                     }
 

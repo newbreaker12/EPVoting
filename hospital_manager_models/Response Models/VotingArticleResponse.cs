@@ -18,5 +18,7 @@ namespace voting_data_access.Entities
         public List<VotingSessionResponse> Sessions { get; set; }
         public List<VotingSubArticleResponse> SubArticles { get; set; }
         public VotingGroupsResponse Group { get; set; }
+        public VoteSubmitResponse VoteSubmitResponse { get; set; }
+        public bool Submitted { get; set; }
     }
 }

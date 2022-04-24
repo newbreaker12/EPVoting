@@ -11,6 +11,7 @@ namespace voting_data_access.Repositories.Implementation
         private bool _disposed;
 
         public IVoteRepository Vote { get; private set; }
+        public IVoteSubmitRepository VoteSubmit { get; private set; }
         public IVotingArticleRepository VotingArticle { get; private set; }
         public IVotingSubArticleRepository VotingSubArticle { get; private set; }
         public IVotingGroupsRepository VotingGroups { get; private set; }
@@ -22,6 +23,7 @@ namespace voting_data_access.Repositories.Implementation
         {
             _context = context;
             Vote = new VoteRepository(_context);
+            VoteSubmit = new VoteSubmitRepository(_context);
             VotingArticle = new VotingArticleRepository(_context);
             VotingSubArticle = new VotingSubArticleRepository(_context);
             VotingGroups = new VotingGroupsRepository(_context);

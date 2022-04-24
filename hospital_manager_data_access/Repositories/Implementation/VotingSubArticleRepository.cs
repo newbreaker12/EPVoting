@@ -25,8 +25,9 @@ namespace voting_data_access.Repositories.Implementation
             List<long> ids = subArticles?.Select(s => s.Id).ToList();
             List<Vote> votes = Db.Vote.Where(v => v.UserEmail == email && ids.Contains(v.SubArticleId)).ToList();
 
-            foreach (VotingSubArticle s in subArticles) { 
-                if (votes.SingleOrDefault(v => v.SubArticleId == s.Id) != null)
+            foreach (VotingSubArticle s in subArticles) {
+                Vote v = votes.SingleOrDefault(v => v.SubArticleId == s.Id && v.UserEmail == email);
+                if (v != null)
                 {
                     result.Add(new VotingSubArticleResponse()
                     {
@@ -35,7 +36,7 @@ namespace voting_data_access.Repositories.Implementation
                         ArticleId = s.ArticleId,
                         Description = s.Description,
                         CreatedAt = s.CreatedAt,
-                        StatusVote = "VOTED"
+                        VoteType = v.Type
                     });
                 } else
                 {
@@ -46,7 +47,7 @@ namespace voting_data_access.Repositories.Implementation
                         ArticleId = s.ArticleId,
                         Description = s.Description,
                         CreatedAt = s.CreatedAt,
-                        StatusVote = "NOT VOTED"
+                        VoteType = -1
                     });
 
                 }

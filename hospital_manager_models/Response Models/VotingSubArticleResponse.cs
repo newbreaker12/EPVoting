@@ -14,6 +14,6 @@ namespace voting_data_access.Entities
         public string Name { get; set; }
         public string Description { get; set; }
         public DateTime CreatedAt { get; set; }
-        public string StatusVote { get; set; }
+        public int VoteType { get; set; }
     }
 }

@@ -5,6 +5,7 @@ namespace voting_data_access.Repositories.Interfaces
 {
     public interface IVoteRepository : IRepository<Vote>
     {
+        Vote GetVoteForUser(string email, long subArticleId);
         List<Vote> GetVote();
     }
 }

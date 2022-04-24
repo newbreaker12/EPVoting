@@ -51,11 +51,39 @@ namespace voting_api.Controllers
                 });
             }
         }
-        [HttpGet("subarticle/{id}/vote")]
-        public ActionResult<Vote> Vote(long id)
+        [HttpGet("subarticle/{id}/vote/{type}")]
+        public ActionResult<Vote> Vote(long id, int type)
         {
             string email = GetUsername();
-            _voteService.SaveVote(new Vote() { SubArticleId = id, UserEmail = email, });
+
+            if (_voteService.hasSubmittedVoteArticle(email, id))
+            {
+                return BadRequest(new
+                {
+                    data = "ALREADY SUBMITTED VOTES"
+                });
+            }
+
+            _voteService.SaveVote(new Vote() { SubArticleId = id, UserEmail = email, Type = type});
+            return Ok(new
+            {
+                data = "VOTED"
+            });
+        }
+        [HttpGet("article/{id}/vote/submit")]
+        public ActionResult<Vote> VoteSubmit(long id)
+        {
+            string email = GetUsername();
+
+            if(_voteService.hasSubmittedVoteArticle(email, id))
+            {
+                return BadRequest(new
+                {
+                    data = "ALREADY SUBMITTED VOTES"
+                });
+            }
+
+            _voteService.SaveVoteSubmit(new VoteSubmit() { ArticleId = id, UserEmail = email, });
             return Ok(new
             {
                 data = "VOTED"

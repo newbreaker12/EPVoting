@@ -157,7 +157,7 @@ namespace voting_api
                     Id = 1,
                     ArticleId = 1,
                     Name = "BG",
-                    Description = "Article n.7",
+                    Description = "Article n.71",
                     CreatedAt = new DateTime(now.Year, now.Month, 1, 7, 0, 0)
                 });
             _articleService.SaveSubArticle(
@@ -165,7 +165,7 @@ namespace voting_api
                 {
                     Id = 2,
                     ArticleId = 1,
-                    Name = "BG",
+                    Name = "GUGU",
                     Description = "Article n.7",
                     CreatedAt = new DateTime(now.Year, now.Month, 1, 7, 0, 0)
                 });
@@ -176,6 +176,24 @@ namespace voting_api
                     ArticleId = 1,
                     Name = "CT",
                     Description = "Article n.52237",
+                    CreatedAt = new DateTime(now.Year, now.Month, 1, 4, 0, 0)
+                });
+            _articleService.SaveSubArticle(
+                new VotingSubArticle
+                {
+                    Id = 4,
+                    ArticleId = 1,
+                    Name = "UHU",
+                    Description = "Article n.222",
+                    CreatedAt = new DateTime(now.Year, now.Month, 1, 4, 0, 0)
+                });
+            _articleService.SaveSubArticle(
+                new VotingSubArticle
+                {
+                    Id = 5,
+                    ArticleId = 1,
+                    Name = "JH",
+                    Description = "Article n.256",
                     CreatedAt = new DateTime(now.Year, now.Month, 1, 4, 0, 0)
                 });
         }

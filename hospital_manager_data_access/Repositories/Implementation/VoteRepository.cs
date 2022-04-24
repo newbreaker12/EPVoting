@@ -10,6 +10,11 @@ namespace voting_data_access.Repositories.Implementation
     {
         public VoteRepository(VotingDbContext context) : base(context) { }
 
+        public Vote GetVoteForUser(string email, long subArticleId)
+        {
+            return Db.Vote.SingleOrDefault(v => v.SubArticleId == subArticleId && v.UserEmail == email);
+        }
+
         public List<Vote> GetVote()
         {
             return Db.Vote.ToList();

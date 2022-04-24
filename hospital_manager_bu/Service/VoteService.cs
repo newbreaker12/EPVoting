@@ -28,9 +28,30 @@ namespace voting_bl.Service
             return voteData;
         }
 
-        public void SaveVote(Vote votingVote)
+        public bool hasSubmittedVoteArticle(string email, long subArticleId)
         {
-            _unitOfWork.Vote.Add(votingVote);
+            VotingSubArticle votingSubArticle = _unitOfWork.VotingSubArticle.Get(subArticleId);
+            return _unitOfWork.VoteSubmit.GetVoteSubmit(email, votingSubArticle.ArticleId) != null;
+        }
+
+        public void SaveVote(Vote vote)
+        {
+            Vote voteTemp = _unitOfWork.Vote.GetVoteForUser(vote.UserEmail, vote.SubArticleId);
+            if (voteTemp == null)
+            {
+                _unitOfWork.Vote.Add(vote);
+            } else
+            {
+                voteTemp.Type = vote.Type;
+                _unitOfWork.Vote.Update(voteTemp);
+                _unitOfWork.Save();
+            }
+            _unitOfWork.Save();
+        }
+
+        public void SaveVoteSubmit(VoteSubmit votingVote)
+        {
+            _unitOfWork.VoteSubmit.Add(votingVote);
             _unitOfWork.Save();
         }
 
