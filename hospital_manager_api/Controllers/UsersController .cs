@@ -54,6 +54,17 @@ namespace voting_api.Controllers
         //[Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMIN")]
         public ActionResult<VotingUsers> Saveusers(VotingUsers users)
         {
+            string getAuthentication = GetAuthorization();
+            var up = getAuthentication.Split(":");
+            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            {
+                return Unauthorized();
+            }
+            var rs = _usersService.getRole(up[0]);
+            if (rs.Name != "ADMIN")
+            {
+                return Unauthorized();
+            }
             try
             {
                 _usersService.SaveUsers(users);
@@ -74,6 +85,17 @@ namespace voting_api.Controllers
         [HttpGet("{id}")]
         public ActionResult<VotingUsers> GetUser(long id)
         {
+            string getAuthentication = GetAuthorization();
+            var up = getAuthentication.Split(":");
+            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            {
+                return Unauthorized();
+            }
+            var rs = _usersService.getRole(up[0]);
+            if (rs.Name != "ADMIN")
+            {
+                return Unauthorized();
+            }
             return Ok(new
             {
                 data = _usersService.GetUsers(id)
@@ -130,6 +152,17 @@ namespace voting_api.Controllers
         [HttpGet("all")]
         public ActionResult<IEnumerable<VotingUsersResponse>> GetUsers()
         {
+            string getAuthentication = GetAuthorization();
+            var up = getAuthentication.Split(":");
+            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            {
+                return Unauthorized();
+            }
+            var rs = _usersService.getRole(up[0]);
+            if (rs.Name != "ADMIN")
+            {
+                return Unauthorized();
+            }
             return Ok(new
             {
                 data = _usersService.GetUsers()

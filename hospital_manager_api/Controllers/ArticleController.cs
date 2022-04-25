@@ -75,6 +75,11 @@ namespace voting_api.Controllers
             {
                 return Unauthorized();
             }
+            var ar = _articleService.GetArticle(article.Id);
+            if (rs.Name != "PG" && rs.Name != ar.Group.Name)
+            {
+                return Unauthorized();
+            }
             try
             {
                 _articleService.EditArticle(article.Id, article.Description);
@@ -101,6 +106,16 @@ namespace voting_api.Controllers
             {
                 return Unauthorized();
             }
+            var rs = _usersService.getRole(up[0]);
+            if (rs.Name != "ADMIN" && rs.Name != "PG")
+            {
+                return Unauthorized();
+            }
+            var ar = _articleService.GetArticle(id);
+            if (rs.Name != "PG" && rs.Name != ar.Group.Name)
+            {
+                return Unauthorized();
+            }
 
             return Ok(new
             {
@@ -119,7 +134,7 @@ namespace voting_api.Controllers
                 return Unauthorized();
             }
             var rs = _usersService.getRole(up[0]);
-            if (rs.Name != "ADMIN" && rs.Name != "PG")
+            if (rs.Name != "ADMIN")
             {
                 return Unauthorized();
             }

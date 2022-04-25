@@ -15,12 +15,12 @@ namespace voting_api
         {
             var host = CreateHostBuilder(args).Build();
 
-            AddGroups(host);
-            AddArticle(host);
-            AddSubArticle(host);
-            AddSession(host);
-            AddRoles(host);
-            AddUser(host);
+            //AddGroups(host);
+            //AddArticle(host);
+            //AddSubArticle(host);
+            //AddSession(host);
+            //AddRoles(host);
+            //AddUser(host);
             host.Run();
         }
 
@@ -42,7 +42,6 @@ namespace voting_api
             _userService.SaveUsers(
                 new VotingUsers
                 {
-                    Id = 1,
                     Email = "psr007700@students.ephec.be",
                     FirstName = "Francesco",
                     LastName = "Bigi",
@@ -55,7 +54,6 @@ namespace voting_api
             _userService.SaveUsers(
                 new VotingUsers
                 {
-                    Id =2,
                     Email = "admin",
                     FirstName = "admin",
                     LastName = "admin",
@@ -89,13 +87,6 @@ namespace voting_api
             _roleService.SaveRoles(
                 new VotingRoles
                 {
-                    Name = "SU",
-                    Description = "SU of the political groups"
-
-                });
-            _roleService.SaveRoles(
-                new VotingRoles
-                {
                     Name = "PG",
                     Description = "Political Groups"
 
@@ -111,7 +102,6 @@ namespace voting_api
             _groupsService.SaveGroups(
                 new VotingGroups
                 {
-                    Id = 1,
                     Name = "BUDGET",
                     ReadableId = "BG",
                     CreatedAt = new DateTime(now.Year, now.Month, 1, 7, 0, 0)
@@ -128,7 +118,6 @@ namespace voting_api
             _articleService.SaveArticle(
                 new VotingArticle
                 {
-                    Id = 1,
                     GroupsId = 1,
                     Name = "BG",
                     Description = "Article n.7",
@@ -137,7 +126,6 @@ namespace voting_api
             _articleService.SaveArticle(
                 new VotingArticle
                 {
-                    Id = 2,
                     GroupsId = 1,
                     Name = "CT",
                     Description = "Article n.52237",
@@ -154,7 +142,6 @@ namespace voting_api
             _articleService.SaveSubArticle(
                 new VotingSubArticle
                 {
-                    Id = 1,
                     ArticleId = 1,
                     Name = "BG",
                     Description = "Article n.71",
@@ -163,7 +150,6 @@ namespace voting_api
             _articleService.SaveSubArticle(
                 new VotingSubArticle
                 {
-                    Id = 2,
                     ArticleId = 1,
                     Name = "GUGU",
                     Description = "Article n.7",
@@ -172,7 +158,6 @@ namespace voting_api
             _articleService.SaveSubArticle(
                 new VotingSubArticle
                 {
-                    Id = 3,
                     ArticleId = 1,
                     Name = "CT",
                     Description = "Article n.52237",
@@ -181,7 +166,6 @@ namespace voting_api
             _articleService.SaveSubArticle(
                 new VotingSubArticle
                 {
-                    Id = 4,
                     ArticleId = 1,
                     Name = "UHU",
                     Description = "Article n.222",
@@ -190,7 +174,6 @@ namespace voting_api
             _articleService.SaveSubArticle(
                 new VotingSubArticle
                 {
-                    Id = 5,
                     ArticleId = 1,
                     Name = "JH",
                     Description = "Article n.256",
@@ -206,7 +189,6 @@ namespace voting_api
             _sessionService.SaveSession(
                 new VotingSession
                 {
-                    Id = 1,
                     ArticleId = 1,
                     Name = "BG",
                     Description = "Transfers Other sections (single votes)Draft amending budget(2021 Brexit Adjustment Reserve)(3 AMs)",

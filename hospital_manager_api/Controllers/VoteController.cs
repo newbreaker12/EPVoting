@@ -17,24 +17,29 @@ namespace voting_api.Controllers
     public class VoteController : Controller
     {
         private readonly VoteService _voteService;
-        private readonly JwtSecurityTokenHandler _tokenHandler;
+        private readonly VotingUsersService _usersService;
 
         public VoteController(IUnitOfWork unitOfWork)
         {
             _voteService = new VoteService(unitOfWork);
-            _tokenHandler = new JwtSecurityTokenHandler();
-        }
-
-        [HttpGet("ping")]
-        public string Ping()
-        {
-            return "OK";
+            _usersService = new VotingUsersService(unitOfWork);
         }
 
         [HttpPost]
         //[Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMIN")]
         public ActionResult<Vote> SaveVote(Vote vote)
         {
+            string getAuthentication = GetAuthorization();
+            var up = getAuthentication.Split(":");
+            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            {
+                return Unauthorized();
+            }
+            var rs = _usersService.getRole(up[0]);
+            if (rs.Name != "MEP")
+            {
+                return Unauthorized();
+            }
             try
             {
                 _voteService.SaveVote(vote);
@@ -54,6 +59,17 @@ namespace voting_api.Controllers
         [HttpGet("subarticle/{id}/vote/{type}")]
         public ActionResult<Vote> Vote(long id, int type)
         {
+            string getAuthentication = GetAuthorization();
+            var up = getAuthentication.Split(":");
+            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            {
+                return Unauthorized();
+            }
+            var rs = _usersService.getRole(up[0]);
+            if (rs.Name != "MEP")
+            {
+                return Unauthorized();
+            }
             string email = GetUsername();
 
             if (_voteService.hasSubmittedVoteArticle(email, id))
@@ -73,6 +89,17 @@ namespace voting_api.Controllers
         [HttpGet("article/{id}/vote/submit")]
         public ActionResult<Vote> VoteSubmit(long id)
         {
+            string getAuthentication = GetAuthorization();
+            var up = getAuthentication.Split(":");
+            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            {
+                return Unauthorized();
+            }
+            var rs = _usersService.getRole(up[0]);
+            if (rs.Name != "MEP")
+            {
+                return Unauthorized();
+            }
             string email = GetUsername();
 
             if(_voteService.hasSubmittedVoteArticle(email, id))
@@ -93,6 +120,17 @@ namespace voting_api.Controllers
         [HttpGet("{id}")]
         public ActionResult<Vote> GetVote(long id)
         {
+            string getAuthentication = GetAuthorization();
+            var up = getAuthentication.Split(":");
+            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            {
+                return Unauthorized();
+            }
+            var rs = _usersService.getRole(up[0]);
+            if (rs.Name != "ADMIN")
+            {
+                return Unauthorized();
+            }
             return Ok(new
             {
                 data = _voteService.GetVote(id)
@@ -101,6 +139,17 @@ namespace voting_api.Controllers
         [HttpGet("all")]
         public ActionResult<IEnumerable<Vote>> GetVote()
         {
+            string getAuthentication = GetAuthorization();
+            var up = getAuthentication.Split(":");
+            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            {
+                return Unauthorized();
+            }
+            var rs = _usersService.getRole(up[0]);
+            if (rs.Name != "ADMIN")
+            {
+                return Unauthorized();
+            }
             return Ok(new
             {
                 data = _voteService.GetVote()
@@ -124,6 +173,10 @@ namespace voting_api.Controllers
             {
                 return "NONE";
             }
+        }
+        private string GetAuthorization()
+        {
+            return Request.Headers[HeaderNames.Authorization].ToString();
         }
     }
 }

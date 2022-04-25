@@ -16,25 +16,19 @@ namespace voting_api.Controllers
     [ApiController]
     public class SubArticleController : Controller
     {
+        private readonly VotingArticleService _articleService;
         private readonly VotingSubArticleService _votingSubArticleService;
-        private readonly JwtSecurityTokenHandler _tokenHandler;
         private readonly VotingUsersService _usersService;
 
         public SubArticleController(IUnitOfWork unitOfWork)
         {
             _votingSubArticleService = new VotingSubArticleService(unitOfWork);
-            _tokenHandler = new JwtSecurityTokenHandler();
             _usersService = new VotingUsersService(unitOfWork);
+            _articleService = new VotingArticleService(unitOfWork);
         }
 
-        [HttpGet("ping")]
-        public string Ping()
-        {
-            return "OK";
-        }
 
         [HttpPost]
-        //[Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMIN")]
         public ActionResult<VotingSubArticle> SaveSubArticle(VotingSubArticle subArticle)
         {
             string getAuthentication = GetAuthorization();
@@ -45,6 +39,11 @@ namespace voting_api.Controllers
             }
             var rs = _usersService.getRole(up[0]);
             if (rs.Name != "ADMIN" && rs.Name != "PG")
+            {
+                return Unauthorized();
+            }
+            var ar = _articleService.GetArticle(subArticle.ArticleId);
+            if (rs.Name != "PG" && rs.Name != ar.Group.Name)
             {
                 return Unauthorized();
             }
@@ -65,7 +64,6 @@ namespace voting_api.Controllers
             }
         }
         [HttpPut]
-        //[Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMIN")]
         public ActionResult<VotingSubArticle> UpdateSubArticle(VotingSubArticle subArticle)
         {
             string getAuthentication = GetAuthorization();
@@ -99,6 +97,17 @@ namespace voting_api.Controllers
         [HttpGet("admin/article/{id}")]
         public ActionResult<List<VotingSubArticle>> GetSubAsByArticleIdForAdmin(long id)
         {
+            string getAuthentication = GetAuthorization();
+            var up = getAuthentication.Split(":");
+            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            {
+                return Unauthorized();
+            }
+            var rs = _usersService.getRole(up[0]);
+            if (rs.Name != "ADMIN")
+            {
+                return Unauthorized();
+            }
             return Ok(new
             {
                 data = _votingSubArticleService.GetSubAsByArticleId(id)
@@ -107,6 +116,23 @@ namespace voting_api.Controllers
         [HttpGet("article/{id}")]
         public ActionResult<List<VotingSubArticleResponse>> GetSubAsByArticleIdForUser(long id)
         {
+            string getAuthentication = GetAuthorization();
+            var up = getAuthentication.Split(":");
+            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            {
+                return Unauthorized();
+            }
+            var rs = _usersService.getRole(up[0]);
+            if (rs.Name != "ADMIN" && rs.Name != "PG")
+            {
+                return Unauthorized();
+            }
+            var sar = _votingSubArticleService.GetSubArticleById(id);
+            var ar = _articleService.GetArticle(sar.ArticleId);
+            if (rs.Name != "PG" && rs.Name != ar.Group.Name)
+            {
+                return Unauthorized();
+            }
             string email = GetUsername();
             return Ok(new
             {
@@ -124,6 +150,12 @@ namespace voting_api.Controllers
             }
             var rs = _usersService.getRole(up[0]);
             if (rs.Name != "ADMIN" && rs.Name != "PG")
+            {
+                return Unauthorized();
+            }
+            var sar = _votingSubArticleService.GetSubArticleById(id);
+            var ar = _articleService.GetArticle(sar.ArticleId);
+            if (rs.Name != "PG" && rs.Name != ar.Group.Name)
             {
                 return Unauthorized();
             }

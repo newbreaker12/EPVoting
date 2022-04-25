@@ -11,6 +11,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Microsoft.Extensions.Configuration;
+using Npgsql;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace voting_api
 {
@@ -18,17 +21,30 @@ namespace voting_api
     {
         readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+        public IConfiguration Configuration { get; }
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
 
+            string connectionString = Configuration.GetConnectionString("DefaultConnection");
+            //// Do first:
+            //// dotnet ef migrations add InitialHospitalManagerDefaultDbMigration -c HospitalDbContext -o Data/Migrations/DefaultHospitalDbContext
+            //
             services.AddDbContext<VotingDbContext>(
-                config =>
-                {
-                    config.UseInMemoryDatabase("Memory");
-                }
-                );
+                options => options.UseSqlServer(connectionString,
+                    b => b.MigrationsAssembly("voting_api"))
+            );
+            //services.AddDbContext<VotingDbContext>(
+            //    config =>
+            //    {
+            //        config.UseInMemoryDatabase("Memory");
+            //    }
+            //);
 
             services.AddCors(options =>
             {
@@ -78,8 +94,11 @@ namespace voting_api
          dotnet ef migrations add InitialVoteManagerDefaultDbMigration -c VoteDbContext -o Data/Migrations/DefaultVoteDbContext*/
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, VotingDbContext dbContext)
         {
+
+            dbContext.Database.Migrate();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

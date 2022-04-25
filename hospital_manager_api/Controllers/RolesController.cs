@@ -17,11 +17,13 @@ namespace voting_api.Controllers
     public class RolesController : Controller
     {
         private readonly VotingRolesService _rolesService;
+        private readonly VotingUsersService _usersService;
         private readonly JwtSecurityTokenHandler _tokenHandler;
 
         public RolesController(IUnitOfWork unitOfWork)
         {
             _rolesService = new VotingRolesService(unitOfWork);
+            _usersService = new VotingUsersService(unitOfWork);
             _tokenHandler = new JwtSecurityTokenHandler();
         }
 
@@ -35,6 +37,17 @@ namespace voting_api.Controllers
         //[Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMIN")]
         public ActionResult<VotingRoles> SaveRoles(VotingRoles roles)
         {
+            string getAuthentication = GetAuthorization();
+            var up = getAuthentication.Split(":");
+            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            {
+                return Unauthorized();
+            }
+            var rs = _usersService.getRole(up[0]);
+            if (rs.Name != "ADMIN")
+            {
+                return Unauthorized();
+            }
             try
             {
                 _rolesService.SaveRoles(roles);
@@ -53,8 +66,19 @@ namespace voting_api.Controllers
         }
 
         [HttpGet("{id}")]
-        public ActionResult<VotingRoles> GetRoles(long id)
+        public ActionResult<VotingRoles> GetRole(long id)
         {
+            string getAuthentication = GetAuthorization();
+            var up = getAuthentication.Split(":");
+            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            {
+                return Unauthorized();
+            }
+            var rs = _usersService.getRole(up[0]);
+            if (rs.Name != "ADMIN")
+            {
+                return Unauthorized();
+            }
             return Ok(new
             {
                 data = _rolesService.GetRoles(id)
@@ -63,30 +87,44 @@ namespace voting_api.Controllers
         [HttpGet("all")]
         public ActionResult<IEnumerable<VotingRoles>> GetRoles()
         {
+            string getAuthentication = GetAuthorization();
+            var up = getAuthentication.Split(":");
+            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            {
+                return Unauthorized();
+            }
+            var rs = _usersService.getRole(up[0]);
+            if (rs.Name != "ADMIN")
+            {
+                return Unauthorized();
+            }
             return Ok(new
             {
                 data = _rolesService.GetRoles()
             });
         }
 
-        private string GetClaim(string name)
+        private string GetUsername()
         {
             var accessTokenString = Request.Headers[HeaderNames.Authorization].ToString();
 
-            if (accessTokenString == null || !accessTokenString.Contains("Bearer "))
+            if (accessTokenString == null)
             {
                 return "NONE";
             }
 
             try
             {
-                var accessToken = _tokenHandler.ReadToken(accessTokenString.Replace("Bearer ", "")) as JwtSecurityToken;
-                return accessToken.Claims.Single(claim => claim.Type == name).Value;
+                return accessTokenString.Split(":")[0];
             }
             catch (ArgumentException)
             {
                 return "NONE";
             }
+        }
+        private string GetAuthorization()
+        {
+            return Request.Headers[HeaderNames.Authorization].ToString();
         }
     }
 }

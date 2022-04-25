@@ -90,6 +90,9 @@ namespace voting_data_access.Repositories.Implementation
             return result;
 
         }
+
+
+
         public List<VotingArticleResponse> GetArticles()
         {
             DateTime now = DateTime.Now;

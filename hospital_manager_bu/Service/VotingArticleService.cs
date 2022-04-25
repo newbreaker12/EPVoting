@@ -22,6 +22,11 @@ namespace voting_bl.Service
             VotingArticleResponse articleData = _unitOfWork.VotingArticle.getArticle(id);
             return articleData;
         }
+        public VotingArticleResponse GetArticleBySubArticleId(long subArticleId)
+        {
+            VotingArticleResponse articleData = _unitOfWork.VotingArticle.getArticle(subArticleId);
+            return articleData;
+        }
 
         public List<VotingArticleResponse> GetArticles()
         {

@@ -17,12 +17,12 @@ namespace voting_api.Controllers
     public class SessionController : Controller
     {
         private readonly VotingSessionService _sessionService;
-        private readonly JwtSecurityTokenHandler _tokenHandler;
+        private readonly VotingUsersService _usersService;
 
         public SessionController(IUnitOfWork unitOfWork)
         {
             _sessionService = new VotingSessionService(unitOfWork);
-            _tokenHandler = new JwtSecurityTokenHandler();
+            _usersService = new VotingUsersService(unitOfWork);
         }
 
         [HttpGet("ping")]
@@ -35,6 +35,17 @@ namespace voting_api.Controllers
         //[Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMIN")]
         public ActionResult<VotingSession> SaveSession(VotingSession session)
         {
+            string getAuthentication = GetAuthorization();
+            var up = getAuthentication.Split(":");
+            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            {
+                return Unauthorized();
+            }
+            var rs = _usersService.getRole(up[0]);
+            if (rs.Name != "ADMIN")
+            {
+                return Unauthorized();
+            }
             try
             {
                 _sessionService.SaveSession(session);
@@ -55,6 +66,19 @@ namespace voting_api.Controllers
         [HttpGet("{id}")]
         public ActionResult<VotingSession> GetSession(long id)
         {
+
+            string getAuthentication = GetAuthorization();
+            var up = getAuthentication.Split(":");
+            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            {
+                return Unauthorized();
+            }
+            var rs = _usersService.getRole(up[0]);
+            if (rs.Name != "ADMIN")
+            {
+                return Unauthorized();
+            }
+
             return Ok(new
             {
                 data = _sessionService.GetSession(id)
@@ -63,30 +87,28 @@ namespace voting_api.Controllers
         [HttpGet("all")]
         public ActionResult<IEnumerable<VotingSession>> GetSession()
         {
+
+            string getAuthentication = GetAuthorization();
+            var up = getAuthentication.Split(":");
+            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            {
+                return Unauthorized();
+            }
+            var rs = _usersService.getRole(up[0]);
+            if (rs.Name != "ADMIN")
+            {
+                return Unauthorized();
+            }
+
             return Ok(new
             {
                 data = _sessionService.GetSession()
             });
         }
 
-        private string GetClaim(string name)
+        private string GetAuthorization()
         {
-            var accessTokenString = Request.Headers[HeaderNames.Authorization].ToString();
-
-            if (accessTokenString == null || !accessTokenString.Contains("Bearer "))
-            {
-                return "NONE";
-            }
-
-            try
-            {
-                var accessToken = _tokenHandler.ReadToken(accessTokenString.Replace("Bearer ", "")) as JwtSecurityToken;
-                return accessToken.Claims.Single(claim => claim.Type == name).Value;
-            }
-            catch (ArgumentException)
-            {
-                return "NONE";
-            }
+            return Request.Headers[HeaderNames.Authorization].ToString();
         }
     }
 }

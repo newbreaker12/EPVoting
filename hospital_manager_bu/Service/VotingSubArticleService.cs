@@ -41,6 +41,10 @@ namespace voting_bl.Service
             _unitOfWork.Save();
         }
 
+        public VotingSubArticle GetSubArticleById(long id)
+        {
+            return _unitOfWork.VotingSubArticle.Get(id);
+        }
         public List<VotingSubArticle> GetSubAsByArticleId(long id)
         {
             return _unitOfWork.VotingSubArticle.GetSubArticlesByArticleId(id);
