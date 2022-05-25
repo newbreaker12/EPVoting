@@ -35,5 +35,10 @@ namespace voting_bl.Service
             _unitOfWork.Save();
         }
 
+        public VotingSession GetActiveSessionByArticleId(long articleId)
+        {
+            return _unitOfWork.VotingSession.GetActiveSessionByArticleId(articleId);
+        }
+
     }
 }

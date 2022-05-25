@@ -6,6 +6,7 @@ namespace voting_data_access.Repositories.Interfaces
 {
     public interface IVotingUsersRepository : IRepository<VotingUsers>
     {
+        List<VotingUsers> GetByGroupId(long groupId);
         VotingUsersResponse GetUserByEmail(string email);
         List<VotingUsersResponse> GetUsers();
         bool AuthenticateUser(string email, string password);

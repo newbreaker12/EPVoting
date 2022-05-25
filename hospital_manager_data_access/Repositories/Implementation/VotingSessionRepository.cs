@@ -16,5 +16,11 @@ namespace voting_data_access.Repositories.Implementation
         {
             return Db.VotingSession.ToList();
         }
+
+        public VotingSession GetActiveSessionByArticleId(long articleId)
+        {
+            DateTime now = DateTime.Now;
+            return Db.VotingSession.SingleOrDefault(s => s.ArticleId == articleId && s.To > now);
+        }
     }
 }

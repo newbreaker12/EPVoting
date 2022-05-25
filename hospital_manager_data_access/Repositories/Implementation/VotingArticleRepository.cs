@@ -101,7 +101,7 @@ namespace voting_data_access.Repositories.Implementation
             foreach (VotingArticle article in articles)
             {
                 VotingGroups group = Db.VotingGroups.SingleOrDefault(s => s.Id == article.GroupsId);
-                VotingSession session = Db.VotingSession.SingleOrDefault(s => s.ArticleId == article.Id);
+                VotingSession session = Db.VotingSession.SingleOrDefault(s => s.ArticleId == article.Id && s.To > now);
                 if (session != null)
                 {
                     result.Add(new VotingArticleResponse
@@ -162,18 +162,12 @@ namespace voting_data_access.Repositories.Implementation
 
             if (groupId != null)
             {
-                return GetArticleForGroups(groupId, email);
+                return GetArticleForGroup(groupId, email);
             }
             else
             {
                 return null;
             }
-        }
-
-        public List<VotingArticleResponse> GetArticleForGroups(long groupId, string email)
-        {
-            DateTime now = DateTime.Now;
-           return GetArticleForGroup(groupId, email);
         }
 
         public List<VotingArticleResponse> GetArticleForGroup(long groupId, string email)
@@ -188,7 +182,7 @@ namespace voting_data_access.Repositories.Implementation
                 {
 
                     VotingGroups group = Db.VotingGroups.SingleOrDefault(s => s.Id == article.GroupsId);
-                    VoteSubmit voteSubmit = Db.VoteSubmit.SingleOrDefault(s => s.ArticleId == article.Id);
+                    VoteSubmit voteSubmit = Db.VoteSubmit.SingleOrDefault(s => s.ArticleId == article.Id && s.UserEmail == email);
                     bool submitted = false;
                     VoteSubmitResponse voteSubmitResponse;
                     if (voteSubmit != null)

@@ -12,6 +12,11 @@ namespace voting_data_access.Repositories.Implementation
     {
         public VotingUsersRepository(VotingDbContext context) : base(context) { }
 
+        public List<VotingUsers> GetByGroupId(long groupId)
+        {
+            return Db.VotingUsers.Where(u => u.GroupId == groupId).ToList();
+        }
+
         public VotingUsersResponse GetUserByEmail(string email)
         {
             VotingUsers vu = Db.VotingUsers.SingleOrDefault(u => u.Email == email);

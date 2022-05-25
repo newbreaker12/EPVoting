@@ -17,11 +17,13 @@ namespace voting_api.Controllers
     public class SessionController : Controller
     {
         private readonly VotingSessionService _sessionService;
+        private readonly EmailsService _emailService;
         private readonly VotingUsersService _usersService;
 
         public SessionController(IUnitOfWork unitOfWork)
         {
             _sessionService = new VotingSessionService(unitOfWork);
+            _emailService = new EmailsService(unitOfWork);
             _usersService = new VotingUsersService(unitOfWork);
         }
 
@@ -48,7 +50,15 @@ namespace voting_api.Controllers
             }
             try
             {
+                if (_sessionService.GetActiveSessionByArticleId(session.ArticleId) != null)
+                {
+                    return BadRequest(new
+                    {
+                        data = "article already has a session"
+                    });
+                }
                 _sessionService.SaveSession(session);
+                _emailService.SendEmails(session.ArticleId);
                 return Ok(new
                 {
                     data = "ok"
