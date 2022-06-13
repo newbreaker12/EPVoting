@@ -28,18 +28,19 @@ namespace voting_bl.Service
         }
 
         public void SendEmail(string recipient, string subject, string body)
-        {
+        {/*
             var smtpClient = new SmtpClient("smtp.gmail.com")
             {
                 UseDefaultCredentials = false,
                 Port = 587,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
                 Credentials = new NetworkCredential("hospitalmanagercontact@gmail.com", "houhHOH421HOU!"),
                 EnableSsl = true,
             };
             if (recipient != null && recipient != "")
             {
                 smtpClient.Send("hospitalmanagercontact@gmail.com", recipient, subject, body);
-            }
+            }*/
         }
     }
 }

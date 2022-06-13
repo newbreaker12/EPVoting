@@ -16,10 +16,11 @@ namespace voting_data_access.Repositories.Implementation
         public VotingArticleResponse getArticle(long id)
         {
 
+            DateTime now = DateTime.Now;
             VotingArticleResponse result = new VotingArticleResponse();
             VotingArticle article = Db.VotingArticle.SingleOrDefault(s => s.Id == id);
             List<VotingSubArticle> subArticles = Db.VotingSubArticle.Where(s => s.ArticleId == article.Id).ToList();
-            VotingSession session = Db.VotingSession.SingleOrDefault(s => s.ArticleId == article.Id);
+            VotingSession session = Db.VotingSession.SingleOrDefault(s => s.ArticleId == article.Id && s.To > now && s.From <= now);
 
             VotingGroups group = Db.VotingGroups.SingleOrDefault(s => s.Id == article.GroupsId);
 
@@ -101,7 +102,7 @@ namespace voting_data_access.Repositories.Implementation
             foreach (VotingArticle article in articles)
             {
                 VotingGroups group = Db.VotingGroups.SingleOrDefault(s => s.Id == article.GroupsId);
-                VotingSession session = Db.VotingSession.SingleOrDefault(s => s.ArticleId == article.Id && s.To > now);
+                VotingSession session = Db.VotingSession.SingleOrDefault(s => s.ArticleId == article.Id && s.To > now && s.From <= now);
                 if (session != null)
                 {
                     result.Add(new VotingArticleResponse
