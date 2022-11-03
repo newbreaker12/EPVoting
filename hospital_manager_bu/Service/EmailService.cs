@@ -28,19 +28,23 @@ namespace voting_bl.Service
         }
 
         public void SendEmail(string recipient, string subject, string body)
-        {/*
-            var smtpClient = new SmtpClient("smtp.gmail.com")
+        {
+            string template = EmailTemplates.createTemplate;
+            template = template.Replace("::SUBJECT::", subject);
+            template = template.Replace("::BODY::", body);
+
+            var smtpClient = new SmtpClient()
             {
-                UseDefaultCredentials = false,
-                Port = 587,
-                DeliveryMethod = SmtpDeliveryMethod.Network,
-                Credentials = new NetworkCredential("hospitalmanagercontact@gmail.com", "houhHOH421HOU!"),
+                Host = "smtp-relay.sendinblue.com",
                 EnableSsl = true,
+                Port = 587,
+                UseDefaultCredentials = false,
+                Credentials = new NetworkCredential("newbreaker@gmail.com", "7fmFxrbGWIUDvK4P"),
             };
             if (recipient != null && recipient != "")
             {
-                smtpClient.Send("hospitalmanagercontact@gmail.com", recipient, subject, body);
-            }*/
+                smtpClient.Send("newbreaker@gmail.com", recipient, subject, template);
+            }
         }
     }
 }

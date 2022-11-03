@@ -14,6 +14,7 @@ using Microsoft.OpenApi.Models;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
 using Microsoft.AspNetCore.DataProtection;
+using Prometheus;
 
 namespace voting_api
 {
@@ -119,6 +120,9 @@ namespace voting_api
             app.UseAuthentication();
 
             app.UseAuthorization();
+
+            app.UseMetricServer();
+            app.UseHttpMetrics();
 
             //Need to use an end point in order to access to swagger page
             app.UseSwaggerUI(c =>

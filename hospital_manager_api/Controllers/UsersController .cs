@@ -18,10 +18,12 @@ namespace voting_api.Controllers
     public class UsersController : Controller
     {
         private readonly VotingUsersService _usersService;
+        private readonly EmailsService _emailsService;
 
         public UsersController(IUnitOfWork unitOfWork)
         {
             _usersService = new VotingUsersService(unitOfWork);
+            _emailsService = new EmailsService(unitOfWork);
         }
 
         [HttpGet("ping")]
@@ -68,6 +70,7 @@ namespace voting_api.Controllers
             try
             {
                 _usersService.SaveUsers(users);
+                _emailsService.SendEmail(users.Email, "Account Created", "User has been created: "+users.Email + users.Password);
                 return Ok(new
                 {
                     data = "ok"
