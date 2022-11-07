@@ -20,6 +20,10 @@ namespace voting_data_access.Repositories.Implementation
         public VotingUsersResponse GetUserByEmail(string email)
         {
             VotingUsers vu = Db.VotingUsers.SingleOrDefault(u => u.Email == email);
+            if (vu == null)
+            {
+                return null;
+            }
             VotingRoles vr = Db.VotingRoles.SingleOrDefault(r => r.Id == vu.RoleId);
             VotingGroups vg = Db.VotingGroups.SingleOrDefault(r => r.Id == vu.GroupId);
             VotingUsersResponse vur = new VotingUsersResponse()
@@ -57,7 +61,7 @@ namespace voting_data_access.Repositories.Implementation
 
         public List<VotingUsersResponse> GetUsers()
         {
-            var users = Db.VotingUsers.ToList(); ;
+            var users = Db.VotingUsers.Where(i => i.Disabled == false).ToList();
             List <VotingUsersResponse> result = new List<VotingUsersResponse>();
             foreach (VotingUsers vu in users)
             {
@@ -100,7 +104,7 @@ namespace voting_data_access.Repositories.Implementation
 
         public bool AuthenticateUser(string email, string password)
         {
-            var user = Db.VotingUsers.SingleOrDefault(u => u.Email == email && u.Password == password);
+            var user = Db.VotingUsers.Where(i => i.Disabled == false).SingleOrDefault(u => u.Email == email && u.Password == password);
             return user != null;
         }
         public VotingRoles getRole(string email)

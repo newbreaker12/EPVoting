@@ -13,5 +13,6 @@ namespace voting_data_access.Entities
         public string Name { get; set; }
         public string ReadableId { get; set; }
         public DateTime CreatedAt { get; set; }
+        public bool Disabled { get; set; }
     }
 }

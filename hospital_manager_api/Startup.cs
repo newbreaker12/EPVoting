@@ -34,7 +34,7 @@ namespace voting_api
 
             string connectionString = Configuration.GetConnectionString("DefaultConnection");
             //// Do first:
-            //// dotnet ef migrations add InitialHospitalManagerDefaultDbMigration -c HospitalDbContext -o Data/Migrations/DefaultHospitalDbContext
+            //// dotnet ef migrations add InitialVotingManagerDefaultDbMigration -c VotingDbContext -o Data/Migrations/DefaultVotingDbContext
             //
             services.AddDbContext<VotingDbContext>(
                 options => options.UseSqlServer(connectionString,

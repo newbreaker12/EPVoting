@@ -10,8 +10,8 @@ using voting_data_access.Data;
 namespace voting_api.Data.Migrations.DefaultVotingDbContext
 {
     [DbContext(typeof(VotingDbContext))]
-    [Migration("20220425171159_InitialVotingDbMigration")]
-    partial class InitialVotingDbMigration
+    [Migration("20221103184701_InitialVotingManagerDefaultDbMigration")]
+    partial class InitialVotingManagerDefaultDbMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -93,6 +93,9 @@ namespace voting_api.Data.Migrations.DefaultVotingDbContext
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("Disabled")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
@@ -180,6 +183,9 @@ namespace voting_api.Data.Migrations.DefaultVotingDbContext
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool>("Disabled")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");

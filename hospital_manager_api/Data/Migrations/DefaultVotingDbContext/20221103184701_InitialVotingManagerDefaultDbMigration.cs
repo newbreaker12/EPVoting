@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace voting_api.Data.Migrations.DefaultVotingDbContext
 {
-    public partial class InitialVotingDbMigration : Migration
+    public partial class InitialVotingManagerDefaultDbMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -60,7 +60,8 @@ namespace voting_api.Data.Migrations.DefaultVotingDbContext
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(nullable: true),
                     ReadableId = table.Column<string>(nullable: true),
-                    CreatedAt = table.Column<DateTime>(nullable: false)
+                    CreatedAt = table.Column<DateTime>(nullable: false),
+                    Disabled = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -126,7 +127,8 @@ namespace voting_api.Data.Migrations.DefaultVotingDbContext
                     Password = table.Column<string>(nullable: true),
                     IsMEP = table.Column<bool>(nullable: false),
                     RoleId = table.Column<long>(nullable: false),
-                    GroupId = table.Column<long>(nullable: false)
+                    GroupId = table.Column<long>(nullable: false),
+                    Disabled = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {

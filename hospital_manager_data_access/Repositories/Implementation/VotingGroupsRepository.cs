@@ -13,7 +13,7 @@ namespace voting_data_access.Repositories.Implementation
 
         public List<VotingGroups> GetGroups()
         {
-            return Db.VotingGroups.ToList();
+            return Db.VotingGroups.Where(g => g.Disabled == false).ToList();
         }
     }
 }

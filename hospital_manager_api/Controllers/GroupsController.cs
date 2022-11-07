@@ -102,6 +102,50 @@ namespace voting_api.Controllers
             });
         }
 
+        [HttpPut]
+        public ActionResult<VotingGroups> PutGroup(VotingGroups groups)
+        {
+            string getAuthentication = GetAuthorization();
+            var up = getAuthentication.Split(":");
+            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            {
+                return Unauthorized();
+            }
+            var rs = _usersService.getRole(up[0]);
+            if (rs.Name != "ADMIN")
+            {
+                return Unauthorized();
+            }
+            return Ok(new
+            {
+                data = _groupsService.UpdateGroups(groups)
+            });
+        }
+        [HttpDelete("{id}")]
+        public ActionResult<VotingGroups> DeleteGroup(long id)
+        {
+            string getAuthentication = GetAuthorization();
+            var up = getAuthentication.Split(":");
+            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            {
+                return Unauthorized();
+            }
+            var rs = _usersService.getRole(up[0]);
+            if (rs.Name != "ADMIN")
+            {
+                return Unauthorized();
+            }
+            var users = _usersService.GetUsersByGroup(id);
+            if (users.Count > 0)
+                return BadRequest(new
+                {
+                    data = "Users are assigned to this!"
+                });
+            return Ok(new
+            {
+                data = _groupsService.DeleteGroups(id)
+            });
+        }
         private string GetAuthorization()
         {
             return Request.Headers[HeaderNames.Authorization].ToString();

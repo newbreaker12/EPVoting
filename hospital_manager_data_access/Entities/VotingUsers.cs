@@ -18,6 +18,7 @@ namespace voting_data_access.Entities
         public bool IsMEP { get; set; }
         public long RoleId { get; set; }
         public long GroupId { get; set; }
+        public bool Disabled { get; set; }
     }
 
 }

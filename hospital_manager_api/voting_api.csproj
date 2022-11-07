@@ -29,4 +29,8 @@
     <ProjectReference Include="..\hospital_manager_models\voting_models.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Data\Migrations\" />
+  </ItemGroup>
+
 </Project>

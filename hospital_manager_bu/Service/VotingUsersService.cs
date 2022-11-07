@@ -15,6 +15,11 @@ namespace voting_bl.Service
             _unitOfWork = unitOfWork;
         }
 
+        public List<VotingUsers> GetUsersByGroup(long groupId)
+        {
+            List<VotingUsers> usersData = _unitOfWork.VotingUsers.GetByGroupId(groupId);
+            return usersData;
+        }
         public VotingUsersResponse GetUserBEmail(string email)
         {
             VotingUsersResponse usersData = _unitOfWork.VotingUsers.GetUserByEmail(email);
@@ -58,6 +63,15 @@ namespace voting_bl.Service
             votingUser.IsMEP = user.IsMEP;
             _unitOfWork.VotingUsers.Update(votingUser);
             _unitOfWork.Save();
+        }
+
+        public VotingUsers DeleteUsers(long id)
+        {
+            VotingUsers user = _unitOfWork.VotingUsers.Get(id);
+            user.Disabled = true;
+            _unitOfWork.VotingUsers.Update(user);
+            _unitOfWork.Save();
+            return user;
         }
     }
 }
