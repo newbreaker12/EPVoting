@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="itext7" Version="7.0.1" />
     <ProjectReference Include="..\hospital_manager_data_access\voting_data_access.csproj" />
     <ProjectReference Include="..\hospital_manager_exceptions\voting_exceptions.csproj" />
     <ProjectReference Include="..\hospital_manager_models\voting_models.csproj" />

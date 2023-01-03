@@ -17,12 +17,16 @@ namespace voting_api.Controllers
     public class VoteController : Controller
     {
         private readonly VoteService _voteService;
+        private readonly VotingArticleService _votingArticle;
+        private readonly EmailsService _emailsService;
         private readonly VotingUsersService _usersService;
 
         public VoteController(IUnitOfWork unitOfWork)
         {
             _voteService = new VoteService(unitOfWork);
             _usersService = new VotingUsersService(unitOfWork);
+            _votingArticle = new VotingArticleService(unitOfWork);
+            _emailsService = new EmailsService(unitOfWork);
         }
 
         [HttpPost]
@@ -109,6 +113,18 @@ namespace voting_api.Controllers
                     data = "ALREADY SUBMITTED VOTES"
                 });
             }
+            List<VotingArticleResponse> votingArticle = _votingArticle.GetArticlesForUser(GetUsername());
+
+            if (votingArticle.Count < 1)
+            {
+                return BadRequest(new
+                {
+                    data = "No article found"
+                });
+            }
+            byte[] file = PdfFileGenerator.GeneratePdf(votingArticle[0]);
+            _emailsService.SendEmail(up[0], "Vote submitted: " + votingArticle[0].Description, "Please find attached", file);
+
 
             _voteService.SaveVoteSubmit(new VoteSubmit() { ArticleId = id, UserEmail = email, });
             return Ok(new

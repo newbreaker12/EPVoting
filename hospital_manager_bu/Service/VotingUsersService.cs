@@ -3,6 +3,7 @@ using voting_data_access.Repositories.Interfaces;
 using System.Collections.Generic;
 using voting_models.Models;
 using System;
+using voting_exceptions.Exceptions;
 
 namespace voting_bl.Service
 {
@@ -39,6 +40,12 @@ namespace voting_bl.Service
 
         public void SaveUsers(VotingUsers votingUsers)
         {
+            VotingUsersResponse usersData = _unitOfWork.VotingUsers.GetUserByEmail(votingUsers.Email);
+            if (usersData != null)
+            {
+                throw new InvalidUsersEmail("Email already taken");
+            }
+
             _unitOfWork.VotingUsers.Add(votingUsers);
             _unitOfWork.Save();
         }
@@ -69,6 +76,8 @@ namespace voting_bl.Service
         {
             VotingUsers user = _unitOfWork.VotingUsers.Get(id);
             user.Disabled = true;
+            user.RoleId = 0;
+            user.GroupId = 0;
             _unitOfWork.VotingUsers.Update(user);
             _unitOfWork.Save();
             return user;
