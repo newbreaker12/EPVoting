@@ -15,6 +15,11 @@ namespace voting_data_access.Repositories.Implementation
             return Db.Vote.SingleOrDefault(v => v.SubArticleId == subArticleId && v.UserEmail == email);
         }
 
+        public int GetVoteCountByTypeAndSubArticle(int type, long subArticleId)
+        {
+            return Db.Vote.Where(v => v.SubArticleId == subArticleId && v.Type == type).Count();
+        }
+
         public List<Vote> GetVote()
         {
             return Db.Vote.ToList();

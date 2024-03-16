@@ -7,5 +7,6 @@ namespace voting_data_access.Repositories.Interfaces
     {
         Vote GetVoteForUser(string email, long subArticleId);
         List<Vote> GetVote();
+        public int GetVoteCountByTypeAndSubArticle(int type, long subArticleId);
     }
 }

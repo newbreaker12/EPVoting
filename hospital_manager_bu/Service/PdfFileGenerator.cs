@@ -5,6 +5,7 @@ using iText.Layout.Properties;
 using System.Collections.Generic;
 using System.IO;
 using voting_data_access.Entities;
+using voting_models.Models;
 using voting_models.Response_Models;
 
 namespace voting_bl.Service

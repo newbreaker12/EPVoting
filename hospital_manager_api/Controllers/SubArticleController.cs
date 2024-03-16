@@ -8,6 +8,8 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Net.Http.Headers;
 using voting_data_access.Repositories.Interfaces;
 using voting_exceptions.Exceptions;
+using voting_models.Response_Models;
+using voting_bl.Mapper;
 
 namespace voting_api.Controllers
 {
@@ -19,12 +21,45 @@ namespace voting_api.Controllers
         private readonly VotingArticleService _articleService;
         private readonly VotingSubArticleService _votingSubArticleService;
         private readonly VotingUsersService _usersService;
+        private readonly VoteMapper _voteMapper;
+        private readonly StatisticsMapper statisticsMapper;
 
         public SubArticleController(IUnitOfWork unitOfWork)
         {
             _votingSubArticleService = new VotingSubArticleService(unitOfWork);
             _usersService = new VotingUsersService(unitOfWork);
             _articleService = new VotingArticleService(unitOfWork);
+            _voteMapper = new VoteMapper(unitOfWork);
+            statisticsMapper = new StatisticsMapper(unitOfWork);
+        }
+
+        [HttpGet("statistics")]
+        public ActionResult<IEnumerable<StatisticsSearchResponse>> GetStatistics()
+        {
+            string getAuthentication = GetAuthorization();
+            var up = getAuthentication.Split(":");
+            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            {
+                return Unauthorized();
+            }
+            var rs = _usersService.getRole(up[0]);
+            if (rs.Name != "ADMIN")
+            {
+                return Unauthorized();
+            }
+
+
+            List<StatisticsSearchResponse> searchList = new List<StatisticsSearchResponse>();
+
+            foreach (var source in _votingSubArticleService.GetAll())
+            {
+                searchList.Add(statisticsMapper.Map(source));
+            }
+
+            return Ok(new
+            {
+                data = searchList
+            });
         }
 
 

@@ -49,6 +49,10 @@ namespace voting_bl.Service
         {
             return _unitOfWork.VotingSubArticle.GetSubArticlesByArticleId(id);
         }
+        public List<VotingSubArticle> GetAll()
+        {
+            return _unitOfWork.VotingSubArticle.GetAll();
+        }
 
         public List<VotingSubArticleResponse> GetSubAsByArticleIdAndEmail(long id, string email)
         {

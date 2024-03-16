@@ -8,6 +8,9 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Net.Http.Headers;
 using voting_data_access.Repositories.Interfaces;
 using voting_exceptions.Exceptions;
+using voting_models.Models;
+using voting_models.Response_Models;
+using voting_bl.Mapper;
 
 namespace voting_api.Controllers
 {
@@ -20,6 +23,7 @@ namespace voting_api.Controllers
         private readonly VotingArticleService _votingArticle;
         private readonly EmailsService _emailsService;
         private readonly VotingUsersService _usersService;
+        private readonly VoteMapper voteMapper;
 
         public VoteController(IUnitOfWork unitOfWork)
         {
@@ -27,6 +31,7 @@ namespace voting_api.Controllers
             _usersService = new VotingUsersService(unitOfWork);
             _votingArticle = new VotingArticleService(unitOfWork);
             _emailsService = new EmailsService(unitOfWork);
+            voteMapper = new VoteMapper(unitOfWork);
         }
 
         [HttpPost]
@@ -153,7 +158,7 @@ namespace voting_api.Controllers
             });
         }
         [HttpGet("all")]
-        public ActionResult<IEnumerable<Vote>> GetVote()
+        public ActionResult<IEnumerable<VoteSearchResponse>> GetVote()
         {
             string getAuthentication = GetAuthorization();
             var up = getAuthentication.Split(":");
@@ -166,9 +171,18 @@ namespace voting_api.Controllers
             {
                 return Unauthorized();
             }
+
+
+            List<VoteSearchResponse> searchList = new List<VoteSearchResponse>();
+
+            foreach (var source in _voteService.GetVote())
+            {
+                searchList.Add(voteMapper.Map(source));
+            }
+
             return Ok(new
             {
-                data = _voteService.GetVote()
+                data = searchList
             });
         }
 

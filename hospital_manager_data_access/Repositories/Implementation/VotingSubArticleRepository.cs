@@ -13,6 +13,10 @@ namespace voting_data_access.Repositories.Implementation
     {
         public VotingSubArticleRepository(VotingDbContext context) : base(context) { }
 
+        public List<VotingSubArticle> GetAll()
+        {
+            return Db.VotingSubArticle.ToList();
+        }
         public List<VotingSubArticle> GetSubArticlesByArticleId(long articleId)
         {
             return Db.VotingSubArticle.Where(a => a.ArticleId == articleId).ToList();

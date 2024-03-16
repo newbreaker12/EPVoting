@@ -16,6 +16,12 @@ namespace voting_bl.Service
             _unitOfWork = unitOfWork;
         }
 
+
+        public int GetVoteCountByTypeAndSubArticle(int type, long subArticleId)
+        {
+            return _unitOfWork.Vote.GetVoteCountByTypeAndSubArticle(type, subArticleId);
+        }
+
         public Vote GetVote(long id)
         {
             Vote voteData = _unitOfWork.Vote.Get(id);

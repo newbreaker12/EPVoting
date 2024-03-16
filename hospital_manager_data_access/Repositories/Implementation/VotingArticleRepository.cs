@@ -19,6 +19,10 @@ namespace voting_data_access.Repositories.Implementation
             DateTime now = DateTime.Now;
             VotingArticleResponse result = new VotingArticleResponse();
             VotingArticle article = Db.VotingArticle.SingleOrDefault(s => s.Id == id);
+            if (article == null)
+            {
+                return null;
+            }
             List<VotingSubArticle> subArticles = Db.VotingSubArticle.Where(s => s.ArticleId == article.Id).ToList();
             VotingSession session = Db.VotingSession.SingleOrDefault(s => s.ArticleId == article.Id && s.To > now && s.From <= now);
 
