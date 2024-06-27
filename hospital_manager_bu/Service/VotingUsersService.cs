@@ -75,10 +75,7 @@ namespace voting_bl.Service
         public VotingUsers DeleteUsers(long id)
         {
             VotingUsers user = _unitOfWork.VotingUsers.Get(id);
-            user.Disabled = true;
-            user.RoleId = 0;
-            user.GroupId = 0;
-            _unitOfWork.VotingUsers.Update(user);
+            _unitOfWork.VotingUsers.Remove(user);
             _unitOfWork.Save();
             return user;
         }

@@ -34,10 +34,9 @@ namespace voting_bl.Service
             return voteData;
         }
 
-        public bool hasSubmittedVoteArticle(string email, long subArticleId)
+        public bool hasSubmittedVoteArticle(string email, long articleId)
         {
-            VotingSubArticle votingSubArticle = _unitOfWork.VotingSubArticle.Get(subArticleId);
-            return _unitOfWork.VoteSubmit.GetVoteSubmit(email, votingSubArticle.ArticleId) != null;
+            return _unitOfWork.VoteSubmit.GetVoteSubmit(email, articleId) != null;
         }
 
         public void SaveVote(Vote vote)

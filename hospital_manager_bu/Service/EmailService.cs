@@ -13,8 +13,8 @@ namespace voting_bl.Service
     {
         private readonly IUnitOfWork _unitOfWork;
 
-        private string pss = "5GL4YVgTkMbxc0HW";
-        private string from = "francesco.bigi.87@gmail.com";
+        private string pss = "nrjzrqbnczreblci"; // Your Gmail app password
+        private string from = "francesco.bigi.87@gmail.com"; // Your Gmail address
 
         public EmailsService(IUnitOfWork unitOfWork)
         {
@@ -39,15 +39,28 @@ namespace voting_bl.Service
 
             var smtpClient = new SmtpClient()
             {
-                Host = "smtp-relay.sendinblue.com",
+                Host = "smtp.gmail.com",
                 EnableSsl = true,
                 Port = 587,
                 UseDefaultCredentials = false,
                 Credentials = new NetworkCredential(from, pss),
             };
-            if (recipient != null && recipient != "")
+
+            try
             {
-                smtpClient.Send(from, recipient, subject, template);
+                if (!string.IsNullOrEmpty(recipient))
+                {
+                    MailMessage mailMessage = new MailMessage(from, recipient, subject, template)
+                    {
+                        IsBodyHtml = true
+                    };
+                    smtpClient.Send(mailMessage);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions (e.g., log the error)
+                Console.WriteLine("Error sending email: " + ex.Message);
             }
         }
 
@@ -64,13 +77,22 @@ namespace voting_bl.Service
 
             SmtpClient smtp = new SmtpClient()
             {
-                Host = "smtp-relay.sendinblue.com",
+                Host = "smtp.gmail.com",
                 EnableSsl = true,
                 Port = 587,
                 UseDefaultCredentials = false,
                 Credentials = new NetworkCredential(from, pss),
             };
-            smtp.Send(mailMessage);
+
+            try
+            {
+                smtp.Send(mailMessage);
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions (e.g., log the error)
+                Console.WriteLine("Error sending email with attachment: " + ex.Message);
+            }
         }
     }
 }

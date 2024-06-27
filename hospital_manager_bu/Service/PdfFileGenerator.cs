@@ -34,7 +34,12 @@ namespace voting_bl.Service
                 votingArticle.SubArticles.ForEach(v =>
                 {
                     Cell cell1 = new Cell();
-                    cell1.Add(new Paragraph(v.Description));
+                    var desc = v.Description;
+                    if (desc == null)
+                    {
+                        desc = "";
+                    }
+                    cell1.Add(new Paragraph(desc));
                     Cell cell2 = new Cell();
                     cell2.Add(new Paragraph(((VoteType)v.VoteType).ToString().Replace("_", " ").ToLower()));
                     table.AddCell(cell1);
