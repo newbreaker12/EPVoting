@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using voting_models.Models;
+using Microsoft.Data.SqlClient;
+using System;
 
 namespace voting_data_access.Repositories.Implementation
 {
@@ -48,7 +50,6 @@ namespace voting_data_access.Repositories.Implementation
             }
             if (vr != null)
             {
-
                 vur.Role = new VotingRolesResponse()
                 {
                     Id = vr.Id,
@@ -104,8 +105,34 @@ namespace voting_data_access.Repositories.Implementation
 
         public bool AuthenticateUser(string email, string password)
         {
-            var user = Db.VotingUsers.Where(i => i.Disabled == false).SingleOrDefault(u => u.Email == email && u.Password == password);
-            return user != null;
+            try
+            {
+                // Log the input parameters for debugging
+                Console.WriteLine($"AuthenticateUser called with Email: {email}, Password: {password}");
+
+                // Ensure correct column names and use the combined Where method
+                var user = Db.VotingUsers
+                             .Where(i => !i.Disabled && i.Email == email && i.Password == password)
+                             .SingleOrDefault();
+
+                // Log the generated SQL query
+                var sql = Db.VotingUsers.Where(i => !i.Disabled && i.Email == email && i.Password == password).ToQueryString();
+                Console.WriteLine($"Generated SQL: {sql}");
+
+                return user != null;
+            }
+            catch (SqlException ex)
+            {
+                // Log the exception details
+                Console.WriteLine($"SQL Exception: {ex.Message}");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                // Log general exceptions
+                Console.WriteLine($"Exception: {ex.Message}");
+                throw;
+            }
         }
         public VotingRoles getRole(string email)
         {

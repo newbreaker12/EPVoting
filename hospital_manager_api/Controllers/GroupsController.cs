@@ -11,6 +11,9 @@ using voting_exceptions.Exceptions;
 
 namespace voting_api.Controllers
 {
+    /// <summary>
+    /// Contrôleur pour gérer les demandes liées aux groupes.
+    /// </summary>
     [Produces("application/json")]
     [Route("groups")]
     [ApiController]
@@ -19,18 +22,31 @@ namespace voting_api.Controllers
         private readonly VotingGroupsService _groupsService;
         private readonly VotingUsersService _usersService;
 
+        /// <summary>
+        /// Initialise une nouvelle instance de la classe <see cref="GroupsController"/>.
+        /// </summary>
+        /// <param name="unitOfWork">L'unité de travail à utiliser par les services.</param>
         public GroupsController(IUnitOfWork unitOfWork)
         {
             _groupsService = new VotingGroupsService(unitOfWork);
             _usersService = new VotingUsersService(unitOfWork);
         }
 
+        /// <summary>
+        /// Une méthode de ping simple pour vérifier si le contrôleur répond.
+        /// </summary>
+        /// <returns>Une réponse de chaîne "OK".</returns>
         [HttpGet("ping")]
         public string Ping()
         {
             return "OK";
         }
 
+        /// <summary>
+        /// Enregistre un nouveau groupe.
+        /// </summary>
+        /// <param name="groups">Le groupe à enregistrer.</param>
+        /// <returns>Le groupe enregistré.</returns>
         [HttpPost]
         //[Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMIN")]
         public ActionResult<VotingGroups> SaveGroups(VotingGroups groups)
@@ -63,6 +79,11 @@ namespace voting_api.Controllers
             }
         }
 
+        /// <summary>
+        /// Obtient un groupe par son ID.
+        /// </summary>
+        /// <param name="id">L'ID du groupe à obtenir.</param>
+        /// <returns>Le groupe demandé.</returns>
         [HttpGet("{id}")]
         public ActionResult<VotingGroups> GetGroup(long id)
         {
@@ -82,6 +103,11 @@ namespace voting_api.Controllers
                 data = _groupsService.GetGroups(id)
             });
         }
+
+        /// <summary>
+        /// Obtient tous les groupes.
+        /// </summary>
+        /// <returns>Une liste de tous les groupes.</returns>
         [HttpGet("all")]
         public ActionResult<IEnumerable<VotingGroups>> GetGroups()
         {
@@ -102,6 +128,11 @@ namespace voting_api.Controllers
             });
         }
 
+        /// <summary>
+        /// Modifie un groupe existant.
+        /// </summary>
+        /// <param name="groups">Le groupe à modifier.</param>
+        /// <returns>Le groupe modifié.</returns>
         [HttpPut]
         public ActionResult<VotingGroups> PutGroup(VotingGroups groups)
         {
@@ -121,6 +152,12 @@ namespace voting_api.Controllers
                 data = _groupsService.UpdateGroups(groups)
             });
         }
+
+        /// <summary>
+        /// Supprime un groupe par son ID.
+        /// </summary>
+        /// <param name="id">L'ID du groupe à supprimer.</param>
+        /// <returns>Le groupe supprimé.</returns>
         [HttpDelete("{id}")]
         public ActionResult<VotingGroups> DeleteGroup(long id)
         {
@@ -139,13 +176,18 @@ namespace voting_api.Controllers
             if (users.Count > 0)
                 return BadRequest(new
                 {
-                    data = "Users are assigned to this!"
+                    data = "Des utilisateurs sont assignés à ce groupe !"
                 });
             return Ok(new
             {
                 data = _groupsService.DeleteGroups(id)
             });
         }
+
+        /// <summary>
+        /// Obtient l'en-tête d'autorisation.
+        /// </summary>
+        /// <returns>L'en-tête d'autorisation.</returns>
         private string GetAuthorization()
         {
             return Request.Headers[HeaderNames.Authorization].ToString();

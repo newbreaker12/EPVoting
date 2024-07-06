@@ -39,9 +39,9 @@ namespace voting_data_access.Repositories.Implementation
 
         protected virtual void Dispose(bool disposing)
         {
-            if(!_disposed)
+            if (!_disposed)
             {
-                if(disposing && _context != null)
+                if (disposing && _context != null)
                 {
                     _context.Dispose();
                     _context = null;

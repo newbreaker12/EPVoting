@@ -2,28 +2,40 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
-using System.Collections.Generic;
 using voting_bl.Service;
 using voting_data_access.Entities;
 using voting_data_access.Repositories.Interfaces;
 
 namespace voting_api
 {
+    /// <summary>
+    /// Classe principale du programme.
+    /// </summary>
     public class Program
     {
+        /// <summary>
+        /// Point d'entrée principal de l'application.
+        /// </summary>
+        /// <param name="args">Tableau des arguments de la ligne de commande.</param>
         public static void Main(string[] args)
         {
             var host = CreateHostBuilder(args).Build();
 
-            //AddGroups(host);
-            //AddArticle(host);
-            //AddSubArticle(host);
-            //AddSession(host);
-            //AddRoles(host);
-            //AddUser(host);
+            // Décommenter les lignes ci-dessous pour ajouter des groupes, articles, etc.
+            // AddGroups(host);
+            // AddArticle(host);
+            // AddSubArticle(host);
+            // AddSession(host);
+            // AddRoles(host);
+            // AddUser(host);
             host.Run();
         }
 
+        /// <summary>
+        /// Configure et crée l'hôte de l'application.
+        /// </summary>
+        /// <param name="args">Tableau des arguments de la ligne de commande.</param>
+        /// <returns>Le constructeur d'hôte configuré.</returns>
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
@@ -31,8 +43,10 @@ namespace voting_api
                     webBuilder.UseStartup<Startup>();
                 });
 
-
-
+        /// <summary>
+        /// Ajoute des utilisateurs à la base de données.
+        /// </summary>
+        /// <param name="host">L'hôte de l'application.</param>
         private static void AddUser(IHost host)
         {
             var scope = host.Services.CreateScope();
@@ -49,7 +63,6 @@ namespace voting_api
                     IsMEP = true,
                     RoleId = 1,
                     GroupId = 1
-
                 });
             _userService.SaveUsers(
                 new VotingUsers
@@ -60,10 +73,13 @@ namespace voting_api
                     Password = "pss",
                     IsMEP = true,
                     RoleId = 2
-
                 });
         }
 
+        /// <summary>
+        /// Ajoute des rôles à la base de données.
+        /// </summary>
+        /// <param name="host">L'hôte de l'application.</param>
         private static void AddRoles(IHost host)
         {
             var scope = host.Services.CreateScope();
@@ -75,24 +91,25 @@ namespace voting_api
                 {
                     Name = "MEP",
                     Description = "Member of European Parliament"
-
                 });
             _roleService.SaveRoles(
                 new VotingRoles
                 {
                     Name = "ADMIN",
                     Description = "Administrator of the application"
-
                 });
             _roleService.SaveRoles(
                 new VotingRoles
                 {
                     Name = "PG",
                     Description = "Political Groups"
-
                 });
         }
 
+        /// <summary>
+        /// Ajoute des groupes à la base de données.
+        /// </summary>
+        /// <param name="host">L'hôte de l'application.</param>
         private static void AddGroups(IHost host)
         {
             var scope = host.Services.CreateScope();
@@ -105,10 +122,13 @@ namespace voting_api
                     Name = "BUDGET",
                     ReadableId = "BG",
                     CreatedAt = new DateTime(now.Year, now.Month, 1, 7, 0, 0)
-
                 });
         }
 
+        /// <summary>
+        /// Ajoute des articles à la base de données.
+        /// </summary>
+        /// <param name="host">L'hôte de l'application.</param>
         private static void AddArticle(IHost host)
         {
             var scope = host.Services.CreateScope();
@@ -133,6 +153,10 @@ namespace voting_api
                 });
         }
 
+        /// <summary>
+        /// Ajoute des sous-articles à la base de données.
+        /// </summary>
+        /// <param name="host">L'hôte de l'application.</param>
         private static void AddSubArticle(IHost host)
         {
             var scope = host.Services.CreateScope();
@@ -180,6 +204,11 @@ namespace voting_api
                     CreatedAt = new DateTime(now.Year, now.Month, 1, 4, 0, 0)
                 });
         }
+
+        /// <summary>
+        /// Ajoute des sessions à la base de données.
+        /// </summary>
+        /// <param name="host">L'hôte de l'application.</param>
         private static void AddSession(IHost host)
         {
             var scope = host.Services.CreateScope();
@@ -197,5 +226,4 @@ namespace voting_api
                 });
         }
     }
-
 }

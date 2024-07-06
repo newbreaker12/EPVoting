@@ -12,61 +12,69 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Microsoft.Extensions.Configuration;
-using Npgsql;
-using Microsoft.AspNetCore.DataProtection;
 using Prometheus;
+using Microsoft.Extensions.Logging;
 
 namespace voting_api
 {
+    /// <summary>
+    /// Configure les services et le pipeline de requêtes de l'application.
+    /// </summary>
     public class Startup
     {
         readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
+        /// <summary>
+        /// Initialise une nouvelle instance de la classe <see cref="Startup"/>.
+        /// </summary>
+        /// <param name="configuration">La configuration à utiliser.</param>
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
+
+        /// <summary>
+        /// Obtient la configuration.
+        /// </summary>
         public IConfiguration Configuration { get; }
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
+
+        /// <summary>
+        /// Configure les services pour l'application.
+        /// </summary>
+        /// <param name="services">Les services à configurer.</param>
         public void ConfigureServices(IServiceCollection services)
         {
-
             string connectionString = Configuration.GetConnectionString("DefaultConnection");
-            //// Do first:
-            //// dotnet ef migrations add InitialVotingManagerDefaultDbMigration -c VotingDbContext -o Data/Migrations/DefaultVotingDbContext
-            //
-            services.AddDbContext<VotingDbContext>(
-                options => options.UseSqlServer(connectionString,
-                    b => b.MigrationsAssembly("voting_api"))
-            );
-            //services.AddDbContext<VotingDbContext>(
-            //    config =>
-            //    {
-            //        config.UseInMemoryDatabase("Memory");
-            //    }
-            //);
 
+            // Ajouter DbContext avec SQL Server
+            services.AddDbContext<VotingDbContext>(options =>
+                options.UseSqlServer(connectionString, b => b.MigrationsAssembly("voting_api"))
+                .LogTo(Console.WriteLine, new[] { DbLoggerCategory.Database.Command.Name }, LogLevel.Information)
+            );
+
+            // Ajouter la politique CORS
             services.AddCors(options =>
             {
                 options.AddPolicy(name: MyAllowSpecificOrigins,
-                                  builder =>
-                                  {
-                                      builder.WithOrigins("*")
-                                      .AllowAnyMethod()
-                                      .AllowAnyHeader();
-                                  });
+                    builder =>
+                    {
+                        builder.WithOrigins("*")
+                               .AllowAnyMethod()
+                               .AllowAnyHeader();
+                    });
             });
 
             services.AddControllers();
             services.AddMvc();
 
-            services.AddSwaggerGen(c => {
-                c.SwaggerDoc("V1", new OpenApiInfo
+            // Ajouter Swagger
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "v1",
                     Title = "API Voting Manager",
-                    Description = "Creation of an Voting Manager application. ",
+                    Description = "Création d'une application de gestion de vote.",
                     TermsOfService = new Uri("https://example.com/terms"),
                     Contact = new OpenApiContact
                     {
@@ -76,7 +84,7 @@ namespace voting_api
                     },
                     License = new OpenApiLicense
                     {
-                        Name = "Use under LICX",
+                        Name = "Utilisation sous LICX",
                         Url = new Uri("https://example.com/license"),
                     }
                 });
@@ -86,18 +94,20 @@ namespace voting_api
                 c.IncludeXmlComments(xmlPath);
             });
 
+            // Ajouter d'autres services
             services.AddApplicationServices();
             services.AddHttpContextAccessor();
             services.TryAddSingleton<IActionContextAccessor, ActionContextAccessor>();
         }
 
-        /*dotnet ef migrations add InitialVoteManagerDefaultDbMigration -c VoteDbContext -o Data/Migrations/DefaultVoteDbContext
-         dotnet ef migrations add InitialVoteManagerDefaultDbMigration -c VoteDbContext -o Data/Migrations/DefaultVoteDbContext*/
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        /// <summary>
+        /// Configure le pipeline de requêtes HTTP.
+        /// </summary>
+        /// <param name="app">Le générateur d'application.</param>
+        /// <param name="env">L'environnement d'hébergement.</param>
+        /// <param name="dbContext">Le contexte de base de données.</param>
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, VotingDbContext dbContext)
         {
-
             dbContext.Database.Migrate();
 
             if (env.IsDevelopment())
@@ -105,30 +115,29 @@ namespace voting_api
                 app.UseDeveloperExceptionPage();
             }
 
+            // Activer le middleware Swagger
             app.UseSwagger(c =>
             {
                 c.SerializeAsV2 = true;
             });
 
-            //app.UseSession();
             app.UseHttpsRedirection();
-            //app.UseMiddleware<ExceptionMiddleware>();
+
             app.UseRouting();
 
             app.UseCors(MyAllowSpecificOrigins);
 
             app.UseAuthentication();
-
             app.UseAuthorization();
 
             app.UseMetricServer();
             app.UseHttpMetrics();
 
-            //Need to use an end point in order to access to swagger page
+            // Activer l'UI Swagger
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/V1/swagger.json", "My API V1");
-                c.RoutePrefix = string.Empty;
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "EPVOTE API V1");
+                c.RoutePrefix = string.Empty; // Pour servir l'UI Swagger à la racine de l'application
             });
 
             app.UseEndpoints(endpoints =>

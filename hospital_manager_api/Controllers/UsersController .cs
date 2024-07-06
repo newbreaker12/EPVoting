@@ -12,6 +12,9 @@ using voting_models.Models;
 
 namespace voting_api.Controllers
 {
+    /// <summary>
+    /// Contrôleur pour gérer les demandes liées aux utilisateurs.
+    /// </summary>
     [Produces("application/json")]
     [Route("users")]
     [ApiController]
@@ -22,6 +25,10 @@ namespace voting_api.Controllers
         private readonly VotingGroupsService _votingGroupsService;
         private readonly VotingRolesService _votingRolesService;
 
+        /// <summary>
+        /// Initialise une nouvelle instance de la classe <see cref="UsersController"/>.
+        /// </summary>
+        /// <param name="unitOfWork">L'unité de travail à utiliser par les services.</param>
         public UsersController(IUnitOfWork unitOfWork)
         {
             _usersService = new VotingUsersService(unitOfWork);
@@ -30,24 +37,33 @@ namespace voting_api.Controllers
             _votingRolesService = new VotingRolesService(unitOfWork);
         }
 
+        /// <summary>
+        /// Une méthode de ping simple pour vérifier si le contrôleur répond.
+        /// </summary>
+        /// <returns>Une réponse de chaîne "OK".</returns>
         [HttpGet("ping")]
         public string Ping()
         {
             return "OK";
         }
 
-       [HttpGet("login")]
-       public ActionResult<string> Authenticate()
+        /// <summary>
+        /// Authentifie un utilisateur.
+        /// </summary>
+        /// <returns>Un jeton d'authentification si l'utilisateur est authentifié, sinon une réponse non autorisée.</returns>
+        [HttpGet("login")]
+        public ActionResult<string> Authenticate()
         {
             string getAuthentication = GetAuthorization();
             var up = getAuthentication.Split(":");
-            if(_usersService.Authenticate(up[0], up[1]))
+            if (_usersService.Authenticate(up[0], up[1]))
             {
                 return Ok(new
                 {
                     data = "ok"
                 });
-            } else
+            }
+            else
             {
                 return Unauthorized(new
                 {
@@ -56,6 +72,11 @@ namespace voting_api.Controllers
             }
         }
 
+        /// <summary>
+        /// Enregistre un nouvel utilisateur.
+        /// </summary>
+        /// <param name="users">L'utilisateur à enregistrer.</param>
+        /// <returns>L'utilisateur enregistré.</returns>
         [HttpPost]
         //[Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMIN")]
         public ActionResult<VotingUsers> Saveusers(VotingUsers users)
@@ -92,7 +113,7 @@ namespace voting_api.Controllers
             try
             {
                 _usersService.SaveUsers(users);
-                _emailsService.SendEmail(users.Email, "Account Created", "User has been created: "+users.Email + users.Password);
+                _emailsService.SendEmail(users.Email, "Account Created", "User has been created: " + users.Email + users.Password);
                 return Ok(new
                 {
                     data = "ok"
@@ -107,6 +128,11 @@ namespace voting_api.Controllers
             }
         }
 
+        /// <summary>
+        /// Obtient un utilisateur par son ID.
+        /// </summary>
+        /// <param name="id">L'ID de l'utilisateur à obtenir.</param>
+        /// <returns>L'utilisateur demandé.</returns>
         [HttpGet("{id}")]
         public ActionResult<VotingUsers> GetUser(long id)
         {
@@ -127,6 +153,11 @@ namespace voting_api.Controllers
             });
         }
 
+        /// <summary>
+        /// Supprime un utilisateur par son ID.
+        /// </summary>
+        /// <param name="id">L'ID de l'utilisateur à supprimer.</param>
+        /// <returns>L'utilisateur supprimé.</returns>
         [HttpDelete("{id}")]
         public ActionResult<VotingUsers> DeleteUser(long id)
         {
@@ -156,6 +187,11 @@ namespace voting_api.Controllers
             });
         }
 
+        /// <summary>
+        /// Modifie un utilisateur existant.
+        /// </summary>
+        /// <param name="user">L'utilisateur à modifier.</param>
+        /// <returns>L'utilisateur modifié.</returns>
         [HttpPut]
         public ActionResult<VotingArticle> EditUser(VotingUsers user)
         {
@@ -187,6 +223,10 @@ namespace voting_api.Controllers
             }
         }
 
+        /// <summary>
+        /// Obtient un utilisateur par son adresse e-mail.
+        /// </summary>
+        /// <returns>L'utilisateur demandé.</returns>
         [HttpGet("email")]
         public ActionResult<VotingUsersResponse> GetUserByEmail()
         {
@@ -202,6 +242,11 @@ namespace voting_api.Controllers
                 data = _usersService.GetUserBEmail(up[0])
             });
         }
+
+        /// <summary>
+        /// Obtient tous les utilisateurs.
+        /// </summary>
+        /// <returns>Une liste de tous les utilisateurs.</returns>
         [HttpGet("all")]
         public ActionResult<IEnumerable<VotingUsersResponse>> GetUsers()
         {
@@ -222,6 +267,10 @@ namespace voting_api.Controllers
             });
         }
 
+        /// <summary>
+        /// Obtient l'en-tête d'autorisation.
+        /// </summary>
+        /// <returns>L'en-tête d'autorisation.</returns>
         private string GetAuthorization()
         {
             return Request.Headers[HeaderNames.Authorization].ToString();

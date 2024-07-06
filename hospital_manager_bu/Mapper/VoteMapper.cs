@@ -24,7 +24,7 @@ namespace voting_bl.Mapper
         public VoteSearchResponse Map(Vote source)
         {
             VotingSubArticle votingSubArticle = _votingSubArticleService.GetSubArticleById(source.SubArticleId);
-            VotingArticleResponse votingArticle = _articleService.GetArticleBySubArticleId(source.SubArticleId);
+            VotingArticleResponse votingArticle = _articleService.GetArticleBySubArticleId(votingSubArticle.ArticleId);
 
             string articleName = votingArticle == null ? "" : votingArticle.Name;
             string subArticleName = votingSubArticle == null ? "" : votingSubArticle.Name;

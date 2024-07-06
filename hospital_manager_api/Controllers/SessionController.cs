@@ -11,6 +11,9 @@ using voting_exceptions.Exceptions;
 
 namespace voting_api.Controllers
 {
+    /// <summary>
+    /// Contrôleur pour gérer les demandes liées aux sessions de vote.
+    /// </summary>
     [Produces("application/json")]
     [Route("session")]
     [ApiController]
@@ -20,6 +23,10 @@ namespace voting_api.Controllers
         private readonly EmailsService _emailService;
         private readonly VotingUsersService _usersService;
 
+        /// <summary>
+        /// Initialise une nouvelle instance de la classe <see cref="SessionController"/>.
+        /// </summary>
+        /// <param name="unitOfWork">L'unité de travail à utiliser par les services.</param>
         public SessionController(IUnitOfWork unitOfWork)
         {
             _sessionService = new VotingSessionService(unitOfWork);
@@ -27,12 +34,21 @@ namespace voting_api.Controllers
             _usersService = new VotingUsersService(unitOfWork);
         }
 
+        /// <summary>
+        /// Une méthode de ping simple pour vérifier si le contrôleur répond.
+        /// </summary>
+        /// <returns>Une réponse de chaîne "OK".</returns>
         [HttpGet("ping")]
         public string Ping()
         {
             return "OK";
         }
 
+        /// <summary>
+        /// Enregistre une nouvelle session de vote.
+        /// </summary>
+        /// <param name="session">La session de vote à enregistrer.</param>
+        /// <returns>La session de vote enregistrée.</returns>
         [HttpPost]
         //[Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMIN")]
         public ActionResult<VotingSession> SaveSession(VotingSession session)
@@ -54,7 +70,7 @@ namespace voting_api.Controllers
                 {
                     return BadRequest(new
                     {
-                        data = "article already has a session"
+                        data = "L'article a déjà une session"
                     });
                 }
                 _sessionService.SaveSession(session);
@@ -73,10 +89,14 @@ namespace voting_api.Controllers
             }
         }
 
+        /// <summary>
+        /// Obtient une session de vote par son ID.
+        /// </summary>
+        /// <param name="id">L'ID de la session de vote à obtenir.</param>
+        /// <returns>La session de vote demandée.</returns>
         [HttpGet("{id}")]
         public ActionResult<VotingSession> GetSession(long id)
         {
-
             string getAuthentication = GetAuthorization();
             var up = getAuthentication.Split(":");
             if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
@@ -94,10 +114,14 @@ namespace voting_api.Controllers
                 data = _sessionService.GetSession(id)
             });
         }
+
+        /// <summary>
+        /// Obtient toutes les sessions de vote.
+        /// </summary>
+        /// <returns>Une liste de toutes les sessions de vote.</returns>
         [HttpGet("all")]
         public ActionResult<IEnumerable<VotingSession>> GetSession()
         {
-
             string getAuthentication = GetAuthorization();
             var up = getAuthentication.Split(":");
             if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
@@ -116,6 +140,10 @@ namespace voting_api.Controllers
             });
         }
 
+        /// <summary>
+        /// Obtient l'en-tête d'autorisation.
+        /// </summary>
+        /// <returns>L'en-tête d'autorisation.</returns>
         private string GetAuthorization()
         {
             return Request.Headers[HeaderNames.Authorization].ToString();

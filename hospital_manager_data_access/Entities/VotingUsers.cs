@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
 
 namespace voting_data_access.Entities
 {
-    [Table(name: "VotingUsers")]
+    [Table("VotingUsers")]
     public class VotingUsers
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -15,6 +12,8 @@ namespace voting_data_access.Entities
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Password { get; set; }
+        public string PhoneNumber { get; set; }
+
         public bool IsMEP { get; set; }
         public long RoleId { get; set; }
         public long GroupId { get; set; }

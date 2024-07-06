@@ -6,7 +6,7 @@ namespace voting_data_access
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello Worlsd!");
+            Console.WriteLine("Hello World!");
         }
     }
 }
