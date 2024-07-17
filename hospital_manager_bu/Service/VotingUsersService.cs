@@ -1,9 +1,8 @@
-﻿using voting_data_access.Entities;
+﻿using System.Collections.Generic;
+using voting_data_access.Entities;
 using voting_data_access.Repositories.Interfaces;
-using System.Collections.Generic;
-using voting_models.Models;
-using System;
 using voting_exceptions.Exceptions;
+using voting_models.Models;
 
 namespace voting_bl.Service
 {
@@ -25,6 +24,10 @@ namespace voting_bl.Service
         {
             VotingUsersResponse usersData = _unitOfWork.VotingUsers.GetUserByEmail(email);
             return usersData;
+        }
+        public VotingUsers GetUserDataByEmail(string email)
+        {
+            return _unitOfWork.VotingUsers.GetUserDataByEmail(email);
         }
         public VotingUsers GetUsers(long id)
         {
@@ -52,11 +55,11 @@ namespace voting_bl.Service
 
         public bool Authenticate(string email, string password)
         {
-           return _unitOfWork.VotingUsers.AuthenticateUser(email, password);
+            return _unitOfWork.VotingUsers.AuthenticateUser(email, password);
         }
         public VotingRoles getRole(string username)
         {
-            return _unitOfWork.VotingUsers.getRole(username) ;
+            return _unitOfWork.VotingUsers.getRole(username);
         }
 
         public void EditUser(long id, VotingUsers user)

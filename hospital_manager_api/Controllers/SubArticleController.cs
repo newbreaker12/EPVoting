@@ -1,98 +1,77 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using voting_bl.Mapper;
 using voting_bl.Service;
+using voting_data_access.Data;
 using voting_data_access.Entities;
-using Microsoft.Net.Http.Headers;
 using voting_data_access.Repositories.Interfaces;
 using voting_exceptions.Exceptions;
-using voting_models.Response_Models;
-using voting_bl.Mapper;
-using voting_data_access.Data;
 
 namespace voting_api.Controllers
 {
     /// <summary>
-    /// Contrôleur pour gérer les demandes liées aux sous-articles.
+    /// Controller for managing requests related to sub-articles.
     /// </summary>
     [Produces("application/json")]
     [Route("subarticle")]
     [ApiController]
-    public class SubArticleController : Controller
+    public class SubArticleController : ControllerBase
     {
         private readonly VotingArticleService _articleService;
         private readonly VotingSubArticleService _votingSubArticleService;
         private readonly VotingUsersService _usersService;
         private readonly VoteMapper _voteMapper;
-        private readonly StatisticsService statisticsService;
+        private readonly StatisticsService _statisticsService;
 
         /// <summary>
-        /// Initialise une nouvelle instance de la classe <see cref="SubArticleController"/>.
+        /// Initializes a new instance of the <see cref="SubArticleController"/> class.
         /// </summary>
-        /// <param name="unitOfWork">L'unité de travail à utiliser par les services.</param>
+        /// <param name="unitOfWork">The unit of work to use for services.</param>
+        /// <param name="votingDbContext">The voting database context.</param>
         public SubArticleController(IUnitOfWork unitOfWork, VotingDbContext votingDbContext)
         {
             _votingSubArticleService = new VotingSubArticleService(unitOfWork);
             _usersService = new VotingUsersService(unitOfWork);
             _articleService = new VotingArticleService(unitOfWork);
             _voteMapper = new VoteMapper(unitOfWork);
-            statisticsService = new StatisticsService(votingDbContext);
+            _statisticsService = new StatisticsService(votingDbContext);
         }
 
         /// <summary>
-        /// Une méthode de ping simple pour vérifier si le contrôleur répond.
+        /// A simple ping method to check if the controller is responsive.
         /// </summary>
-        /// <returns>Une réponse de chaîne "OK".</returns>
+        /// <returns>A string response "OK".</returns>
         [HttpGet("ping")]
-        public string Ping()
+        public IActionResult Ping()
         {
-            return "OK";
+            return Ok("OK");
         }
 
         /// <summary>
-        /// Obtient les statistiques des sous-articles.
+        /// Gets the vote statistics.
         /// </summary>
-        /// <returns>Une liste des réponses de recherche de statistiques.</returns>
+        /// <returns>A list of vote statistics.</returns>
         [HttpGet("statistics")]
-        public ActionResult<IEnumerable<VoteStatistics>> GetStatistics()
+        [Authorize(Roles = "ADMIN")]
+        public async Task<ActionResult<IEnumerable<VoteStatistics>>> GetStatistics()
         {
-            string getAuthentication = GetAuthorization();
-            var up = getAuthentication.Split(":");
-            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
-            {
-                return Unauthorized();
-            }
-            var rs = _usersService.getRole(up[0]);
-            if (rs.Name != "ADMIN")
-            {
-                return Unauthorized();
-            }
-            var results = statisticsService.GetVoteStatisticsAsync().Result;
-            return Ok(new
-            {
-                data = results
-            }) ;
+            var results = await _statisticsService.GetVoteStatisticsAsync();
+            return Ok(new { data = results });
         }
 
         /// <summary>
-        /// Enregistre un nouveau sous-article.
+        /// Saves a new sub-article.
         /// </summary>
-        /// <param name="subArticle">Le sous-article à enregistrer.</param>
-        /// <returns>Le sous-article enregistré.</returns>
+        /// <param name="subArticle">The sub-article to save.</param>
+        /// <returns>The result of the save operation.</returns>
         [HttpPost]
-        public ActionResult<VotingSubArticle> SaveSubArticle(VotingSubArticle subArticle)
+        [Authorize(Roles = "ADMIN,PG")]
+        public ActionResult SaveSubArticle([FromBody] VotingSubArticle subArticle)
         {
-            string getAuthentication = GetAuthorization();
-            var up = getAuthentication.Split(":");
-            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
-            {
-                return Unauthorized();
-            }
-            var rs = _usersService.getRole(up[0]);
-            if (rs.Name != "ADMIN" && rs.Name != "PG")
-            {
-                return Unauthorized();
-            }
+            var email = User.Identity.Name;
+            var rs = _usersService.getRole(email);
             var ar = _articleService.GetArticle(subArticle.ArticleId);
             if (rs.Name != "PG" && rs.Name != ar.Group.Name && rs.Name != "ADMIN")
             {
@@ -101,128 +80,83 @@ namespace voting_api.Controllers
             try
             {
                 _votingSubArticleService.SaveSubArticle(subArticle);
-                return Ok(new
-                {
-                    data = "ok"
-                });
+                return Ok(new { data = "ok" });
             }
             catch (InvalidVote e)
             {
-                return BadRequest(new
-                {
-                    data = e.Message
-                });
+                return BadRequest(new { data = e.Message });
             }
         }
 
         /// <summary>
-        /// Met à jour un sous-article existant.
+        /// Updates an existing sub-article.
         /// </summary>
-        /// <param name="subArticle">Le sous-article à mettre à jour.</param>
-        /// <returns>Le sous-article mis à jour.</returns>
+        /// <param name="subArticle">The sub-article to update.</param>
+        /// <returns>The result of the update operation.</returns>
         [HttpPut]
-        public ActionResult<VotingSubArticle> UpdateSubArticle(VotingSubArticle subArticle)
+        [Authorize(Roles = "ADMIN,PG")]
+        public ActionResult UpdateSubArticle([FromBody] VotingSubArticle subArticle)
         {
-            string getAuthentication = GetAuthorization();
-            var up = getAuthentication.Split(":");
-            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
-            {
-                return Unauthorized();
-            }
-            var rs = _usersService.getRole(up[0]);
-            if (rs.Name != "ADMIN" && rs.Name != "PG" && rs.Name != "ADMIN")
+            var email = User.Identity.Name;
+            var rs = _usersService.getRole(email);
+            if (rs.Name != "ADMIN" && rs.Name != "PG")
             {
                 return Unauthorized();
             }
             try
             {
                 _votingSubArticleService.EditSubArticle(subArticle);
-                return Ok(new
-                {
-                    data = "ok"
-                });
+                return Ok(new { data = "ok" });
             }
             catch (InvalidVote e)
             {
-                return BadRequest(new
-                {
-                    data = e.Message
-                });
+                return BadRequest(new { data = e.Message });
             }
         }
 
         /// <summary>
-        /// Obtient tous les sous-articles pour un administrateur par ID d'article.
+        /// Gets sub-articles by article ID for admin.
         /// </summary>
-        /// <param name="id">L'ID de l'article.</param>
-        /// <returns>Une liste de sous-articles.</returns>
+        /// <param name="id">The article ID.</param>
+        /// <returns>A list of sub-articles for the specified article.</returns>
         [HttpGet("admin/article/{id}")]
+        [Authorize(Roles = "ADMIN")]
         public ActionResult<List<VotingSubArticle>> GetSubAsByArticleIdForAdmin(long id)
         {
-            string getAuthentication = GetAuthorization();
-            var up = getAuthentication.Split(":");
-            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
-            {
-                return Unauthorized();
-            }
-            var rs = _usersService.getRole(up[0]);
-            if (rs.Name != "ADMIN")
-            {
-                return Unauthorized();
-            }
-            return Ok(new
-            {
-                data = _votingSubArticleService.GetSubAsByArticleId(id)
-            });
+            return Ok(new { data = _votingSubArticleService.GetSubAsByArticleId(id) });
         }
 
         /// <summary>
-        /// Obtient tous les sous-articles pour un utilisateur par ID d'article.
+        /// Gets sub-articles by article ID for the user.
         /// </summary>
-        /// <param name="id">L'ID de l'article.</param>
-        /// <returns>Une liste de réponses de sous-articles.</returns>
+        /// <param name="id">The article ID.</param>
+        /// <returns>A list of sub-articles for the specified article.</returns>
         [HttpGet("article/{id}")]
+        [Authorize]
         public ActionResult<List<VotingSubArticleResponse>> GetSubAsByArticleIdForUser(long id)
         {
-            string getAuthentication = GetAuthorization();
-            var up = getAuthentication.Split(":");
-            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
-            {
-                return Unauthorized();
-            }
-            var rs = _usersService.getRole(up[0]);
+            var email = User.Identity.Name;
+            var rs = _usersService.getRole(email);
             var sar = _votingSubArticleService.GetSubArticleById(id);
             var ar = _articleService.GetArticle(sar.ArticleId);
             if (rs.Name != "ADMIN" && rs.Name != "PG" && rs.Name != ar.Group.Name)
             {
                 return Unauthorized();
             }
-            string email = GetUsername();
-            return Ok(new
-            {
-                data = _votingSubArticleService.GetSubAsByArticleIdAndEmail(id, email)
-            });
+            return Ok(new { data = _votingSubArticleService.GetSubAsByArticleIdAndEmail(id, email) });
         }
 
         /// <summary>
-        /// Supprime un sous-article par son ID.
+        /// Deletes a sub-article by its ID.
         /// </summary>
-        /// <param name="id">L'ID du sous-article à supprimer.</param>
-        /// <returns>Une réponse de confirmation de suppression.</returns>
+        /// <param name="id">The sub-article ID.</param>
+        /// <returns>The result of the delete operation.</returns>
         [HttpDelete("{id}")]
-        public ActionResult<string> Delete(long id)
+        [Authorize(Roles = "ADMIN,PG")]
+        public ActionResult Delete(long id)
         {
-            string getAuthentication = GetAuthorization();
-            var up = getAuthentication.Split(":");
-            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
-            {
-                return Unauthorized();
-            }
-            var rs = _usersService.getRole(up[0]);
-            if (rs.Name != "ADMIN" && rs.Name != "PG")
-            {
-                return Unauthorized();
-            }
+            var email = User.Identity.Name;
+            var rs = _usersService.getRole(email);
             var sar = _votingSubArticleService.GetSubArticleById(id);
             var ar = _articleService.GetArticle(sar.ArticleId);
             if (rs.Name != "PG" && rs.Name != ar.Group.Name && rs.Name != "ADMIN")
@@ -232,50 +166,12 @@ namespace voting_api.Controllers
             try
             {
                 _votingSubArticleService.Delete(id);
-                return Ok(new
-                {
-                    data = "ok"
-                });
+                return Ok(new { data = "ok" });
             }
             catch (InvalidVote e)
             {
-                return BadRequest(new
-                {
-                    data = e.Message
-                });
+                return BadRequest(new { data = e.Message });
             }
-        }
-
-        /// <summary>
-        /// Obtient le nom d'utilisateur à partir de l'en-tête d'autorisation.
-        /// </summary>
-        /// <returns>Le nom d'utilisateur.</returns>
-        private string GetUsername()
-        {
-            var accessTokenString = Request.Headers[HeaderNames.Authorization].ToString();
-
-            if (accessTokenString == null)
-            {
-                return "NONE";
-            }
-
-            try
-            {
-                return accessTokenString.Split(":")[0];
-            }
-            catch (ArgumentException)
-            {
-                return "NONE";
-            }
-        }
-
-        /// <summary>
-        /// Obtient l'en-tête d'autorisation.
-        /// </summary>
-        /// <returns>L'en-tête d'autorisation.</returns>
-        private string GetAuthorization()
-        {
-            return Request.Headers[HeaderNames.Authorization].ToString();
         }
     }
 }

@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using voting_data_access.Data;
 using voting_data_access.Entities;
-using voting_data_access.Repositories.Interfaces;
+using voting_models.Response_Models;
 
 namespace voting_bl.Service
 {

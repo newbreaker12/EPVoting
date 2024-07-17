@@ -1,9 +1,6 @@
-﻿using voting_bl.Util;
+﻿using System.Collections.Generic;
 using voting_data_access.Entities;
 using voting_data_access.Repositories.Interfaces;
-using voting_exceptions.Exceptions;
-using voting_models.Models;
-using System.Collections.Generic;
 
 namespace voting_bl.Service
 {
@@ -16,7 +13,6 @@ namespace voting_bl.Service
             _unitOfWork = unitOfWork;
         }
 
-
         public int GetVoteCountByTypeAndSubArticle(int type, long subArticleId)
         {
             return _unitOfWork.Vote.GetVoteCountByTypeAndSubArticle(type, subArticleId);
@@ -28,13 +24,13 @@ namespace voting_bl.Service
             return voteData;
         }
 
-        public List<Vote> GetVote()
+        public List<Vote> GetAllVotes()
         {
             List<Vote> voteData = _unitOfWork.Vote.GetVote();
             return voteData;
         }
 
-        public bool hasSubmittedVoteArticle(string email, long articleId)
+        public bool HasSubmittedVoteArticle(string email, long articleId)
         {
             return _unitOfWork.VoteSubmit.GetVoteSubmit(email, articleId) != null;
         }
@@ -45,7 +41,8 @@ namespace voting_bl.Service
             if (voteTemp == null)
             {
                 _unitOfWork.Vote.Add(vote);
-            } else
+            }
+            else
             {
                 voteTemp.Type = vote.Type;
                 _unitOfWork.Vote.Update(voteTemp);
@@ -59,6 +56,5 @@ namespace voting_bl.Service
             _unitOfWork.VoteSubmit.Add(votingVote);
             _unitOfWork.Save();
         }
-
     }
 }
