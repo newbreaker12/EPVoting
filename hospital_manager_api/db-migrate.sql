@@ -1,0 +1,83 @@
+CREATE TABLE VotingGroups (
+    Id BIGINT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(MAX) NOT NULL,
+    ReadableId NVARCHAR(MAX) NOT NULL,
+    CreatedAt DATETIME NOT NULL,
+    Disabled BIT NOT NULL
+);
+
+CREATE TABLE VotingRoles (
+    Id BIGINT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(MAX) NOT NULL,
+    Description NVARCHAR(MAX)
+);
+
+CREATE TABLE VotingUsers (
+    Id BIGINT PRIMARY KEY IDENTITY(1,1),
+    Email NVARCHAR(MAX) NOT NULL,
+    FirstName NVARCHAR(MAX),
+    LastName NVARCHAR(MAX),
+    Password NVARCHAR(MAX),
+    PhoneNumber NVARCHAR(MAX),
+    IsMEP BIT NOT NULL,
+    RoleId BIGINT FOREIGN KEY REFERENCES VotingRoles(Id),
+    GroupId BIGINT FOREIGN KEY REFERENCES VotingGroups(Id),
+    Disabled BIT NOT NULL
+);
+
+CREATE TABLE VotingUsersToken (
+    Id BIGINT PRIMARY KEY IDENTITY(1,1),
+    Email NVARCHAR(MAX) NOT NULL,
+    ExpirationDate DATETIME NOT NULL
+);
+
+CREATE TABLE VotingArticle (
+    Id BIGINT PRIMARY KEY IDENTITY(1,1),
+    GroupsId BIGINT FOREIGN KEY REFERENCES VotingGroups(Id),
+    Name NVARCHAR(MAX) NOT NULL,
+    Description NVARCHAR(MAX),
+    CreatedAt DATETIME NOT NULL
+);
+
+CREATE TABLE VotingSubArticle (
+    Id BIGINT PRIMARY KEY IDENTITY(1,1),
+    ArticleId BIGINT FOREIGN KEY REFERENCES VotingArticle(Id),
+    Name NVARCHAR(MAX) NOT NULL,
+    Description NVARCHAR(MAX),
+    CreatedAt DATETIME NOT NULL
+);
+
+CREATE TABLE VotingSession (
+    Id BIGINT PRIMARY KEY IDENTITY(1,1),
+    ArticleId BIGINT FOREIGN KEY REFERENCES VotingArticle(Id),
+    Name NVARCHAR(MAX) NOT NULL,
+    Description NVARCHAR(MAX),
+    From DATETIME NOT NULL,
+    To DATETIME NOT NULL
+);
+
+CREATE TABLE VoteSubmit (
+    Id BIGINT PRIMARY KEY IDENTITY(1,1),
+    UserEmail NVARCHAR(MAX) NOT NULL,
+    ArticleId BIGINT FOREIGN KEY REFERENCES VotingArticle(Id)
+);
+
+CREATE TABLE Vote (
+    Id BIGINT PRIMARY KEY IDENTITY(1,1),
+    UserEmail NVARCHAR(MAX) NOT NULL,
+    SubArticleId BIGINT FOREIGN KEY REFERENCES VotingSubArticle(Id),
+    Type INT NOT NULL
+);
+
+CREATE VIEW VoteStatistics AS
+SELECT 
+    VA.Name AS ArticleName,
+    VSA.Name AS SubArticleName,
+    COUNT(CASE WHEN V.Type = 2 THEN 1 END) AS InFavorCount,
+    COUNT(CASE WHEN V.Type = 0 THEN 1 END) AS NotInFavorCount,
+    COUNT(CASE WHEN V.Type = 1 THEN 1 END) AS NeutralCount
+FROM 
+    VotingArticle VA
+JOIN VotingSubArticle VSA ON VA.Id = VSA.ArticleId
+JOIN Vote V ON VSA.Id = V.SubArticleId
+GROUP BY VA.Name, VSA.Name;

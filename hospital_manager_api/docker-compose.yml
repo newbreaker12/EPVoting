@@ -1,0 +1,14 @@
+version: '3'
+services:
+  postgres_voting:
+    image: postgres
+    container_name: postgres_voting
+    restart: always
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: votingdb
+    volumes:
+      - B:/Projects/votingdb/postgres:/var/lib/postgresql/data
