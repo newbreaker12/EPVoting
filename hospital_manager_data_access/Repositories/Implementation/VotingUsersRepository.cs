@@ -19,10 +19,14 @@ namespace voting_data_access.Repositories.Implementation
             return Db.VotingUsers.Where(u => u.GroupId == groupId).ToList();
         }
 
-        public VotingUsersResponse GetUserByEmail(string email)
+        public VotingUsers GetUserDataByEmail(string email)
         {
-            VotingUsers vu = Db.VotingUsers.SingleOrDefault(u => u.Email == email);
-            if (vu == null)
+            return Db.VotingUsers.SingleOrDefault(u => u.Email == email);
+        }
+            public VotingUsersResponse GetUserByEmail(string email)
+            {
+                VotingUsers vu = Db.VotingUsers.SingleOrDefault(u => u.Email == email);
+                if (vu == null)
             {
                 return null;
             }
@@ -63,7 +67,7 @@ namespace voting_data_access.Repositories.Implementation
         public List<VotingUsersResponse> GetUsers()
         {
             var users = Db.VotingUsers.Where(i => i.Disabled == false).ToList();
-            List <VotingUsersResponse> result = new List<VotingUsersResponse>();
+            List<VotingUsersResponse> result = new List<VotingUsersResponse>();
             foreach (VotingUsers vu in users)
             {
                 VotingRoles vr = Db.VotingRoles.SingleOrDefault(r => r.Id == vu.RoleId);

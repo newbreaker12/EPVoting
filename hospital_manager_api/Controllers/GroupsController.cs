@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using voting_bl.Service;
 using voting_data_access.Entities;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.Net.Http.Headers;
 using voting_data_access.Repositories.Interfaces;
 using voting_exceptions.Exceptions;
 
@@ -17,7 +14,7 @@ namespace voting_api.Controllers
     [Produces("application/json")]
     [Route("groups")]
     [ApiController]
-    public class GroupsController : Controller
+    public class GroupsController : ControllerBase
     {
         private readonly VotingGroupsService _groupsService;
         private readonly VotingUsersService _usersService;
@@ -37,9 +34,9 @@ namespace voting_api.Controllers
         /// </summary>
         /// <returns>Une réponse de chaîne "OK".</returns>
         [HttpGet("ping")]
-        public string Ping()
+        public IActionResult Ping()
         {
-            return "OK";
+            return Ok("OK");
         }
 
         /// <summary>
@@ -48,34 +45,17 @@ namespace voting_api.Controllers
         /// <param name="groups">Le groupe à enregistrer.</param>
         /// <returns>Le groupe enregistré.</returns>
         [HttpPost]
-        //[Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMIN")]
-        public ActionResult<VotingGroups> SaveGroups(VotingGroups groups)
+        [Authorize(Roles = "ADMIN")]
+        public ActionResult SaveGroups(VotingGroups groups)
         {
-            string getAuthentication = GetAuthorization();
-            var up = getAuthentication.Split(":");
-            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
-            {
-                return Unauthorized();
-            }
-            var rs = _usersService.getRole(up[0]);
-            if (rs.Name != "ADMIN")
-            {
-                return Unauthorized();
-            }
             try
             {
                 _groupsService.SaveGroups(groups);
-                return Ok(new
-                {
-                    data = "ok"
-                });
+                return Ok(new { data = "ok" });
             }
             catch (InvalidGroups e)
             {
-                return BadRequest(new
-                {
-                    data = e.Message
-                });
+                return BadRequest(new { data = e.Message });
             }
         }
 
@@ -85,23 +65,15 @@ namespace voting_api.Controllers
         /// <param name="id">L'ID du groupe à obtenir.</param>
         /// <returns>Le groupe demandé.</returns>
         [HttpGet("{id}")]
-        public ActionResult<VotingGroups> GetGroup(long id)
+        [Authorize(Roles = "ADMIN")]
+        public ActionResult GetGroup(long id)
         {
-            string getAuthentication = GetAuthorization();
-            var up = getAuthentication.Split(":");
-            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            var group = _groupsService.GetGroups(id);
+            if (group == null)
             {
-                return Unauthorized();
+                return NotFound(new { data = "Group not found" });
             }
-            var rs = _usersService.getRole(up[0]);
-            if (rs.Name != "ADMIN")
-            {
-                return Unauthorized();
-            }
-            return Ok(new
-            {
-                data = _groupsService.GetGroups(id)
-            });
+            return Ok(new { data = group });
         }
 
         /// <summary>
@@ -109,23 +81,11 @@ namespace voting_api.Controllers
         /// </summary>
         /// <returns>Une liste de tous les groupes.</returns>
         [HttpGet("all")]
+        [Authorize(Roles = "ADMIN")]
         public ActionResult<IEnumerable<VotingGroups>> GetGroups()
         {
-            string getAuthentication = GetAuthorization();
-            var up = getAuthentication.Split(":");
-            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
-            {
-                return Unauthorized();
-            }
-            var rs = _usersService.getRole(up[0]);
-            if (rs.Name != "ADMIN")
-            {
-                return Unauthorized();
-            }
-            return Ok(new
-            {
-                data = _groupsService.GetGroups()
-            });
+            var groups = _groupsService.GetGroups();
+            return Ok(new { data = groups });
         }
 
         /// <summary>
@@ -134,23 +94,18 @@ namespace voting_api.Controllers
         /// <param name="groups">Le groupe à modifier.</param>
         /// <returns>Le groupe modifié.</returns>
         [HttpPut]
-        public ActionResult<VotingGroups> PutGroup(VotingGroups groups)
+        [Authorize(Roles = "ADMIN")]
+        public ActionResult UpdateGroup(VotingGroups groups)
         {
-            string getAuthentication = GetAuthorization();
-            var up = getAuthentication.Split(":");
-            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            try
             {
-                return Unauthorized();
+                var updatedGroup = _groupsService.UpdateGroups(groups);
+                return Ok(new { data = updatedGroup });
             }
-            var rs = _usersService.getRole(up[0]);
-            if (rs.Name != "ADMIN")
+            catch (InvalidGroups e)
             {
-                return Unauthorized();
+                return BadRequest(new { data = e.Message });
             }
-            return Ok(new
-            {
-                data = _groupsService.UpdateGroups(groups)
-            });
         }
 
         /// <summary>
@@ -159,38 +114,16 @@ namespace voting_api.Controllers
         /// <param name="id">L'ID du groupe à supprimer.</param>
         /// <returns>Le groupe supprimé.</returns>
         [HttpDelete("{id}")]
-        public ActionResult<VotingGroups> DeleteGroup(long id)
+        [Authorize(Roles = "ADMIN")]
+        public ActionResult DeleteGroup(long id)
         {
-            string getAuthentication = GetAuthorization();
-            var up = getAuthentication.Split(":");
-            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
-            {
-                return Unauthorized();
-            }
-            var rs = _usersService.getRole(up[0]);
-            if (rs.Name != "ADMIN")
-            {
-                return Unauthorized();
-            }
             var users = _usersService.GetUsersByGroup(id);
             if (users.Count > 0)
-                return BadRequest(new
-                {
-                    data = "Des utilisateurs sont assignés à ce groupe !"
-                });
-            return Ok(new
             {
-                data = _groupsService.DeleteGroups(id)
-            });
-        }
-
-        /// <summary>
-        /// Obtient l'en-tête d'autorisation.
-        /// </summary>
-        /// <returns>L'en-tête d'autorisation.</returns>
-        private string GetAuthorization()
-        {
-            return Request.Headers[HeaderNames.Authorization].ToString();
+                return BadRequest(new { data = "Des utilisateurs sont assignés à ce groupe !" });
+            }
+            _groupsService.DeleteGroups(id);
+            return Ok(new { data = "Group deleted successfully" });
         }
     }
 }

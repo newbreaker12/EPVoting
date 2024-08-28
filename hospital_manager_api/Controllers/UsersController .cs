@@ -1,11 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.Net.Http.Headers;
+using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 using voting_bl.Service;
 using voting_data_access.Entities;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.Net.Http.Headers;
 using voting_data_access.Repositories.Interfaces;
 using voting_exceptions.Exceptions;
 using voting_models.Models;
@@ -18,23 +24,35 @@ namespace voting_api.Controllers
     [Produces("application/json")]
     [Route("users")]
     [ApiController]
-    public class UsersController : Controller
+    public class UsersController : ControllerBase
     {
+        private readonly IConfiguration _configuration;
         private readonly VotingUsersService _usersService;
         private readonly EmailsService _emailsService;
         private readonly VotingGroupsService _votingGroupsService;
         private readonly VotingRolesService _votingRolesService;
+        private readonly byte[] _salt;
 
         /// <summary>
         /// Initialise une nouvelle instance de la classe <see cref="UsersController"/>.
         /// </summary>
         /// <param name="unitOfWork">L'unité de travail à utiliser par les services.</param>
-        public UsersController(IUnitOfWork unitOfWork)
+        /// <param name="configuration">La configuration de l'application.</param>
+        public UsersController(IUnitOfWork unitOfWork, IConfiguration configuration)
         {
+            _configuration = configuration;
             _usersService = new VotingUsersService(unitOfWork);
             _emailsService = new EmailsService(unitOfWork);
             _votingGroupsService = new VotingGroupsService(unitOfWork);
             _votingRolesService = new VotingRolesService(unitOfWork);
+
+            // Retrieve the salt (token) from the configuration
+            var token = _configuration["AppSettings:Token"];
+            if (string.IsNullOrEmpty(token))
+            {
+                throw new ArgumentException("Token is not configured in appsettings.json");
+            }
+            _salt = Encoding.ASCII.GetBytes(token);
         }
 
         /// <summary>
@@ -51,24 +69,72 @@ namespace voting_api.Controllers
         /// Authentifie un utilisateur.
         /// </summary>
         /// <returns>Un jeton d'authentification si l'utilisateur est authentifié, sinon une réponse non autorisée.</returns>
-        [HttpGet("login")]
-        public ActionResult<string> Authenticate()
+        [HttpPost("login")]
+        public ActionResult<string> Authenticate(VotingUsersRequest request)
         {
-            string getAuthentication = GetAuthorization();
-            var up = getAuthentication.Split(":");
-            if (_usersService.Authenticate(up[0], up[1]))
+            VotingUsersResponse user = _usersService.GetUserBEmail(request.Email);
+
+            if (!VerifyPasswordHash(request.Password, user.Password))
             {
-                return Ok(new
-                {
-                    data = "ok"
-                });
+                return BadRequest("Wrong password.");
             }
-            else
+
+            string token = CreateToken(user);
+            return Ok(new { token });
+        }
+
+        private string CreateToken(VotingUsersResponse user)
+        {
+            List<Claim> claims = new List<Claim>
             {
-                return Unauthorized(new
+                new Claim(ClaimTypes.Name, user.Email),
+                new Claim(ClaimTypes.Role, user.Role.Name)
+            };
+
+            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
+                _configuration.GetSection("AppSettings:Token").Value));
+
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+
+            var token = new JwtSecurityToken(
+                claims: claims,
+                expires: DateTime.Now.AddDays(1),
+                signingCredentials: creds);
+
+            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+
+            return jwt;
+        }
+
+        private string CreatePasswordHash(string password)
+        {
+            using (var hmac = new HMACSHA512(_salt))
+            {
+                return Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(password)));
+            }
+        }
+
+        private bool VerifyPasswordHash(string password, string passwordHash)
+        {
+            using (var hmac = new HMACSHA512(_salt))
+            {
+                var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return computedHash.SequenceEqual(Convert.FromBase64String(passwordHash));
+            }
+        }
+
+        private string GenerateRandomPinCode(int length = 5)
+        {
+            using (var rng = new RNGCryptoServiceProvider())
+            {
+                var data = new byte[length];
+                rng.GetBytes(data);
+                var builder = new StringBuilder(length);
+                foreach (var b in data)
                 {
-                    data = "wrong username or password"
-                });
+                    builder.Append((b % 10).ToString());
+                }
+                return builder.ToString();
             }
         }
 
@@ -79,7 +145,7 @@ namespace voting_api.Controllers
         /// <returns>L'utilisateur enregistré.</returns>
         [HttpPost]
         //[Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMIN")]
-        public ActionResult<VotingUsers> Saveusers(VotingUsers users)
+        public ActionResult<VotingUsers> SaveUsers(VotingUsers users)
         {
             string getAuthentication = GetAuthorization();
             var up = getAuthentication.Split(":");
@@ -95,12 +161,12 @@ namespace voting_api.Controllers
             var userRole = _votingRolesService.GetRoles(users.RoleId);
             if (userRole == null)
             {
-                return BadRequest("Role doesnt exist");
+                return BadRequest("Role doesn't exist");
             }
             var userGroup = _votingGroupsService.GetGroups(users.GroupId);
             if (userGroup == null)
             {
-                return BadRequest("Group doesnt exist");
+                return BadRequest("Group doesn't exist");
             }
             var user = _usersService.GetUserBEmail(users.Email);
             if (user != null)
@@ -112,8 +178,10 @@ namespace voting_api.Controllers
             }
             try
             {
+                users.PinCode = GenerateRandomPinCode(); // Generate a random pin code
+                users.Password = CreatePasswordHash(users.Password); // Hash the password
                 _usersService.SaveUsers(users);
-                _emailsService.SendEmail(users.Email, "Account Created", "User has been created: " + users.Email + users.Password);
+                _emailsService.SendEmail(users.Email, "Account Created", "User has been created: " + users.Email + "; " + users.Password + "; " + users.PinCode);
                 return Ok(new
                 {
                     data = "ok"
@@ -133,20 +201,9 @@ namespace voting_api.Controllers
         /// </summary>
         /// <param name="id">L'ID de l'utilisateur à obtenir.</param>
         /// <returns>L'utilisateur demandé.</returns>
-        [HttpGet("{id}")]
+        [HttpGet("{id}"), Authorize(Roles = "ADMIN")]
         public ActionResult<VotingUsers> GetUser(long id)
         {
-            string getAuthentication = GetAuthorization();
-            var up = getAuthentication.Split(":");
-            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
-            {
-                return Unauthorized();
-            }
-            var rs = _usersService.getRole(up[0]);
-            if (rs.Name != "ADMIN")
-            {
-                return Unauthorized();
-            }
             return Ok(new
             {
                 data = _usersService.GetUsers(id)
@@ -158,29 +215,9 @@ namespace voting_api.Controllers
         /// </summary>
         /// <param name="id">L'ID de l'utilisateur à supprimer.</param>
         /// <returns>L'utilisateur supprimé.</returns>
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}"), Authorize(Roles = "ADMIN")]
         public ActionResult<VotingUsers> DeleteUser(long id)
         {
-            string getAuthentication = GetAuthorization();
-            var up = getAuthentication.Split(":");
-            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
-            {
-                return Unauthorized();
-            }
-            var rs = _usersService.getRole(up[0]);
-            if (rs.Name != "ADMIN")
-            {
-                return Unauthorized();
-            }
-            var user = _usersService.GetUsers(id);
-            var userRole = _usersService.getRole(user.Email);
-            if (userRole.Name == "ADMIN")
-            {
-                return BadRequest(new
-                {
-                    data = "Can't delete ADMIN"
-                });
-            }
             return Ok(new
             {
                 data = _usersService.DeleteUsers(id)
@@ -192,20 +229,9 @@ namespace voting_api.Controllers
         /// </summary>
         /// <param name="user">L'utilisateur à modifier.</param>
         /// <returns>L'utilisateur modifié.</returns>
-        [HttpPut]
+        [HttpPut, Authorize(Roles = "ADMIN")]
         public ActionResult<VotingArticle> EditUser(VotingUsers user)
         {
-            string getAuthentication = GetAuthorization();
-            var up = getAuthentication.Split(":");
-            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
-            {
-                return Unauthorized();
-            }
-            var rs = _usersService.getRole(up[0]);
-            if (rs.Name != "ADMIN")
-            {
-                return Unauthorized();
-            }
             try
             {
                 _usersService.EditUser(user.Id, user);
@@ -227,7 +253,7 @@ namespace voting_api.Controllers
         /// Obtient un utilisateur par son adresse e-mail.
         /// </summary>
         /// <returns>L'utilisateur demandé.</returns>
-        [HttpGet("email")]
+        [HttpGet("email"), Authorize]
         public ActionResult<VotingUsersResponse> GetUserByEmail()
         {
             string getAuthentication = GetAuthorization();

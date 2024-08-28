@@ -1,10 +1,9 @@
 ﻿using voting_bl.Util;
 using voting_data_access.Entities;
 using voting_data_access.Repositories.Interfaces;
-using System.Collections.Generic;
-using System.Linq;
 using voting_models.Models;
 using System;
+using System.Collections.Generic;
 
 namespace voting_bl.Service
 {
@@ -19,19 +18,32 @@ namespace voting_bl.Service
 
         public VotingArticleResponse GetArticle(long id)
         {
-            VotingArticleResponse articleData = _unitOfWork.VotingArticle.getArticle(id);
-            return articleData;
+            return _unitOfWork.VotingArticle.getArticle(id);
         }
+
         public VotingArticleResponse GetArticleBySubArticleId(long subArticleId)
         {
-            VotingArticleResponse articleData = _unitOfWork.VotingArticle.getArticle(subArticleId);
-            return articleData;
+            var subArticle = _unitOfWork.VotingSubArticle.Get(subArticleId);
+            if (subArticle != null)
+            {
+                var article = _unitOfWork.VotingArticle.Get(subArticle.ArticleId);
+                if (article != null)
+                {
+                    return new VotingArticleResponse
+                    {
+                        Id = article.Id,
+                        Description = article.Description,
+                        // Include other necessary properties
+                        SubArticles = new List<VotingSubArticleResponse>() // Populate sub-articles if needed
+                    };
+                }
+            }
+            return null;
         }
 
         public List<VotingArticleResponse> GetArticles()
         {
-            List<VotingArticleResponse> articleData = _unitOfWork.VotingArticle.GetArticles();
-            return articleData;
+            return _unitOfWork.VotingArticle.GetArticles();
         }
 
         public void SaveArticle(VotingArticle votingArticle)
@@ -41,17 +53,18 @@ namespace voting_bl.Service
             _unitOfWork.VotingArticle.Add(votingArticle);
             _unitOfWork.Save();
         }
-        public void EditArticle(long id,  string description)
+
+        public void EditArticle(long id, string description)
         {
-            VotingArticle votingArticle = _unitOfWork.VotingArticle.Get(id);
+            var votingArticle = _unitOfWork.VotingArticle.Get(id);
             votingArticle.Description = description;
             _unitOfWork.VotingArticle.Update(votingArticle);
             _unitOfWork.Save();
         }
+
         public List<VotingArticleResponse> GetArticlesForUser(string email)
         {
-            List<VotingArticleResponse> articleData = _unitOfWork.VotingArticle.GetArticleForUser(email);
-            return articleData;
+            return _unitOfWork.VotingArticle.GetArticleForUser(email);
         }
     }
 }

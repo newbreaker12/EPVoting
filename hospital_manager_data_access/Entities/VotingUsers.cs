@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace voting_data_access.Entities
@@ -22,8 +23,13 @@ namespace voting_data_access.Entities
         [Column("password")]
         public string Password { get; set; }
 
+        [Column("pincode")]
+        public string PinCode { get; set; }
+
         [Column("phonenumber")]
         public string PhoneNumber { get; set; }
+        public DateTime TokenCreated { get; set; }
+        public DateTime TokenExpires { get; set; }
 
 
         [Column("ismep")]

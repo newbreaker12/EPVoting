@@ -20,12 +20,12 @@ namespace voting_bl.Service
 
         public VotingGroups GetGroups(long id)
         {
-            VotingGroups groupsData = _unitOfWork.VotingGroups.Get(id);
-            return groupsData;
+            return _unitOfWork.VotingGroups.Get(id);
         }
+
         public VotingGroups DeleteGroups(long id)
         {
-            VotingGroups groupsData = _unitOfWork.VotingGroups.Get(id);
+            var groupsData = _unitOfWork.VotingGroups.Get(id);
             groupsData.Disabled = true;
             _unitOfWork.VotingGroups.Update(groupsData);
             _unitOfWork.Save();
@@ -33,9 +33,8 @@ namespace voting_bl.Service
         }
 
         public List<VotingGroups> GetGroups()
-        { 
-            List<VotingGroups> groupsData = _unitOfWork.VotingGroups.GetGroups();
-            return groupsData;
+        {
+            return _unitOfWork.VotingGroups.GetGroups();
         }
 
         public void SaveGroups(VotingGroups groupsData)
@@ -46,7 +45,7 @@ namespace voting_bl.Service
 
         public VotingGroups UpdateGroups(VotingGroups groupUpdated)
         {
-            VotingGroups groupsData = _unitOfWork.VotingGroups.Get(groupUpdated.Id);
+            var groupsData = _unitOfWork.VotingGroups.Get(groupUpdated.Id);
             groupsData.Name = groupUpdated.Name;
             groupsData.ReadableId = groupUpdated.ReadableId;
             groupsData.Disabled = groupUpdated.Disabled;

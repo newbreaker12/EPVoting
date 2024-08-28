@@ -1,61 +1,49 @@
-using System;
-using System.IO;
-using System.Reflection;
-using voting_api.Configuration;
-using voting_data_access.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
-using Microsoft.Extensions.Configuration;
-using Prometheus;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Prometheus;
+using Swashbuckle.AspNetCore.Filters;
+using System;
+using System.IO;
+using System.Reflection;
+using System.Text;
+using voting_api.Configuration;
+using voting_data_access.Data;
 
 namespace voting_api
 {
-    /// <summary>
-    /// Configure les services et le pipeline de requêtes de l'application.
-    /// </summary>
     public class Startup
     {
         readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
-        /// <summary>
-        /// Initialise une nouvelle instance de la classe <see cref="Startup"/>.
-        /// </summary>
-        /// <param name="configuration">La configuration à utiliser.</param>
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
 
-        /// <summary>
-        /// Obtient la configuration.
-        /// </summary>
         public IConfiguration Configuration { get; }
 
-        /// <summary>
-        /// Configure les services pour l'application.
-        /// </summary>
-        /// <param name="services">Les services à configurer.</param>
         public void ConfigureServices(IServiceCollection services)
         {
             string connectionString = Configuration.GetConnectionString("DefaultConnection");
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 
-            // Ajouter DbContext avec SQL Server
             services.AddDbContext<VotingDbContext>(options =>
             {
                 // Configure your connection string here
                 options.UseNpgsql(connectionString);
             });
 
-            // Ajouter la politique CORS
             services.AddCors(options =>
             {
                 options.AddPolicy(name: MyAllowSpecificOrigins,
@@ -70,7 +58,6 @@ namespace voting_api
             services.AddControllers();
             services.AddMvc();
 
-            // Ajouter Swagger
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo
@@ -84,31 +71,42 @@ namespace voting_api
                         Name = "Francesco Bigi",
                         Email = "psr07700@students.ephec.com",
                         Url = new Uri("https://be.linkedin.com/in/bigif"),
-                    },
-                    License = new OpenApiLicense
-                    {
-                        Name = "Utilisation sous LICX",
-                        Url = new Uri("https://example.com/license"),
                     }
                 });
+
+                c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+                {
+                    Description = "Standard Authorization header using the Bearer scheme (\"bearer {token}\")",
+                    In = ParameterLocation.Header,
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey
+                });
+
+                c.OperationFilter<SecurityRequirementsOperationFilter>();
 
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
             });
 
-            // Ajouter d'autres services
+            var key = Encoding.ASCII.GetBytes(Configuration["AppSettings:Token"]);
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(key),
+                        ValidateIssuer = false,
+                        ValidateAudience = false
+                    };
+                });
+
             services.AddApplicationServices();
             services.AddHttpContextAccessor();
             services.TryAddSingleton<IActionContextAccessor, ActionContextAccessor>();
         }
 
-        /// <summary>
-        /// Configure le pipeline de requêtes HTTP.
-        /// </summary>
-        /// <param name="app">Le générateur d'application.</param>
-        /// <param name="env">L'environnement d'hébergement.</param>
-        /// <param name="dbContext">Le contexte de base de données.</param>
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, VotingDbContext dbContext)
         {
             dbContext.Database.Migrate();
@@ -118,7 +116,6 @@ namespace voting_api
                 app.UseDeveloperExceptionPage();
             }
 
-            // Activer le middleware Swagger
             app.UseSwagger(c =>
             {
                 c.SerializeAsV2 = true;
@@ -136,11 +133,10 @@ namespace voting_api
             app.UseMetricServer();
             app.UseHttpMetrics();
 
-            // Activer l'UI Swagger
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "EPVOTE API V1");
-                c.RoutePrefix = string.Empty; // Pour servir l'UI Swagger à la racine de l'application
+                c.RoutePrefix = string.Empty;
             });
 
             app.UseEndpoints(endpoints =>

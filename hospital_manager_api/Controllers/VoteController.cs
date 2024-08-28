@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using voting_bl.Service;
 using voting_data_access.Entities;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.Net.Http.Headers;
 using voting_data_access.Repositories.Interfaces;
 using voting_exceptions.Exceptions;
-using voting_models.Models;
 using voting_models.Response_Models;
+using System.Security.Claims;
 using voting_bl.Mapper;
 
 namespace voting_api.Controllers
@@ -20,13 +18,13 @@ namespace voting_api.Controllers
     [Produces("application/json")]
     [Route("vote")]
     [ApiController]
-    public class VoteController : Controller
+    public class VoteController : ControllerBase
     {
         private readonly VoteService _voteService;
         private readonly VotingArticleService _votingArticle;
         private readonly EmailsService _emailsService;
         private readonly VotingUsersService _usersService;
-        private readonly VoteMapper voteMapper;
+        private readonly VoteMapper _voteMapper;
 
         /// <summary>
         /// Initialise une nouvelle instance de la classe <see cref="VoteController"/>.
@@ -38,7 +36,17 @@ namespace voting_api.Controllers
             _usersService = new VotingUsersService(unitOfWork);
             _votingArticle = new VotingArticleService(unitOfWork);
             _emailsService = new EmailsService(unitOfWork);
-            voteMapper = new VoteMapper(unitOfWork);
+            _voteMapper = new VoteMapper(unitOfWork);
+        }
+
+        /// <summary>
+        /// Une méthode de ping simple pour vérifier si le contrôleur répond.
+        /// </summary>
+        /// <returns>Une réponse de chaîne "OK".</returns>
+        [HttpGet("ping")]
+        public string Ping()
+        {
+            return "OK";
         }
 
         /// <summary>
@@ -50,31 +58,20 @@ namespace voting_api.Controllers
         //[Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMIN")]
         public ActionResult<Vote> SaveVote(Vote vote)
         {
-            string getAuthentication = GetAuthorization();
-            var up = getAuthentication.Split(":");
-            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
-            {
-                return Unauthorized();
-            }
-            var rs = _usersService.getRole(up[0]);
-            if (rs.Name != "MEP")
+            var email = User.Identity.Name;
+            var userRole = _usersService.getRole(email);
+            if (userRole.Name != "MEP")
             {
                 return Unauthorized();
             }
             try
             {
                 _voteService.SaveVote(vote);
-                return Ok(new
-                {
-                    data = "ok"
-                });
+                return Ok(new { data = "ok" });
             }
             catch (InvalidVote e)
             {
-                return BadRequest(new
-                {
-                    data = e.Message
-                });
+                return BadRequest(new { data = e.Message });
             }
         }
 
@@ -87,32 +84,20 @@ namespace voting_api.Controllers
         [HttpGet("subarticle/{id}/vote/{type}")]
         public ActionResult<Vote> Vote(long id, int type)
         {
-            string getAuthentication = GetAuthorization();
-            var up = getAuthentication.Split(":");
-            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            var email = User.Identity.Name;
+            var userRole = _usersService.getRole(email);
+            if (userRole.Name != "MEP")
             {
                 return Unauthorized();
             }
-            var rs = _usersService.getRole(up[0]);
-            if (rs.Name != "MEP")
-            {
-                return Unauthorized();
-            }
-            string email = GetUsername();
 
-            if (_voteService.hasSubmittedVoteArticle(email, id))
+            if (_voteService.HasSubmittedVoteArticle(email, id))
             {
-                return BadRequest(new
-                {
-                    data = "ALREADY SUBMITTED VOTES"
-                });
+                return BadRequest(new { data = "ALREADY SUBMITTED VOTES" });
             }
 
             _voteService.SaveVote(new Vote() { SubArticleId = id, UserEmail = email, Type = type });
-            return Ok(new
-            {
-                data = "VOTED"
-            });
+            return Ok(new { data = "VOTED" });
         }
 
         /// <summary>
@@ -123,43 +108,30 @@ namespace voting_api.Controllers
         [HttpGet("article/{id}/vote/submit")]
         public ActionResult<Vote> VoteSubmit(long id)
         {
-            string getAuthentication = GetAuthorization();
-            var up = getAuthentication.Split(":");
-            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            var email = User.Identity.Name;
+            var userRole = _usersService.getRole(email);
+            if (userRole.Name != "MEP")
             {
                 return Unauthorized();
             }
-            var rs = _usersService.getRole(up[0]);
-            if (rs.Name != "MEP")
-            {
-                return Unauthorized();
-            }
-            string email = GetUsername();
 
-            if (_voteService.hasSubmittedVoteArticle(email, id))
+            if (_voteService.HasSubmittedVoteArticle(email, id))
             {
-                return BadRequest(new
-                {
-                    data = "ALREADY SUBMITTED VOTES"
-                });
+                return BadRequest(new { data = "ALREADY SUBMITTED VOTES" });
             }
-            List<VotingArticleResponse> votingArticle = _votingArticle.GetArticlesForUser(GetUsername());
 
-            if (votingArticle.Count < 1)
+            var votingArticle = _votingArticle.GetArticle(id);
+            if (votingArticle == null)
             {
-                return BadRequest(new
-                {
-                    data = "No article found"
-                });
+                return BadRequest(new { data = "Article not found" });
             }
-            byte[] file = PdfFileGenerator.GeneratePdf(votingArticle[0]);
-            _emailsService.SendEmail(up[0], "Vote submitted: " + votingArticle[0].Description, "Please find attached", file);
 
-            _voteService.SaveVoteSubmit(new VoteSubmit() { ArticleId = id, UserEmail = email, });
-            return Ok(new
-            {
-                data = "VOTED"
-            });
+            var user = _usersService.GetUserDataByEmail(email);
+            byte[] file = PdfFileGenerator.GeneratePdf(votingArticle, user.PinCode, user.FirstName + " " + user.LastName);
+            _emailsService.SendEmail(email, "Vote submitted: " + votingArticle.Description, "Please find attached", file);
+
+            _voteService.SaveVoteSubmit(new VoteSubmit() { ArticleId = id, UserEmail = email });
+            return Ok(new { data = "VOTED" });
         }
 
         /// <summary>
@@ -170,21 +142,14 @@ namespace voting_api.Controllers
         [HttpGet("{id}")]
         public ActionResult<Vote> GetVote(long id)
         {
-            string getAuthentication = GetAuthorization();
-            var up = getAuthentication.Split(":");
-            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
+            var email = User.Identity.Name;
+            var userRole = _usersService.getRole(email);
+            if (userRole.Name != "ADMIN")
             {
                 return Unauthorized();
             }
-            var rs = _usersService.getRole(up[0]);
-            if (rs.Name != "ADMIN")
-            {
-                return Unauthorized();
-            }
-            return Ok(new
-            {
-                data = _voteService.GetVote(id)
-            });
+
+            return Ok(new { data = _voteService.GetVote(id) });
         }
 
         /// <summary>
@@ -192,63 +157,22 @@ namespace voting_api.Controllers
         /// </summary>
         /// <returns>Une liste de tous les votes.</returns>
         [HttpGet("all")]
-        public ActionResult<IEnumerable<VoteSearchResponse>> GetVote()
+        public ActionResult<IEnumerable<VoteSearchResponse>> GetVotes()
         {
-            string getAuthentication = GetAuthorization();
-            var up = getAuthentication.Split(":");
-            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
-            {
-                return Unauthorized();
-            }
-            var rs = _usersService.getRole(up[0]);
-            if (rs.Name != "ADMIN")
+            var email = User.Identity.Name;
+            var userRole = _usersService.getRole(email);
+            if (userRole.Name != "ADMIN")
             {
                 return Unauthorized();
             }
 
-            List<VoteSearchResponse> searchList = new List<VoteSearchResponse>();
-
-            foreach (var source in _voteService.GetVote())
+            var searchList = new List<VoteSearchResponse>();
+            foreach (var source in _voteService.GetAllVotes())
             {
-                searchList.Add(voteMapper.Map(source));
+                searchList.Add(_voteMapper.Map(source));
             }
 
-            return Ok(new
-            {
-                data = searchList
-            });
-        }
-
-        /// <summary>
-        /// Obtient le nom d'utilisateur à partir de l'en-tête d'autorisation.
-        /// </summary>
-        /// <returns>Le nom d'utilisateur.</returns>
-        private string GetUsername()
-        {
-            var accessTokenString = Request.Headers[HeaderNames.Authorization].ToString();
-
-            if (accessTokenString == null)
-            {
-                return "NONE";
-            }
-
-            try
-            {
-                return accessTokenString.Split(":")[0];
-            }
-            catch (ArgumentException)
-            {
-                return "NONE";
-            }
-        }
-
-        /// <summary>
-        /// Obtient l'en-tête d'autorisation.
-        /// </summary>
-        /// <returns>L'en-tête d'autorisation.</returns>
-        private string GetAuthorization()
-        {
-            return Request.Headers[HeaderNames.Authorization].ToString();
+            return Ok(new { data = searchList });
         }
     }
 }

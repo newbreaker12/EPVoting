@@ -56,17 +56,6 @@ namespace voting_api
             _userService.SaveUsers(
                 new VotingUsers
                 {
-                    Email = "psr007700@students.ephec.be",
-                    FirstName = "Francesco",
-                    LastName = "Bigi",
-                    Password = "pss",
-                    IsMEP = true,
-                    RoleId = 1,
-                    GroupId = 1
-                });
-            _userService.SaveUsers(
-                new VotingUsers
-                {
                     Email = "admin",
                     FirstName = "admin",
                     LastName = "admin",

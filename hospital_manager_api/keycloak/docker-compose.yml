@@ -1,0 +1,32 @@
+services:
+
+  keycloak_db:
+    container_name: keycloak_db
+    ports:
+      - 5433:5432
+    image: postgres
+    volumes:
+      - /home/docker_files/keycloak_db/:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=keycloak_db
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=123456
+
+  keycloak_auth:
+    image: jeniustech/keycloak:latest
+    container_name: keycloak_auth
+    restart: always
+    ports:
+      - 8180:8080
+    environment:
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=123456
+
+      - DB_VENDOR=postgres
+      - DB_ADDR=keycloak_db
+      - DB_DATABASE=keycloak_db
+      - DB_USER=admin
+      - DB_PASSWORD=123456
+      - DB_SCHEMA=public
+    depends_on:
+      - keycloak_db
