@@ -45,12 +45,15 @@ namespace voting_api
         public void ConfigureServices(IServiceCollection services)
         {
             string connectionString = Configuration.GetConnectionString("DefaultConnection");
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 
             // Ajouter DbContext avec SQL Server
             services.AddDbContext<VotingDbContext>(options =>
-                options.UseSqlServer(connectionString, b => b.MigrationsAssembly("voting_api"))
-                .LogTo(Console.WriteLine, new[] { DbLoggerCategory.Database.Command.Name }, LogLevel.Information)
-            );
+            {
+                // Configure your connection string here
+                options.UseNpgsql(connectionString);
+            });
 
             // Ajouter la politique CORS
             services.AddCors(options =>

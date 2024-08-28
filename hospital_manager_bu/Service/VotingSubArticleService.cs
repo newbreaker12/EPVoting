@@ -36,7 +36,7 @@ namespace voting_bl.Service
         public void SaveSubArticle(VotingSubArticle votingSubArticle)
         {
             DateTime now = DateTime.Now;
-            votingSubArticle.CreatedAt = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second);
+            votingSubArticle.CreatedAt = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second).ToUniversalTime();
             _unitOfWork.VotingSubArticle.Add(votingSubArticle);
             _unitOfWork.Save();
         }

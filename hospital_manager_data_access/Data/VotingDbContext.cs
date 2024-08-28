@@ -24,7 +24,7 @@ namespace voting_data_access.Data
         public async Task<List<VoteStatistics>> GetVoteStatisticsAsync()
         {
             return await VoteStatistics
-                .FromSqlRaw("EXEC spGetVoteStatistics")
+                .FromSqlRaw("SELECT * FROM VoteStatistics")
                 .ToListAsync();
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)

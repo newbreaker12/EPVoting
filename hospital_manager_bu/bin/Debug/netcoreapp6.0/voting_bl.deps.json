@@ -1119,17 +1119,26 @@
           "voting_models": "1.0.0"
         },
         "runtime": {
-          "voting_data_access.dll": {}
+          "voting_data_access.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       },
       "voting_exceptions/1.0.0": {
         "runtime": {
-          "voting_exceptions.dll": {}
+          "voting_exceptions.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       },
       "voting_models/1.0.0": {
         "runtime": {
-          "voting_models.dll": {}
+          "voting_models.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       }
     }

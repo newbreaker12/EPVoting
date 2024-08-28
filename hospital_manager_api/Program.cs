@@ -22,12 +22,12 @@ namespace voting_api
             var host = CreateHostBuilder(args).Build();
 
             // Décommenter les lignes ci-dessous pour ajouter des groupes, articles, etc.
-            // AddGroups(host);
-            // AddArticle(host);
-            // AddSubArticle(host);
-            // AddSession(host);
-            // AddRoles(host);
-            // AddUser(host);
+            //AddGroups(host);
+            //AddArticle(host);
+            //AddSubArticle(host);
+            //AddSession(host);
+            //AddRoles(host);
+            //AddUser(host);
             host.Run();
         }
 
@@ -72,7 +72,8 @@ namespace voting_api
                     LastName = "admin",
                     Password = "pss",
                     IsMEP = true,
-                    RoleId = 2
+                    RoleId = 2,
+                    GroupId = 1
                 });
         }
 
@@ -121,7 +122,7 @@ namespace voting_api
                 {
                     Name = "BUDGET",
                     ReadableId = "BG",
-                    CreatedAt = new DateTime(now.Year, now.Month, 1, 7, 0, 0)
+                    CreatedAt = new DateTime(now.Year, now.Month, 1, 7, 0, 0).ToUniversalTime()
                 });
         }
 
@@ -141,7 +142,7 @@ namespace voting_api
                     GroupsId = 1,
                     Name = "BG",
                     Description = "Article n.7",
-                    CreatedAt = new DateTime(now.Year, now.Month, 1, 7, 0, 0)
+                    CreatedAt = new DateTime(now.Year, now.Month, 1, 7, 0, 0).ToUniversalTime()
                 });
             _articleService.SaveArticle(
                 new VotingArticle
@@ -149,7 +150,7 @@ namespace voting_api
                     GroupsId = 1,
                     Name = "CT",
                     Description = "Article n.52237",
-                    CreatedAt = new DateTime(now.Year, now.Month, 1, 4, 0, 0)
+                    CreatedAt = new DateTime(now.Year, now.Month, 1, 4, 0, 0).ToUniversalTime()
                 });
         }
 
@@ -169,7 +170,7 @@ namespace voting_api
                     ArticleId = 1,
                     Name = "BG",
                     Description = "Article n.71",
-                    CreatedAt = new DateTime(now.Year, now.Month, 1, 7, 0, 0)
+                    CreatedAt = new DateTime(now.Year, now.Month, 1, 7, 0, 0).ToUniversalTime()
                 });
             _articleService.SaveSubArticle(
                 new VotingSubArticle
@@ -177,7 +178,7 @@ namespace voting_api
                     ArticleId = 1,
                     Name = "GUGU",
                     Description = "Article n.7",
-                    CreatedAt = new DateTime(now.Year, now.Month, 1, 7, 0, 0)
+                    CreatedAt = new DateTime(now.Year, now.Month, 1, 7, 0, 0).ToUniversalTime()
                 });
             _articleService.SaveSubArticle(
                 new VotingSubArticle
@@ -185,7 +186,7 @@ namespace voting_api
                     ArticleId = 1,
                     Name = "CT",
                     Description = "Article n.52237",
-                    CreatedAt = new DateTime(now.Year, now.Month, 1, 4, 0, 0)
+                    CreatedAt = new DateTime(now.Year, now.Month, 1, 4, 0, 0).ToUniversalTime()
                 });
             _articleService.SaveSubArticle(
                 new VotingSubArticle
@@ -193,7 +194,7 @@ namespace voting_api
                     ArticleId = 1,
                     Name = "UHU",
                     Description = "Article n.222",
-                    CreatedAt = new DateTime(now.Year, now.Month, 1, 4, 0, 0)
+                    CreatedAt = new DateTime(now.Year, now.Month, 1, 4, 0, 0).ToUniversalTime()
                 });
             _articleService.SaveSubArticle(
                 new VotingSubArticle
@@ -201,7 +202,7 @@ namespace voting_api
                     ArticleId = 1,
                     Name = "JH",
                     Description = "Article n.256",
-                    CreatedAt = new DateTime(now.Year, now.Month, 1, 4, 0, 0)
+                    CreatedAt = new DateTime(now.Year, now.Month, 1, 4, 0, 0).ToUniversalTime()
                 });
         }
 
@@ -221,8 +222,8 @@ namespace voting_api
                     ArticleId = 1,
                     Name = "BG",
                     Description = "Transfers Other sections (single votes)Draft amending budget(2021 Brexit Adjustment Reserve)(3 AMs)",
-                    From = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0),
-                    To = new DateTime(now.Year, now.Month, now.Day + 1, 23, 59, 0)
+                    From = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0).ToUniversalTime(),
+                    To = new DateTime(now.Year, now.Month, now.Day + 1, 23, 59, 0).ToUniversalTime()
                 });
         }
     }

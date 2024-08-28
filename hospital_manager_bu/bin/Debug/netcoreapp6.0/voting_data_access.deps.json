@@ -490,7 +490,10 @@
       },
       "voting_models/1.0.0": {
         "runtime": {
-          "voting_models.dll": {}
+          "voting_models.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       }
     }

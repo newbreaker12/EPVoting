@@ -6,12 +6,18 @@ using System.Text;
 
 namespace voting_data_access.Entities
 {
-    [Table(name: "VoteSubmit")]
+    [Table(name: "votesubmit")]
     public class VoteSubmit
     {
+
+        [Column("id")]
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
+
+        [Column("useremail")]
         public string UserEmail { get; set; }
+
+        [Column("articleid")]
         public long ArticleId { get; set; }
 
     }
