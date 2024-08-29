@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using voting_bl.Service;
 using voting_data_access.Entities;
@@ -24,11 +25,11 @@ namespace voting_api.Controllers
         /// Initialise une nouvelle instance de la classe <see cref="SessionController"/>.
         /// </summary>
         /// <param name="unitOfWork">L'unité de travail à utiliser par les services.</param>
-        public SessionController(IUnitOfWork unitOfWork)
+        public SessionController(IUnitOfWork unitOfWork, IConfiguration configuration)
         {
             _sessionService = new VotingSessionService(unitOfWork);
             _emailService = new EmailsService(unitOfWork);
-            _usersService = new VotingUsersService(unitOfWork);
+            _usersService = new VotingUsersService(unitOfWork, configuration);
         }
 
         /// <summary>

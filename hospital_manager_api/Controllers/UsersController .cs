@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -41,7 +42,7 @@ namespace voting_api.Controllers
         public UsersController(IUnitOfWork unitOfWork, IConfiguration configuration)
         {
             _configuration = configuration;
-            _usersService = new VotingUsersService(unitOfWork);
+            _usersService = new VotingUsersService(unitOfWork, _configuration);
             _emailsService = new EmailsService(unitOfWork);
             _votingGroupsService = new VotingGroupsService(unitOfWork);
             _votingRolesService = new VotingRolesService(unitOfWork);
@@ -72,14 +73,19 @@ namespace voting_api.Controllers
         [HttpPost("login")]
         public ActionResult<string> Authenticate(VotingUsersRequest request)
         {
-            VotingUsersResponse user = _usersService.GetUserBEmail(request.Email);
+            VotingUsersResponse userDTO = _usersService.GetUserByEmail(request.Email);
+            VotingUsers user = _usersService.GetUserDataByEmail(request.Email);
 
-            if (!VerifyPasswordHash(request.Password, user.Password))
+            if (!VerifyPasswordHash(request.Password, userDTO.Password))
             {
                 return BadRequest("Wrong password.");
             }
 
-            string token = CreateToken(user);
+            string token = CreateToken(userDTO);
+            user.AccessToken = token;
+            user.TokenExpires = DateTime.UtcNow.AddMinutes(10);
+            user.TokenCreated = DateTime.UtcNow;
+            _usersService.SaveUsers(user);
             return Ok(new { token });
         }
 
@@ -118,10 +124,11 @@ namespace voting_api.Controllers
         {
             using (var hmac = new HMACSHA512(_salt))
             {
-                var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-                return computedHash.SequenceEqual(Convert.FromBase64String(passwordHash));
+                var computedHash = Encoding.Unicode.GetString(hmac.ComputeHash(Encoding.UTF8.GetBytes(password)));
+                return computedHash.Equals(passwordHash);
             }
         }
+
 
         private string GenerateRandomPinCode(int length = 5)
         {
@@ -168,7 +175,7 @@ namespace voting_api.Controllers
             {
                 return BadRequest("Group doesn't exist");
             }
-            var user = _usersService.GetUserBEmail(users.Email);
+            var user = _usersService.GetUserByEmail(users.Email);
             if (user != null)
             {
                 return BadRequest(new
@@ -180,7 +187,7 @@ namespace voting_api.Controllers
             {
                 users.PinCode = GenerateRandomPinCode(); // Generate a random pin code
                 users.Password = CreatePasswordHash(users.Password); // Hash the password
-                _usersService.SaveUsers(users);
+                _usersService.AddUsers(users);
                 _emailsService.SendEmail(users.Email, "Account Created", "User has been created: " + users.Email + "; " + users.Password + "; " + users.PinCode);
                 return Ok(new
                 {
@@ -265,7 +272,7 @@ namespace voting_api.Controllers
 
             return Ok(new
             {
-                data = _usersService.GetUserBEmail(up[0])
+                data = _usersService.GetUserByEmail(up[0])
             });
         }
 

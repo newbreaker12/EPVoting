@@ -40,7 +40,6 @@ namespace voting_api
 
             services.AddDbContext<VotingDbContext>(options =>
             {
-                // Configure your connection string here
                 options.UseNpgsql(connectionString);
             });
 

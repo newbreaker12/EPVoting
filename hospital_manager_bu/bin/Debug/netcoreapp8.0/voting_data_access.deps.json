@@ -500,7 +500,10 @@
           "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.7"
         },
         "runtime": {
-          "voting_models.dll": {}
+          "voting_models.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       }
     }

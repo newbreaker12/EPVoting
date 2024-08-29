@@ -1,4 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Extensions.Configuration;
+using System;
+using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Text;
 using voting_data_access.Entities;
 using voting_data_access.Repositories.Interfaces;
 using voting_exceptions.Exceptions;
@@ -9,10 +13,19 @@ namespace voting_bl.Service
     public class VotingUsersService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IConfiguration _configuration;
+        private readonly byte[] _salt;
 
-        public VotingUsersService(IUnitOfWork unitOfWork)
+        public VotingUsersService(IUnitOfWork unitOfWork, IConfiguration configuration)
         {
+            _configuration = configuration;
             _unitOfWork = unitOfWork;
+            var token = _configuration["AppSettings:Token"];
+            if (string.IsNullOrEmpty(token))
+            {
+                throw new ArgumentException("Token is not configured in appsettings.json");
+            }
+            _salt = Encoding.ASCII.GetBytes(token);
         }
 
         public List<VotingUsers> GetUsersByGroup(long groupId)
@@ -20,7 +33,7 @@ namespace voting_bl.Service
             List<VotingUsers> usersData = _unitOfWork.VotingUsers.GetByGroupId(groupId);
             return usersData;
         }
-        public VotingUsersResponse GetUserBEmail(string email)
+        public VotingUsersResponse GetUserByEmail(string email)
         {
             VotingUsersResponse usersData = _unitOfWork.VotingUsers.GetUserByEmail(email);
             return usersData;
@@ -41,7 +54,7 @@ namespace voting_bl.Service
             return usersData;
         }
 
-        public void SaveUsers(VotingUsers votingUsers)
+        public void AddUsers(VotingUsers votingUsers)
         {
             VotingUsersResponse usersData = _unitOfWork.VotingUsers.GetUserByEmail(votingUsers.Email);
             if (usersData != null)
@@ -49,7 +62,22 @@ namespace voting_bl.Service
                 throw new InvalidUsersEmail("Email already taken");
             }
 
+            votingUsers.Password = hashPassword(votingUsers.Password);
+
             _unitOfWork.VotingUsers.Add(votingUsers);
+            _unitOfWork.Save();
+        }
+        public string hashPassword(string password)
+        {
+            using (var hmac = new HMACSHA512(_salt))
+            {
+                return Encoding.Unicode.GetString(hmac.ComputeHash(Encoding.UTF8.GetBytes(password)));
+            }
+        }
+
+        public void SaveUsers(VotingUsers votingUsers)
+        {
+            _unitOfWork.VotingUsers.Update(votingUsers);
             _unitOfWork.Save();
         }
 

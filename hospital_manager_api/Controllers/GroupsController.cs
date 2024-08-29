@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using voting_bl.Service;
 using voting_data_access.Entities;
@@ -18,15 +19,17 @@ namespace voting_api.Controllers
     {
         private readonly VotingGroupsService _groupsService;
         private readonly VotingUsersService _usersService;
+        private readonly IConfiguration _configuration;
 
         /// <summary>
         /// Initialise une nouvelle instance de la classe <see cref="GroupsController"/>.
         /// </summary>
         /// <param name="unitOfWork">L'unité de travail à utiliser par les services.</param>
-        public GroupsController(IUnitOfWork unitOfWork)
+        public GroupsController(IUnitOfWork unitOfWork, IConfiguration configuration)
         {
+            _configuration = configuration;
             _groupsService = new VotingGroupsService(unitOfWork);
-            _usersService = new VotingUsersService(unitOfWork);
+            _usersService = new VotingUsersService(unitOfWork, _configuration);
         }
 
         /// <summary>

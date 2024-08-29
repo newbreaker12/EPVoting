@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -52,8 +53,9 @@ namespace voting_api
             var scope = host.Services.CreateScope();
             DateTime now = DateTime.Now;
             var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-            VotingUsersService _userService = new VotingUsersService(unitOfWork);
-            _userService.SaveUsers(
+            var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+            VotingUsersService _userService = new VotingUsersService(unitOfWork, configuration);
+            _userService.AddUsers(
                 new VotingUsers
                 {
                     Email = "admin",

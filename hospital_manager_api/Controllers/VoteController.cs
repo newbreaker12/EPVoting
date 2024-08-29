@@ -9,6 +9,7 @@ using voting_exceptions.Exceptions;
 using voting_models.Response_Models;
 using System.Security.Claims;
 using voting_bl.Mapper;
+using Microsoft.Extensions.Configuration;
 
 namespace voting_api.Controllers
 {
@@ -20,6 +21,7 @@ namespace voting_api.Controllers
     [ApiController]
     public class VoteController : ControllerBase
     {
+        private readonly IConfiguration _configuration;
         private readonly VoteService _voteService;
         private readonly VotingArticleService _votingArticle;
         private readonly EmailsService _emailsService;
@@ -30,10 +32,11 @@ namespace voting_api.Controllers
         /// Initialise une nouvelle instance de la classe <see cref="VoteController"/>.
         /// </summary>
         /// <param name="unitOfWork">L'unité de travail à utiliser par les services.</param>
-        public VoteController(IUnitOfWork unitOfWork)
+        public VoteController(IUnitOfWork unitOfWork, IConfiguration configuration)
         {
+            _configuration = configuration;
             _voteService = new VoteService(unitOfWork);
-            _usersService = new VotingUsersService(unitOfWork);
+            _usersService = new VotingUsersService(unitOfWork, _configuration);
             _votingArticle = new VotingArticleService(unitOfWork);
             _emailsService = new EmailsService(unitOfWork);
             _voteMapper = new VoteMapper(unitOfWork);

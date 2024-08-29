@@ -28,7 +28,14 @@ namespace voting_data_access.Entities
 
         [Column("phonenumber")]
         public string PhoneNumber { get; set; }
+
+        [Column("accesstoken")]
+        public string AccessToken { get; set; }
+
+        [Column("tokencreated")]
         public DateTime TokenCreated { get; set; }
+
+        [Column("tokenexpires")]
         public DateTime TokenExpires { get; set; }
 
 

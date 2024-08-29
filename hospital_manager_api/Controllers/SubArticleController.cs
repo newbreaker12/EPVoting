@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using voting_bl.Mapper;
@@ -19,6 +20,7 @@ namespace voting_api.Controllers
     [ApiController]
     public class SubArticleController : ControllerBase
     {
+        private readonly IConfiguration _configuration;
         private readonly VotingArticleService _articleService;
         private readonly VotingSubArticleService _votingSubArticleService;
         private readonly VotingUsersService _usersService;
@@ -30,10 +32,11 @@ namespace voting_api.Controllers
         /// </summary>
         /// <param name="unitOfWork">The unit of work to use for services.</param>
         /// <param name="votingDbContext">The voting database context.</param>
-        public SubArticleController(IUnitOfWork unitOfWork, VotingDbContext votingDbContext)
+        public SubArticleController(IUnitOfWork unitOfWork, VotingDbContext votingDbContext, IConfiguration configuration)
         {
+            _configuration = configuration;
             _votingSubArticleService = new VotingSubArticleService(unitOfWork);
-            _usersService = new VotingUsersService(unitOfWork);
+            _usersService = new VotingUsersService(unitOfWork, configuration);
             _articleService = new VotingArticleService(unitOfWork);
             _voteMapper = new VoteMapper(unitOfWork);
             _statisticsService = new StatisticsService(votingDbContext);

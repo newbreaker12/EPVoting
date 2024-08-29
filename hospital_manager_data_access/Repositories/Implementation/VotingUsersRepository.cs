@@ -23,10 +23,10 @@ namespace voting_data_access.Repositories.Implementation
         {
             return Db.VotingUsers.SingleOrDefault(u => u.Email == email);
         }
-            public VotingUsersResponse GetUserByEmail(string email)
-            {
-                VotingUsers vu = Db.VotingUsers.SingleOrDefault(u => u.Email == email);
-                if (vu == null)
+        public VotingUsersResponse GetUserByEmail(string email)
+        {
+            VotingUsers vu = Db.VotingUsers.SingleOrDefault(u => u.Email == email);
+            if (vu == null)
             {
                 return null;
             }
