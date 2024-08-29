@@ -83,7 +83,7 @@ namespace voting_api.Controllers
 
             string token = CreateToken(userDTO);
             user.AccessToken = token;
-            user.TokenExpires = DateTime.UtcNow.AddMinutes(10);
+            user.TokenExpires = DateTime.UtcNow.AddMinutes(36000);
             user.TokenCreated = DateTime.UtcNow;
             _usersService.SaveUsers(user);
             return Ok(new { token });
@@ -93,7 +93,11 @@ namespace voting_api.Controllers
         {
             List<Claim> claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.Email),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim("email", user.Email),
+                new Claim("firtName", user.FirstName),
+                new Claim("lastName", user.LastName),
+                new Claim("role", user.Role.Name),
                 new Claim(ClaimTypes.Role, user.Role.Name)
             };
 
@@ -151,7 +155,6 @@ namespace voting_api.Controllers
         /// <param name="users">L'utilisateur à enregistrer.</param>
         /// <returns>L'utilisateur enregistré.</returns>
         [HttpPost]
-        //[Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMIN")]
         public ActionResult<VotingUsers> SaveUsers(VotingUsers users)
         {
             string getAuthentication = GetAuthorization();
@@ -281,19 +284,9 @@ namespace voting_api.Controllers
         /// </summary>
         /// <returns>Une liste de tous les utilisateurs.</returns>
         [HttpGet("all")]
+        [Authorize(Roles = "ADMIN")]
         public ActionResult<IEnumerable<VotingUsersResponse>> GetUsers()
         {
-            string getAuthentication = GetAuthorization();
-            var up = getAuthentication.Split(":");
-            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
-            {
-                return Unauthorized();
-            }
-            var rs = _usersService.getRole(up[0]);
-            if (rs.Name != "ADMIN")
-            {
-                return Unauthorized();
-            }
             return Ok(new
             {
                 data = _usersService.GetUsers()

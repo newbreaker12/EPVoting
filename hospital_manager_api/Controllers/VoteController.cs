@@ -58,7 +58,6 @@ namespace voting_api.Controllers
         /// <param name="vote">Le vote à enregistrer.</param>
         /// <returns>Le vote enregistré.</returns>
         [HttpPost]
-        //[Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMIN")]
         public ActionResult<Vote> SaveVote(Vote vote)
         {
             var email = User.Identity.Name;
