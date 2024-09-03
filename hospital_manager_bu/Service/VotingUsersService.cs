@@ -74,6 +74,13 @@ namespace voting_bl.Service
                 return Encoding.Unicode.GetString(hmac.ComputeHash(Encoding.UTF8.GetBytes(password)));
             }
         }
+        public string hashPincode(string password)
+        {
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                return BitConverter.ToString(sha256.ComputeHash(Encoding.UTF8.GetBytes(password))).Replace("-", "");
+            }
+        }
 
         public void SaveUsers(VotingUsers votingUsers)
         {
@@ -114,7 +121,7 @@ namespace voting_bl.Service
         public string updateAndGetPincode(VotingUsers user)
         {
             string pincode = generatePinCode();
-            user.PinCode = hashPassword(pincode);
+            user.PinCode = hashPincode(pincode);
             _unitOfWork.VotingUsers.Update(user);
             _unitOfWork.Save();
             return pincode;

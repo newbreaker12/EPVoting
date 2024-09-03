@@ -163,7 +163,6 @@ namespace voting_api.Controllers
             try
             {
                 var passwordUnhashed = user.Password;
-                user.Password = CreatePasswordHash(user.Password); // Hash the password
                 _usersService.AddUsers(user);
                 GetPinCode(user.Email);
                 SendSMS(user.Email, "Your password is " + passwordUnhashed);
