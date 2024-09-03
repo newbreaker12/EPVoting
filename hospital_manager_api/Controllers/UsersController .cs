@@ -92,7 +92,7 @@ namespace voting_api.Controllers
 
             if (!VerifyPasswordHash(request.Password, userDTO.Password))
             {
-                return BadRequest("Wrong password.");
+                return Unauthorized("Wrong password.");
             }
 
             string token = CreateToken(userDTO);
@@ -142,7 +142,7 @@ namespace voting_api.Controllers
         {
             using (var hmac = new HMACSHA512(_salt))
             {
-                var computedHash = Encoding.Unicode.GetString(hmac.ComputeHash(Encoding.UTF8.GetBytes(password)));
+                var computedHash = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(password)));
                 return computedHash.Equals(passwordHash);
             }
         }
@@ -162,10 +162,12 @@ namespace voting_api.Controllers
             }
             try
             {
+                var passwordUnhashed = user.Password;
                 user.Password = CreatePasswordHash(user.Password); // Hash the password
                 _usersService.AddUsers(user);
                 GetPinCode(user.Email);
-                _emailsService.SendEmail(user.Email, "Account Created", "User has been created: " + user.Email + "; " + user.Password + "; " + user.PinCode);
+                SendSMS(user.Email, "Your password is " + passwordUnhashed);
+                _emailsService.SendEmail(user.Email, "Account Created", "User has been created: " + user.Email);
                 return Ok(new
                 {
                     data = "ok"
@@ -188,9 +190,11 @@ namespace voting_api.Controllers
         [HttpGet("{id}"), Authorize(Roles = "ADMIN")]
         public ActionResult<VotingUsers> GetUser(long id)
         {
+            var user = _usersService.GetUsers(id);
+            user.Password = null;
             return Ok(new
             {
-                data = _usersService.GetUsers(id)
+                data = user
             });
         }
 
@@ -218,7 +222,10 @@ namespace voting_api.Controllers
         {
             try
             {
+                var passwordUnhashed = user.Password;
+                user.Password = CreatePasswordHash(user.Password); // Hash the password
                 _usersService.EditUser(user.Id, user);
+                SendSMS(user.Email, "Your password is " + passwordUnhashed);
                 return Ok(new
                 {
                     data = "ok"
@@ -267,6 +274,23 @@ namespace voting_api.Controllers
                 to: new PhoneNumber(user.PhoneNumber),
                 from: new PhoneNumber("+15162104237"),
                 body: "Your pincode is " + pincode
+            );
+        }
+
+        [HttpGet("sendSMS"), Authorize(Roles = "ADMIN")]
+        public void SendSMS(string email, string text)
+        {
+            VotingUsers user = _usersService.GetUserDataByEmail(email);
+
+            string pincode = _usersService.updateAndGetPincode(user);
+
+
+            TwilioClient.Init(accountSid, smsAuthToken);
+
+            var call = MessageResource.Create(
+                to: new PhoneNumber(user.PhoneNumber),
+                from: new PhoneNumber("+15162104237"),
+                body: "Your password is " + text
             );
         }
 

@@ -56,12 +56,6 @@ namespace voting_api.Controllers
         [Authorize(Roles = "ADMIN,PG")]
         public ActionResult SaveArticle([FromBody] VotingArticle article)
         {
-            var email = User.Identity.Name;
-            var userRole = _usersService.getRole(email);
-            if (userRole.Name != "ADMIN" && userRole.Name != "PG")
-            {
-                return Unauthorized();
-            }
             try
             {
                 _articleService.SaveArticle(article);
@@ -79,10 +73,10 @@ namespace voting_api.Controllers
         /// <param name="article">L'article à modifier.</param>
         /// <returns>L'article modifié.</returns>
         [HttpPut]
-        [Authorize(Roles = "ADMIN,PG")]
+        [Authorize]
         public ActionResult EditArticle([FromBody] VotingArticle article)
         {
-            var email = User.Identity.Name;
+            var email = GetClaim("email");
             var userRole = _usersService.getRole(email);
             var existingArticle = _articleService.GetArticle(article.Id);
 
@@ -151,7 +145,7 @@ namespace voting_api.Controllers
         [Authorize]
         public ActionResult<List<VotingArticleResponse>> GetArticleForUser()
         {
-            var email = User.Identity.Name;
+            var email = GetClaim("email");
             try
             {
                 return Ok(new { data = _articleService.GetArticlesForUser(email) });
