@@ -114,7 +114,8 @@ namespace voting_bl.Service
         public VotingUsers DeleteUsers(long id)
         {
             VotingUsers user = _unitOfWork.VotingUsers.Get(id);
-            _unitOfWork.VotingUsers.Remove(user);
+            user.Disabled = true;
+            _unitOfWork.VotingUsers.Update(user);
             _unitOfWork.Save();
             return user;
         }

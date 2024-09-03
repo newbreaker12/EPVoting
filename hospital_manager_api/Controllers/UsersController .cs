@@ -87,7 +87,7 @@ namespace voting_api.Controllers
             VotingUsersResponse userDTO = _usersService.GetUserByEmail(request.Email);
             VotingUsers user = _usersService.GetUserDataByEmail(request.Email);
 
-            if (user == null)
+            if (user == null || user.Disabled)
             {
                 return Unauthorized("Wrong username and password");
             }
@@ -111,7 +111,7 @@ namespace voting_api.Controllers
             {
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim("email", user.Email),
-                new Claim("firtName", user.FirstName),
+                new Claim("firstName", user.FirstName),
                 new Claim("lastName", user.LastName),
                 new Claim("role", user.Role.Name),
                 new Claim(ClaimTypes.Role, user.Role.Name)
