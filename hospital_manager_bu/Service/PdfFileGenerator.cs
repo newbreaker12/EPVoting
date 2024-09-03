@@ -4,7 +4,6 @@ using iText.Layout.Element;
 using iText.Layout.Properties;
 using System;
 using System.IO;
-using System.Text;
 using voting_data_access.Entities;
 using voting_models.Response_Models;
 
@@ -15,64 +14,40 @@ namespace voting_bl.Service
         public static byte[] GeneratePdf(VotingArticleResponse votingArticle, string hashedPinCode, string userName)
         {
             using (MemoryStream stream = new MemoryStream())
-
             {
-                // Must have write permissions to the path folder
                 PdfWriter writer = new PdfWriter(stream, new WriterProperties()
-                        .SetStandardEncryption(
-                            System.Text.Encoding.UTF8.GetBytes(hashedPinCode), // user password
-                            null, // owner password
-                            EncryptionConstants.ALLOW_PRINTING, // permissions
-                            EncryptionConstants.ENCRYPTION_AES_128) // encryption type
-                         );
+                    .SetStandardEncryption(
+                        System.Text.Encoding.UTF8.GetBytes(hashedPinCode), // user password
+                        null, // owner password
+                        EncryptionConstants.ALLOW_PRINTING, // permissions
+                        EncryptionConstants.ENCRYPTION_AES_128)); // encryption type
+
                 PdfDocument pdf = new PdfDocument(writer);
                 Document document = new Document(pdf);
+
                 Paragraph header = new Paragraph("Submitted votes for article: " + votingArticle.Description)
                    .SetTextAlignment(TextAlignment.CENTER)
                    .SetFontSize(20);
-                Table table = new Table(2);
-                Cell header1 = new Cell();
-                header1.Add(new Paragraph("Sub-Article"));
-                Cell heade2 = new Cell();
-                heade2.Add(new Paragraph("Vote"));
-                table.AddCell(header1);
-                table.AddCell(heade2);
-                votingArticle.SubArticles.ForEach(v =>
-                {
-                    Cell cell1 = new Cell();
-                    var desc = v.Description;
-                    if (desc == null)
-                    {
-                        desc = "";
-                    }
-                    cell1.Add(new Paragraph(desc));
-                    Cell cell2 = new Cell();
-                    cell2.Add(new Paragraph(((VoteType)v.VoteType).ToString().Replace("_", " ").ToLower()));
-                    table.AddCell(cell1);
-                    table.AddCell(cell2);
-                });
                 document.Add(header);
+
+                Table table = new Table(1);
+                Cell header1 = new Cell().Add(new Paragraph("Sub-Article"));
+                table.AddHeaderCell(header1);
+
+                votingArticle.SubArticles.ForEach(subArticle =>
+                {
+                    Cell cell1 = new Cell().Add(new Paragraph(subArticle.Description ?? string.Empty));
+                    table.AddCell(cell1);
+                });
+
                 document.Add(table);
 
-
+                document.Add(new Paragraph("\n"));
                 document.Add(new Paragraph("Date:____________________________"));
                 document.Add(new Paragraph("Signature:________________________"));
+                document.Add(new Paragraph($"Signed by: {userName}"));
 
                 document.Close();
-
-                PdfStamper pdfStamper = new PdfStamper(pdfReader, outputPdfStream);
-
-                // Convert the byte array to a string to use as a password
-                string userPassword = BitConverter.ToString(hashedPinCode).Replace("-", "");
-
-                // Encrypt the PDF using the hashed pin code as the user password
-                pdfStamper.SetEncryption(
-                    Encoding.ASCII.GetBytes(userPassword), // user password
-                    null, // owner password (null if not needed)
-                    PdfWriter.ALLOW_PRINTING, // permissions
-                    PdfWriter.ENCRYPTION_AES_128); // encryption type
-
-                pdfStamper.Close();
                 return stream.ToArray();
             }
         }
