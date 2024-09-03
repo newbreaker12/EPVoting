@@ -141,6 +141,10 @@ namespace voting_data_access.Repositories.Implementation
         public VotingRoles getRole(string email)
         {
             VotingUsers vu = Db.VotingUsers.SingleOrDefault(u => u.Email == email);
+            if (vu == null)
+            {
+                return null;
+            }
             return Db.VotingRoles.SingleOrDefault(r => r.Id == vu.RoleId);
         }
     }

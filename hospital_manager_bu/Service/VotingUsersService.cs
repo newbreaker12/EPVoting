@@ -110,5 +110,21 @@ namespace voting_bl.Service
             _unitOfWork.Save();
             return user;
         }
+
+        public string updateAndGetPincode(VotingUsers user)
+        {
+            string pincode = generatePinCode();
+            user.PinCode = hashPassword(pincode);
+            _unitOfWork.VotingUsers.Update(user);
+            _unitOfWork.Save();
+            return pincode;
+        }
+
+        private string generatePinCode()
+        {
+            Random random = new Random();
+            int randomNumber = random.Next(1000, 10000);
+            return randomNumber.ToString();
+        }
     }
 }

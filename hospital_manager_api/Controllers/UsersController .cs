@@ -11,6 +11,9 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Twilio;
+using Twilio.Rest.Api.V2010.Account;
+using Twilio.Types;
 using voting_bl.Service;
 using voting_data_access.Entities;
 using voting_data_access.Repositories.Interfaces;
@@ -32,6 +35,7 @@ namespace voting_api.Controllers
         private readonly EmailsService _emailsService;
         private readonly VotingGroupsService _votingGroupsService;
         private readonly VotingRolesService _votingRolesService;
+        private readonly JwtSecurityTokenHandler _tokenHandler;
         private readonly byte[] _salt;
 
         /// <summary>
@@ -46,6 +50,7 @@ namespace voting_api.Controllers
             _emailsService = new EmailsService(unitOfWork);
             _votingGroupsService = new VotingGroupsService(unitOfWork);
             _votingRolesService = new VotingRolesService(unitOfWork);
+            _tokenHandler = new JwtSecurityTokenHandler();
 
             // Retrieve the salt (token) from the configuration
             var token = _configuration["AppSettings:Token"];
@@ -133,46 +138,14 @@ namespace voting_api.Controllers
             }
         }
 
-
-        private string GenerateRandomPinCode(int length = 5)
-        {
-            using (var rng = new RNGCryptoServiceProvider())
-            {
-                var data = new byte[length];
-                rng.GetBytes(data);
-                var builder = new StringBuilder(length);
-                foreach (var b in data)
-                {
-                    builder.Append((b % 10).ToString());
-                }
-                return builder.ToString();
-            }
-        }
-
         /// <summary>
         /// Enregistre un nouvel utilisateur.
         /// </summary>
         /// <param name="users">L'utilisateur à enregistrer.</param>
         /// <returns>L'utilisateur enregistré.</returns>
-        [HttpPost]
+        [HttpPost, Authorize(Roles = "ADMIN")]
         public ActionResult<VotingUsers> SaveUsers(VotingUsers users)
         {
-            string getAuthentication = GetAuthorization();
-            var up = getAuthentication.Split(":");
-            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
-            {
-                return Unauthorized();
-            }
-            var rs = _usersService.getRole(up[0]);
-            if (rs.Name != "ADMIN")
-            {
-                return Unauthorized();
-            }
-            var userRole = _votingRolesService.GetRoles(users.RoleId);
-            if (userRole == null)
-            {
-                return BadRequest("Role doesn't exist");
-            }
             var userGroup = _votingGroupsService.GetGroups(users.GroupId);
             if (userGroup == null)
             {
@@ -188,9 +161,9 @@ namespace voting_api.Controllers
             }
             try
             {
-                users.PinCode = GenerateRandomPinCode(); // Generate a random pin code
                 users.Password = CreatePasswordHash(users.Password); // Hash the password
                 _usersService.AddUsers(users);
+                GetPinCode(users.Email);
                 _emailsService.SendEmail(users.Email, "Account Created", "User has been created: " + users.Email + "; " + users.Password + "; " + users.PinCode);
                 return Ok(new
                 {
@@ -266,25 +239,42 @@ namespace voting_api.Controllers
         [HttpGet("email"), Authorize]
         public ActionResult<VotingUsersResponse> GetUserByEmail()
         {
-            string getAuthentication = GetAuthorization();
-            var up = getAuthentication.Split(":");
-            if (up.Length != 2 || _usersService.Authenticate(up[0], up[1]).ToString().ToUpper() != "TRUE")
-            {
-                return Unauthorized();
-            }
-
             return Ok(new
             {
                 data = _usersService.GetUserByEmail(up[0])
             });
         }
 
+        [HttpGet("pincode"), Authorize]
+        public void GetPinCode()
+        {
+            string email = GetClaim("email");
+            GetPinCode(email);
+        }
+
+        public void GetPinCode(string email)
+        {
+            VotingUsers user = _usersService.GetUserDataByEmail(email);
+
+            string pincode = _usersService.updateAndGetPincode(user);
+
+            const string accountSid = "ACdb53f6ae7ef1653eb55afd9bb1e031dd";
+            const string authToken = "e9a38a99b12fe863da24ff6dd1872eb7";
+
+            TwilioClient.Init(accountSid, authToken);
+
+            var call = MessageResource.Create(
+                to: new PhoneNumber(user.PhoneNumber),
+                from: new PhoneNumber("+15162104237"),
+                body: "Your pincode is " + pincode
+            );
+        }
+
         /// <summary>
         /// Obtient tous les utilisateurs.
         /// </summary>
         /// <returns>Une liste de tous les utilisateurs.</returns>
-        [HttpGet("all")]
-        [Authorize(Roles = "ADMIN")]
+        [HttpGet("all"), Authorize(Roles = "ADMIN")]
         public ActionResult<IEnumerable<VotingUsersResponse>> GetUsers()
         {
             return Ok(new
@@ -300,6 +290,26 @@ namespace voting_api.Controllers
         private string GetAuthorization()
         {
             return Request.Headers[HeaderNames.Authorization].ToString();
+        }
+
+        private string GetClaim(string name)
+        {
+            var accessTokenString = Request.Headers[HeaderNames.Authorization].ToString();
+
+            if (accessTokenString == null || !accessTokenString.Contains("Bearer "))
+            {
+                return "NONE";
+            }
+
+            try
+            {
+                var accessToken = _tokenHandler.ReadToken(accessTokenString.Replace("Bearer ", "")) as JwtSecurityToken;
+                return accessToken.Claims.Single(claim => claim.Type == name).Value;
+            }
+            catch (ArgumentException)
+            {
+                return "NONE";
+            }
         }
     }
 }

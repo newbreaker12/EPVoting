@@ -10,6 +10,9 @@ using voting_models.Response_Models;
 using System.Security.Claims;
 using voting_bl.Mapper;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.Net.Http.Headers;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace voting_api.Controllers
 {
@@ -57,15 +60,9 @@ namespace voting_api.Controllers
         /// </summary>
         /// <param name="vote">Le vote à enregistrer.</param>
         /// <returns>Le vote enregistré.</returns>
-        [HttpPost]
+        [HttpPost, Authorize(Roles = "MEP")]
         public ActionResult<Vote> SaveVote(Vote vote)
         {
-            var email = User.Identity.Name;
-            var userRole = _usersService.getRole(email);
-            if (userRole.Name != "MEP")
-            {
-                return Unauthorized();
-            }
             try
             {
                 _voteService.SaveVote(vote);
@@ -83,15 +80,10 @@ namespace voting_api.Controllers
         /// <param name="id">L'ID du sous-article.</param>
         /// <param name="type">Le type de vote.</param>
         /// <returns>Le vote enregistré.</returns>
-        [HttpGet("subarticle/{id}/vote/{type}")]
+        [HttpGet("subarticle/{id}/vote/{type}"), Authorize(Roles = "MEP")]
         public ActionResult<Vote> Vote(long id, int type)
         {
-            var email = User.Identity.Name;
-            var userRole = _usersService.getRole(email);
-            if (userRole.Name != "MEP")
-            {
-                return Unauthorized();
-            }
+            var email = GetClaim("email");
 
             if (_voteService.HasSubmittedVoteArticle(email, id))
             {
@@ -107,15 +99,10 @@ namespace voting_api.Controllers
         /// </summary>
         /// <param name="id">L'ID de l'article.</param>
         /// <returns>Le vote soumis.</returns>
-        [HttpGet("article/{id}/vote/submit")]
+        [HttpGet("article/{id}/vote/submit"), Authorize(Roles = "MEP")]
         public ActionResult<Vote> VoteSubmit(long id)
         {
-            var email = User.Identity.Name;
-            var userRole = _usersService.getRole(email);
-            if (userRole.Name != "MEP")
-            {
-                return Unauthorized();
-            }
+            var email = GetClaim("email");
 
             if (_voteService.HasSubmittedVoteArticle(email, id))
             {
@@ -141,16 +128,9 @@ namespace voting_api.Controllers
         /// </summary>
         /// <param name="id">L'ID du vote à obtenir.</param>
         /// <returns>Le vote demandé.</returns>
-        [HttpGet("{id}")]
+        [HttpGet("{id}"), Authorize(Roles = "ADMIN")]
         public ActionResult<Vote> GetVote(long id)
         {
-            var email = User.Identity.Name;
-            var userRole = _usersService.getRole(email);
-            if (userRole.Name != "ADMIN")
-            {
-                return Unauthorized();
-            }
-
             return Ok(new { data = _voteService.GetVote(id) });
         }
 
@@ -158,16 +138,9 @@ namespace voting_api.Controllers
         /// Obtient tous les votes.
         /// </summary>
         /// <returns>Une liste de tous les votes.</returns>
-        [HttpGet("all")]
+        [HttpGet("all"), Authorize(Roles = "ADMIN")]
         public ActionResult<IEnumerable<VoteSearchResponse>> GetVotes()
         {
-            var email = User.Identity.Name;
-            var userRole = _usersService.getRole(email);
-            if (userRole.Name != "ADMIN")
-            {
-                return Unauthorized();
-            }
-
             var searchList = new List<VoteSearchResponse>();
             foreach (var source in _voteService.GetAllVotes())
             {
@@ -175,6 +148,25 @@ namespace voting_api.Controllers
             }
 
             return Ok(new { data = searchList });
+        }
+        private string GetClaim(string name)
+        {
+            var accessTokenString = Request.Headers[HeaderNames.Authorization].ToString();
+
+            if (accessTokenString == null || !accessTokenString.Contains("Bearer "))
+            {
+                return "NONE";
+            }
+
+            try
+            {
+                var accessToken = _tokenHandler.ReadToken(accessTokenString.Replace("Bearer ", "")) as JwtSecurityToken;
+                return accessToken.Claims.Single(claim => claim.Type == name).Value;
+            }
+            catch (ArgumentException)
+            {
+                return "NONE";
+            }
         }
     }
 }

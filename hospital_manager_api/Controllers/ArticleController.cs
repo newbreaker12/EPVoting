@@ -1,7 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.Net.Http.Headers;
+using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using voting_bl.Service;
 using voting_data_access.Entities;
 using voting_data_access.Repositories.Interfaces;
@@ -19,6 +24,7 @@ namespace voting_api.Controllers
     {
         private readonly VotingArticleService _articleService;
         private readonly VotingUsersService _usersService;
+        private readonly JwtSecurityTokenHandler _tokenHandler;
 
         /// <summary>
         /// Initialise une nouvelle instance de la classe <see cref="ArticleController"/>.
@@ -28,6 +34,7 @@ namespace voting_api.Controllers
         {
             _articleService = new VotingArticleService(unitOfWork);
             _usersService = new VotingUsersService(unitOfWork, configuration);
+            _tokenHandler = new JwtSecurityTokenHandler();
         }
 
         /// <summary>
@@ -109,8 +116,7 @@ namespace voting_api.Controllers
         [Authorize]
         public ActionResult<VotingArticleResponse> GetArticle(long id)
         {
-            var email = User.Identity.Name;
-            var userRole = _usersService.getRole(email);
+            var userRole = GetClaim("role");
             var article = _articleService.GetArticle(id);
 
             if (article == null)
@@ -118,7 +124,7 @@ namespace voting_api.Controllers
                 return NotFound(new { data = "Article not found" });
             }
 
-            if (userRole.Name != "ADMIN" && userRole.Name != "PG" && userRole.Name != article.Group.Name)
+            if (userRole != "ADMIN" && userRole != "PG" && userRole != article.Group.Name)
             {
                 return Unauthorized();
             }
@@ -153,6 +159,26 @@ namespace voting_api.Controllers
             catch (InvalidVote e)
             {
                 return BadRequest(new { data = e.Message });
+            }
+        }
+
+        private string GetClaim(string name)
+        {
+            var accessTokenString = Request.Headers[HeaderNames.Authorization].ToString();
+
+            if (accessTokenString == null || !accessTokenString.Contains("Bearer "))
+            {
+                return "NONE";
+            }
+
+            try
+            {
+                var accessToken = _tokenHandler.ReadToken(accessTokenString.Replace("Bearer ", "")) as JwtSecurityToken;
+                return accessToken.Claims.Single(claim => claim.Type == name).Value;
+            }
+            catch (ArgumentException)
+            {
+                return "NONE";
             }
         }
     }

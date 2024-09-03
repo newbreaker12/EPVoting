@@ -18,7 +18,7 @@ CREATE TABLE VotingUsers (
     FirstName VARCHAR(50),
     LastName VARCHAR(50),
     Password VARCHAR(512),
-    pincode VARCHAR(20),
+    pincode VARCHAR(50),
     PhoneNumber VARCHAR(50),
     IsMEP BOOLEAN NOT NULL,
     RoleId BIGINT REFERENCES VotingRoles(Id),
