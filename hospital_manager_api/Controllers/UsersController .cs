@@ -37,7 +37,7 @@ namespace voting_api.Controllers
         private readonly VotingRolesService _votingRolesService;
         private readonly JwtSecurityTokenHandler _tokenHandler;
         private readonly byte[] _salt;
-        private readonly string smsAccountSid;
+        private readonly string accountSid;
         private readonly string smsAuthToken;
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace voting_api.Controllers
                 throw new ArgumentException("Token is not configured in appsettings.json");
             }
             _salt = Encoding.ASCII.GetBytes(token);
-            smsAccountSid = _configuration["AppSettings:SMSAccountSid"];
+            accountSid = _configuration["AppSettings:SMSAccountSid"];
             smsAuthToken = _configuration["AppSettings:SMSAuthToken"];
         }
 
@@ -84,6 +84,11 @@ namespace voting_api.Controllers
         {
             VotingUsersResponse userDTO = _usersService.GetUserByEmail(request.Email);
             VotingUsers user = _usersService.GetUserDataByEmail(request.Email);
+
+            if (user == null)
+            {
+                return Unauthorized("Wrong username and password");
+            }
 
             if (!VerifyPasswordHash(request.Password, userDTO.Password))
             {
@@ -145,30 +150,22 @@ namespace voting_api.Controllers
         /// <summary>
         /// Enregistre un nouvel utilisateur.
         /// </summary>
-        /// <param name="users">L'utilisateur à enregistrer.</param>
+        /// <param name="user">L'utilisateur à enregistrer.</param>
         /// <returns>L'utilisateur enregistré.</returns>
         [HttpPost, Authorize(Roles = "ADMIN")]
-        public ActionResult<VotingUsers> SaveUsers(VotingUsers users)
+        public ActionResult<VotingUsers> SaveUsers(VotingUsers user)
         {
-            var userGroup = _votingGroupsService.GetGroups(users.GroupId);
+            var userGroup = _votingGroupsService.GetGroups(user.GroupId);
             if (userGroup == null)
             {
                 return BadRequest("Group doesn't exist");
             }
-            var user = _usersService.GetUserByEmail(users.Email);
-            if (user != null)
-            {
-                return BadRequest(new
-                {
-                    data = "This email is already assigned to another user"
-                });
-            }
             try
             {
-                users.Password = CreatePasswordHash(users.Password); // Hash the password
-                _usersService.AddUsers(users);
-                GetPinCode(users.Email);
-                _emailsService.SendEmail(users.Email, "Account Created", "User has been created: " + users.Email + "; " + users.Password + "; " + users.PinCode);
+                user.Password = CreatePasswordHash(user.Password); // Hash the password
+                _usersService.AddUsers(user);
+                GetPinCode(user.Email);
+                _emailsService.SendEmail(user.Email, "Account Created", "User has been created: " + user.Email + "; " + user.Password + "; " + user.PinCode);
                 return Ok(new
                 {
                     data = "ok"
@@ -264,7 +261,7 @@ namespace voting_api.Controllers
             string pincode = _usersService.updateAndGetPincode(user);
 
 
-            TwilioClient.Init(smsAccountSid, smsAuthToken);
+            TwilioClient.Init(accountSid, smsAuthToken);
 
             var call = MessageResource.Create(
                 to: new PhoneNumber(user.PhoneNumber),
