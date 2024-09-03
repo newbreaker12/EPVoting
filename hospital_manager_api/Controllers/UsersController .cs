@@ -39,6 +39,7 @@ namespace voting_api.Controllers
         private readonly byte[] _salt;
         private readonly string accountSid;
         private readonly string smsAuthToken;
+        private readonly string fromNumber;
 
         /// <summary>
         /// Initialise une nouvelle instance de la classe <see cref="UsersController"/>.
@@ -63,6 +64,7 @@ namespace voting_api.Controllers
             _salt = Encoding.ASCII.GetBytes(token);
             accountSid = _configuration["AppSettings:SMSAccountSid"];
             smsAuthToken = _configuration["AppSettings:SMSAuthToken"];
+            fromNumber = _configuration["AppSettings:SMSFromNumber"];
         }
 
         /// <summary>
@@ -264,16 +266,16 @@ namespace voting_api.Controllers
         {
             VotingUsers user = _usersService.GetUserDataByEmail(email);
 
-            string pincode = _usersService.updateAndGetPincode(user);
-
+            string pincode = user.PinCode;
 
             TwilioClient.Init(accountSid, smsAuthToken);
 
             var call = MessageResource.Create(
                 to: new PhoneNumber(user.PhoneNumber),
-                from: new PhoneNumber("+15162104237"),
+                from: new PhoneNumber(fromNumber),
                 body: "Your pincode is " + pincode
             );
+            return;
         }
 
         [HttpGet("sendSMS"), Authorize(Roles = "ADMIN")]
@@ -288,7 +290,7 @@ namespace voting_api.Controllers
 
             var call = MessageResource.Create(
                 to: new PhoneNumber(user.PhoneNumber),
-                from: new PhoneNumber("+15162104237"),
+                from: new PhoneNumber(fromNumber),
                 body: "Your password is " + text
             );
         }

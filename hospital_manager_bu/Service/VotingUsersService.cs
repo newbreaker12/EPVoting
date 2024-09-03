@@ -106,6 +106,7 @@ namespace voting_bl.Service
             votingUser.Password = user.Password;
             votingUser.RoleId = user.RoleId;
             votingUser.IsMEP = user.IsMEP;
+            votingUser.PhoneNumber = user.PhoneNumber;
             _unitOfWork.VotingUsers.Update(votingUser);
             _unitOfWork.Save();
         }
@@ -121,7 +122,7 @@ namespace voting_bl.Service
         public string updateAndGetPincode(VotingUsers user)
         {
             string pincode = generatePinCode();
-            user.PinCode = hashPincode(pincode);
+            user.PinCode = pincode;
             _unitOfWork.VotingUsers.Update(user);
             _unitOfWork.Save();
             return pincode;

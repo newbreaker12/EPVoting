@@ -4,6 +4,7 @@ using iText.Layout.Element;
 using iText.Layout.Properties;
 using System;
 using System.IO;
+using System.Text;
 using voting_data_access.Entities;
 using voting_models.Response_Models;
 
@@ -11,16 +12,18 @@ namespace voting_bl.Service
 {
     public class PdfFileGenerator
     {
-        public static byte[] GeneratePdf(VotingArticleResponse votingArticle, string hashedPinCode, string userName)
+        public static byte[] GeneratePdf(VotingArticleResponse votingArticle, string pinCode, string userName)
         {
             using (MemoryStream stream = new MemoryStream())
             {
-                PdfWriter writer = new PdfWriter(stream, new WriterProperties()
+                WriterProperties writerProperties = new WriterProperties()
                     .SetStandardEncryption(
-                        System.Text.Encoding.UTF8.GetBytes(hashedPinCode), // user password
-                        null, // owner password
+                        Encoding.UTF8.GetBytes(pinCode), // user password
+                        Encoding.UTF8.GetBytes(pinCode), // user password
                         EncryptionConstants.ALLOW_PRINTING, // permissions
-                        EncryptionConstants.ENCRYPTION_AES_128)); // encryption type
+                        EncryptionConstants.ENCRYPTION_AES_128); // encryption type
+
+                PdfWriter writer = new PdfWriter(stream, writerProperties);
 
                 PdfDocument pdf = new PdfDocument(writer);
                 Document document = new Document(pdf);
@@ -51,5 +54,5 @@ namespace voting_bl.Service
                 return stream.ToArray();
             }
         }
-    }
+        }
 }
