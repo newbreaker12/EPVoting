@@ -37,6 +37,8 @@ namespace voting_api.Controllers
         private readonly VotingRolesService _votingRolesService;
         private readonly JwtSecurityTokenHandler _tokenHandler;
         private readonly byte[] _salt;
+        private readonly string accountSid;
+        private readonly string authToken;
 
         /// <summary>
         /// Initialise une nouvelle instance de la classe <see cref="UsersController"/>.
@@ -59,6 +61,8 @@ namespace voting_api.Controllers
                 throw new ArgumentException("Token is not configured in appsettings.json");
             }
             _salt = Encoding.ASCII.GetBytes(token);
+            accountSid = _configuration["AppSettings:SMSAccountSid"];
+            authToken = _configuration["AppSettings:SMSAuthToken"];
         }
 
         /// <summary>
@@ -239,9 +243,10 @@ namespace voting_api.Controllers
         [HttpGet("email"), Authorize]
         public ActionResult<VotingUsersResponse> GetUserByEmail()
         {
+            string email = GetClaim("email");
             return Ok(new
             {
-                data = _usersService.GetUserByEmail(up[0])
+                data = _usersService.GetUserByEmail(email)
             });
         }
 
@@ -258,8 +263,6 @@ namespace voting_api.Controllers
 
             string pincode = _usersService.updateAndGetPincode(user);
 
-            const string accountSid = "ACdb53f6ae7ef1653eb55afd9bb1e031dd";
-            const string authToken = "e9a38a99b12fe863da24ff6dd1872eb7";
 
             TwilioClient.Init(accountSid, authToken);
 

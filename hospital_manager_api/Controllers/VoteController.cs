@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 
 namespace voting_api.Controllers
 {
@@ -30,6 +31,7 @@ namespace voting_api.Controllers
         private readonly EmailsService _emailsService;
         private readonly VotingUsersService _usersService;
         private readonly VoteMapper _voteMapper;
+        private readonly JwtSecurityTokenHandler _tokenHandler;
 
         /// <summary>
         /// Initialise une nouvelle instance de la classe <see cref="VoteController"/>.
@@ -43,6 +45,7 @@ namespace voting_api.Controllers
             _votingArticle = new VotingArticleService(unitOfWork);
             _emailsService = new EmailsService(unitOfWork);
             _voteMapper = new VoteMapper(unitOfWork);
+            _tokenHandler = new JwtSecurityTokenHandler();
         }
 
         /// <summary>
