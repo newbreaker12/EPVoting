@@ -77,12 +77,14 @@ CREATE VIEW VoteStatistics AS
 SELECT 
     VA.Name AS ArticleName,
     VSA.Name AS SubArticleName,
+    VG.Name AS GroupName,
     COUNT(CASE WHEN V.Type = 2 THEN 1 END) AS InFavorCount,
     COUNT(CASE WHEN V.Type = 0 THEN 1 END) AS NotInFavorCount,
     COUNT(CASE WHEN V.Type = 1 THEN 1 END) AS NeutralCount
 FROM 
     VotingArticle VA
 JOIN VotingSubArticle VSA ON VA.Id = VSA.ArticleId
+JOIN VotingGroups VG ON VA.GroupsId = VG.Id
 JOIN Vote V ON VSA.Id = V.SubArticleId
-GROUP BY VA.Name, VSA.Name;
+GROUP BY VA.Name, VSA.Name, VG.Name;
 
