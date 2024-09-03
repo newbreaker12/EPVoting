@@ -37,8 +37,8 @@ namespace voting_api.Controllers
         private readonly VotingRolesService _votingRolesService;
         private readonly JwtSecurityTokenHandler _tokenHandler;
         private readonly byte[] _salt;
-        private readonly string accountSid;
-        private readonly string authToken;
+        private readonly string smsAccountSid;
+        private readonly string smsAuthToken;
 
         /// <summary>
         /// Initialise une nouvelle instance de la classe <see cref="UsersController"/>.
@@ -61,8 +61,8 @@ namespace voting_api.Controllers
                 throw new ArgumentException("Token is not configured in appsettings.json");
             }
             _salt = Encoding.ASCII.GetBytes(token);
-            accountSid = _configuration["AppSettings:SMSAccountSid"];
-            authToken = _configuration["AppSettings:SMSAuthToken"];
+            smsAccountSid = _configuration["AppSettings:SMSAccountSid"];
+            smsAuthToken = _configuration["AppSettings:SMSAuthToken"];
         }
 
         /// <summary>
@@ -264,7 +264,7 @@ namespace voting_api.Controllers
             string pincode = _usersService.updateAndGetPincode(user);
 
 
-            TwilioClient.Init(accountSid, authToken);
+            TwilioClient.Init(smsAccountSid, smsAuthToken);
 
             var call = MessageResource.Create(
                 to: new PhoneNumber(user.PhoneNumber),
