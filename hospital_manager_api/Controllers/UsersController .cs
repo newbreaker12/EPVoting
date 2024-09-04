@@ -241,6 +241,32 @@ namespace voting_api.Controllers
             }
         }
 
+        [HttpPut("changePassword"), Authorize]
+        public ActionResult<VotingArticle> EditUserPassword(VotingUsers userPassword)
+        {
+            try
+            {
+                string email = GetClaim("email");
+                var passwordUnhashed = userPassword.Password;
+
+                VotingUsers user = _usersService.GetUserDataByEmail(email);
+                user.Password = CreatePasswordHash(userPassword.Password); // Hash the password
+                _usersService.EditUser(user.Id, user);
+                SendSMS(user.Email, "Your password is " + passwordUnhashed);
+                return Ok(new
+                {
+                    data = "ok"
+                });
+            }
+            catch (InvalidVote e)
+            {
+                return BadRequest(new
+                {
+                    data = e.Message
+                });
+            }
+        }
+
         /// <summary>
         /// Obtient un utilisateur par son adresse e-mail.
         /// </summary>
