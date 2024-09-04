@@ -71,7 +71,7 @@ namespace voting_bl.Service
         {
             using (var hmac = new HMACSHA512(_salt))
             {
-                return Encoding.Unicode.GetString(hmac.ComputeHash(Encoding.UTF8.GetBytes(password)));
+                return Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(password)));
             }
         }
         public string hashPincode(string password)

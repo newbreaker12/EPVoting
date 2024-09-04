@@ -166,7 +166,11 @@ namespace voting_api.Controllers
             {
                 var passwordUnhashed = user.Password;
                 _usersService.AddUsers(user);
+
+                string pincode = _usersService.updateAndGetPincode(user);
+                user.PinCode = pincode;
                 GetPinCode(user.Email);
+
                 SendSMS(user.Email, "Your password is " + passwordUnhashed);
                 _emailsService.SendEmail(user.Email, "Account Created", "User has been created: " + user.Email);
                 return Ok(new
@@ -293,6 +297,7 @@ namespace voting_api.Controllers
             VotingUsers user = _usersService.GetUserDataByEmail(email);
 
             string pincode = user.PinCode;
+          
 
             TwilioClient.Init(accountSid, smsAuthToken);
 
@@ -308,9 +313,6 @@ namespace voting_api.Controllers
         public void SendSMS(string email, string text)
         {
             VotingUsers user = _usersService.GetUserDataByEmail(email);
-
-            string pincode = _usersService.updateAndGetPincode(user);
-
 
             TwilioClient.Init(accountSid, smsAuthToken);
 
