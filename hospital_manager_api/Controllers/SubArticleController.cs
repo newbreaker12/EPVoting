@@ -1,7 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.Net.Http.Headers;
+using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
 using voting_bl.Mapper;
 using voting_bl.Service;
@@ -9,6 +13,7 @@ using voting_data_access.Data;
 using voting_data_access.Entities;
 using voting_data_access.Repositories.Interfaces;
 using voting_exceptions.Exceptions;
+using System.Linq;
 
 namespace voting_api.Controllers
 {
@@ -26,6 +31,7 @@ namespace voting_api.Controllers
         private readonly VotingUsersService _usersService;
         private readonly VoteMapper _voteMapper;
         private readonly StatisticsService _statisticsService;
+        private readonly JwtSecurityTokenHandler _tokenHandler;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SubArticleController"/> class.
@@ -40,6 +46,7 @@ namespace voting_api.Controllers
             _articleService = new VotingArticleService(unitOfWork);
             _voteMapper = new VoteMapper(unitOfWork);
             _statisticsService = new StatisticsService(votingDbContext);
+            _tokenHandler = new JwtSecurityTokenHandler();
         }
 
         /// <summary>
@@ -73,13 +80,7 @@ namespace voting_api.Controllers
         [Authorize(Roles = "ADMIN,PG")]
         public ActionResult SaveSubArticle([FromBody] VotingSubArticle subArticle)
         {
-            var email = User.Identity.Name;
-            var rs = _usersService.getRole(email);
             var ar = _articleService.GetArticle(subArticle.ArticleId);
-            if (rs.Name != "PG" && rs.Name != ar.Group.Name && rs.Name != "ADMIN")
-            {
-                return Unauthorized();
-            }
             try
             {
                 _votingSubArticleService.SaveSubArticle(subArticle);
@@ -100,12 +101,6 @@ namespace voting_api.Controllers
         [Authorize(Roles = "ADMIN,PG")]
         public ActionResult UpdateSubArticle([FromBody] VotingSubArticle subArticle)
         {
-            var email = User.Identity.Name;
-            var rs = _usersService.getRole(email);
-            if (rs.Name != "ADMIN" && rs.Name != "PG")
-            {
-                return Unauthorized();
-            }
             try
             {
                 _votingSubArticleService.EditSubArticle(subArticle);
@@ -135,17 +130,12 @@ namespace voting_api.Controllers
         /// <param name="id">The article ID.</param>
         /// <returns>A list of sub-articles for the specified article.</returns>
         [HttpGet("article/{id}")]
-        [Authorize]
+        [Authorize(Roles = "ADMIN,PG")]
         public ActionResult<List<VotingSubArticleResponse>> GetSubAsByArticleIdForUser(long id)
         {
-            var email = User.Identity.Name;
-            var rs = _usersService.getRole(email);
+            string email = GetClaim("email");
             var sar = _votingSubArticleService.GetSubArticleById(id);
             var ar = _articleService.GetArticle(sar.ArticleId);
-            if (rs.Name != "ADMIN" && rs.Name != "PG" && rs.Name != ar.Group.Name)
-            {
-                return Unauthorized();
-            }
             return Ok(new { data = _votingSubArticleService.GetSubAsByArticleIdAndEmail(id, email) });
         }
 
@@ -158,14 +148,8 @@ namespace voting_api.Controllers
         [Authorize(Roles = "ADMIN,PG")]
         public ActionResult Delete(long id)
         {
-            var email = User.Identity.Name;
-            var rs = _usersService.getRole(email);
             var sar = _votingSubArticleService.GetSubArticleById(id);
             var ar = _articleService.GetArticle(sar.ArticleId);
-            if (rs.Name != "PG" && rs.Name != ar.Group.Name && rs.Name != "ADMIN")
-            {
-                return Unauthorized();
-            }
             try
             {
                 _votingSubArticleService.Delete(id);
@@ -174,6 +158,26 @@ namespace voting_api.Controllers
             catch (InvalidVote e)
             {
                 return BadRequest(new { data = e.Message });
+            }
+        }
+
+        private string GetClaim(string name)
+        {
+            var accessTokenString = Request.Headers[HeaderNames.Authorization].ToString();
+
+            if (accessTokenString == null || !accessTokenString.Contains("Bearer "))
+            {
+                return "NONE";
+            }
+
+            try
+            {
+                var accessToken = _tokenHandler.ReadToken(accessTokenString.Replace("Bearer ", "")) as JwtSecurityToken;
+                return accessToken.Claims.Single(claim => claim.Type == name).Value;
+            }
+            catch (ArgumentException)
+            {
+                return "NONE";
             }
         }
     }
