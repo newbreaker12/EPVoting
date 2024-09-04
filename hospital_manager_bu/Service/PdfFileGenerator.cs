@@ -19,7 +19,7 @@ namespace voting_bl.Service
                 WriterProperties writerProperties = new WriterProperties()
                     .SetStandardEncryption(
                         Encoding.UTF8.GetBytes(pinCode), // user password
-                        Encoding.UTF8.GetBytes(pinCode), // user password
+                        Encoding.UTF8.GetBytes(pinCode), // owner password
                         EncryptionConstants.ALLOW_PRINTING, // permissions
                         EncryptionConstants.ENCRYPTION_AES_128); // encryption type
 
