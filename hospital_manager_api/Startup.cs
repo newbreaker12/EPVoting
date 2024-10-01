@@ -21,17 +21,30 @@ using voting_data_access.Data;
 
 namespace voting_api
 {
+    /// <summary>
+    /// Gets the application configuration.
+    /// </summary>
     public class Startup
     {
         readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
+        /// <summary>
+        /// Gets the application configuration.
+        /// </summary>
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
 
+        /// <summary>
+        /// Gets the application configuration settings.
+        /// </summary>
         public IConfiguration Configuration { get; }
 
+        /// <summary>
+        /// Configures the services required by the application.
+        /// </summary>
+        /// <param name="services">The collection of services to configure.</param>
         public void ConfigureServices(IServiceCollection services)
         {
             string connectionString = Configuration.GetConnectionString("DefaultConnection");
@@ -105,6 +118,13 @@ namespace voting_api
             services.AddHttpContextAccessor();
             services.TryAddSingleton<IActionContextAccessor, ActionContextAccessor>();
         }
+
+        /// <summary>
+        /// Configures the application's HTTP request pipeline.
+        /// </summary>
+        /// <param name="app">The application builder used to configure middleware.</param>
+        /// <param name="env">Provides information about the web hosting environment.</param>
+        /// <param name="dbContext">The database context used for database operations.</param>
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, VotingDbContext dbContext)
         {

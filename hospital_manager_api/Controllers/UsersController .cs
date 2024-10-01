@@ -244,7 +244,11 @@ namespace voting_api.Controllers
                 });
             }
         }
-
+        /// <summary>
+        /// Modifie le mot de passe de l'utilisateur.
+        /// </summary>
+        /// <param name="userPassword">L'objet contenant le nouveau mot de passe de l'utilisateur.</param>
+        /// <returns>Retourne un objet <see cref="ActionResult{VotingArticle}"/> qui représente le résultat de l'opération.</returns>
         [HttpPut("changePassword"), Authorize]
         public ActionResult<VotingArticle> EditUserPassword(VotingUsers userPassword)
         {
@@ -285,13 +289,19 @@ namespace voting_api.Controllers
             });
         }
 
+        /// <summary>
+        /// Retrieves the user's PIN code.
+        /// </summary>
         [HttpGet("pincode"), Authorize]
         public void GetPinCode()
         {
             string email = GetClaim("email");
             GetPinCode(email);
         }
-
+        /// <summary>
+        /// Retrieves the user's PIN code based on the provided email address and sends it to the user's phone number via SMS.
+        /// </summary>
+        /// <param name="email">The email address of the user whose PIN code is being retrieved and sent.</param>
         public void GetPinCode(string email)
         {
             VotingUsers user = _usersService.GetUserDataByEmail(email);
@@ -309,6 +319,11 @@ namespace voting_api.Controllers
             return;
         }
 
+        /// <summary>
+        /// Sends an SMS with a custom message to the user's phone number based on the provided email address.
+        /// </summary>
+        /// <param name="email">The email address of the user whose phone number is being used to send the SMS.</param>
+        /// <param name="text">The text message to be sent via SMS.</param>
         [HttpGet("sendSMS"), Authorize(Roles = "ADMIN")]
         public void SendSMS(string email, string text)
         {

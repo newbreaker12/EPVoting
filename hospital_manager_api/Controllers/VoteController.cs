@@ -37,6 +37,7 @@ namespace voting_api.Controllers
         /// Initialise une nouvelle instance de la classe <see cref="VoteController"/>.
         /// </summary>
         /// <param name="unitOfWork">L'unité de travail à utiliser par les services.</param>
+        /// <param name="configuration">La configuration de l'application.</param>
         public VoteController(IUnitOfWork unitOfWork, IConfiguration configuration)
         {
             _configuration = configuration;

@@ -38,6 +38,7 @@ namespace voting_api.Controllers
         /// </summary>
         /// <param name="unitOfWork">The unit of work to use for services.</param>
         /// <param name="votingDbContext">The voting database context.</param>
+        /// /// <param name="configuration">The application configuration settings.</param>
         public SubArticleController(IUnitOfWork unitOfWork, VotingDbContext votingDbContext, IConfiguration configuration)
         {
             _configuration = configuration;
