@@ -20,6 +20,7 @@ namespace voting_data_access.Data
         public DbSet<Vote> Vote { get; set; }
         public DbSet<VoteSubmit> VoteSubmit { get; set; }
         public DbSet<VoteStatistics> VoteStatistics { get; set; }
+        public DbSet<UserStatistics> UserStatistics { get; set; }
 
         public async Task<List<VoteStatistics>> GetVoteStatisticsAsync()
         {
@@ -27,11 +28,18 @@ namespace voting_data_access.Data
                 .FromSqlRaw("SELECT * FROM VoteStatistics")
                 .ToListAsync();
         }
+        public async Task<List<UserStatistics>> GetVotUsereStatisticsAsync()
+        {
+            return await UserStatistics
+                .FromSqlRaw("SELECT * FROM VoteUserStatistics")
+                .ToListAsync();
+        }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<VoteStatistics>().HasNoKey();
+            modelBuilder.Entity<UserStatistics>().HasNoKey();
         }
     }
 }

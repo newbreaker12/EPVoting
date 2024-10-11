@@ -39,7 +39,7 @@ CREATE TABLE VotingArticle (
     Id BIGSERIAL PRIMARY KEY,
     GroupsId BIGINT REFERENCES VotingGroups(Id),
     Name VARCHAR(255) NOT NULL,
-    Description VARCHAR(255),
+    Description TEXT,
     CreatedAt TIMESTAMP NOT NULL
 );
 
@@ -47,7 +47,7 @@ CREATE TABLE VotingSubArticle (
     Id BIGSERIAL PRIMARY KEY,
     ArticleId BIGINT REFERENCES VotingArticle(Id),
     Name VARCHAR(255) NOT NULL,
-    Description VARCHAR(255),
+    Description TEXT,
     CreatedAt TIMESTAMP NOT NULL
 );
 
@@ -87,4 +87,16 @@ JOIN VotingSubArticle VSA ON VA.Id = VSA.ArticleId
 JOIN VotingGroups VG ON VA.GroupsId = VG.Id
 JOIN Vote V ON VSA.Id = V.SubArticleId
 GROUP BY VA.Name, VSA.Name, VG.Name;
+
+CREATE VIEW VoteUserStatistics AS
+SELECT 
+    VA.Name AS ArticleName,
+    VG.Name AS GroupName,
+    COUNT(VS.id) AS UsersVoted
+FROM 
+    VotingArticle VA
+JOIN VotingGroups VG ON VA.GroupsId = VG.Id
+left JOIN votesubmit VS ON VS.articleid = VA.id 
+GROUP BY VA.Id, VA.Name, VG.Name;
+
 

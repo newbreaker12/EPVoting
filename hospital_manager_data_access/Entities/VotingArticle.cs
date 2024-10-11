@@ -24,5 +24,8 @@ namespace voting_data_access.Entities
 
         [Column("createdat")]
         public DateTime CreatedAt { get; set; }
+
+        //[Column("ispublic")]
+        //public bool IsPublic { get; set; }
     }
 }

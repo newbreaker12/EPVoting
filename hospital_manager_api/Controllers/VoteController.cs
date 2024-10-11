@@ -118,6 +118,17 @@ namespace voting_api.Controllers
             {
                 return BadRequest(new { data = "Article not found" });
             }
+            /*
+            // Check if the article is public, allow everyone to vote
+            if (!votingArticle.IsPublic)
+            {
+                var user = _usersService.GetUserDataByEmail(email);
+                if (user.Role.Name != "MEP" && user.Role.Name != votingArticle.Group.Name)
+                {
+                    return Unauthorized(new { data = "Unauthorized to vote on this article" });
+                }
+            }
+            */
 
             var user = _usersService.GetUserDataByEmail(email);
             byte[] file = PdfFileGenerator.GeneratePdf(votingArticle, user.PinCode, user.FirstName + " " + user.LastName);

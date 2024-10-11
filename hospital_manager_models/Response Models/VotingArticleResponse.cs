@@ -15,6 +15,7 @@ namespace voting_data_access.Entities
         public string Description { get; set; }
         public DateTime CreatedAt { get; set; }
         public VotingSessionResponse Session { get; set; }
+        public VotingSessionResponse LastSession { get; set; }
         public List<VotingSessionResponse> Sessions { get; set; }
         public List<VotingSubArticleResponse> SubArticles { get; set; }
         public VotingGroupsResponse Group { get; set; }

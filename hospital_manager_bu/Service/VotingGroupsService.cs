@@ -39,6 +39,8 @@ namespace voting_bl.Service
 
         public void SaveGroups(VotingGroups groupsData)
         {
+            DateTime now = DateTime.Now;
+            groupsData.CreatedAt = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second).ToUniversalTime();
             _unitOfWork.VotingGroups.Add(groupsData);
             _unitOfWork.Save();
         }

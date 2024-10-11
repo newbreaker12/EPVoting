@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="itext7" Version="8.0.5" />
+    <PackageReference Include="itext7" Version="7.2.6" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.7" />
     <ProjectReference Include="..\hospital_manager_data_access\voting_data_access.csproj" />
     <ProjectReference Include="..\hospital_manager_exceptions\voting_exceptions.csproj" />

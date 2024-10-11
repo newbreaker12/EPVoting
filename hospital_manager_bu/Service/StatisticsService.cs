@@ -19,5 +19,10 @@ namespace voting_bl.Service
         {
             return await _context.GetVoteStatisticsAsync();
         }
+
+        public async Task<List<UserStatistics>> GetVoteUserStatisticsAsync()
+        {
+            return await _context.GetVotUsereStatisticsAsync();
+        }
     }
 }

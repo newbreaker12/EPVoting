@@ -46,6 +46,12 @@ namespace voting_bl.Service
             return _unitOfWork.VotingArticle.GetArticles();
         }
 
+        /*public List<VotingArticleResponse> GetPublicArticles()
+            {
+                return _unitOfWork.VotingArticle.GetPublicArticles();
+            }
+        */
+
         public void SaveArticle(VotingArticle votingArticle)
         {
             DateTime now = DateTime.Now;

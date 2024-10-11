@@ -107,8 +107,10 @@ namespace voting_data_access.Repositories.Implementation
             {
                 VotingGroups group = Db.VotingGroups.SingleOrDefault(s => s.Id == article.GroupsId);
                 VotingSession session = Db.VotingSession.SingleOrDefault(s => s.ArticleId == article.Id && s.To > now && s.From <= now);
-                if (session != null)
-                {
+                VotingSession lastSession = Db.VotingSession
+                    .Where(s => s.ArticleId == article.Id)
+                    .OrderByDescending(s => s.Id)
+                    .FirstOrDefault();
                     result.Add(new VotingArticleResponse
                     {
                         Id = article.Id,
@@ -124,7 +126,7 @@ namespace voting_data_access.Repositories.Implementation
                             ReadableId = group.ReadableId
 
                         },
-                        Session = new VotingSessionResponse()
+                        Session = session == null ? null :  new VotingSessionResponse()
                         {
                             Id = session.Id,
                             ArticleId = session.ArticleId,
@@ -133,28 +135,18 @@ namespace voting_data_access.Repositories.Implementation
                             From = session.From,
                             To = session.To,
 
-                        }
-                    });
-                }
-                else
-                {
-                    result.Add(new VotingArticleResponse
-                    {
-                        Id = article.Id,
-                        GroupsId = article.GroupsId,
-                        Name = article.Name,
-                        Description = article.Description,
-                        CreatedAt = article.CreatedAt,
-                        Group = new VotingGroupsResponse()
+                        },
+                        LastSession = lastSession == null ? null : new VotingSessionResponse()
                         {
-                            Id = group.Id,
-                            Name = group.Name,
-                            CreatedAt = group.CreatedAt,
-                            ReadableId = group.ReadableId
+                            Id = lastSession.Id,
+                            ArticleId = lastSession.ArticleId,
+                            Name = lastSession.Name,
+                            Description = lastSession.Description,
+                            From = lastSession.From,
+                            To = lastSession.To,
 
                         }
                     });
-                }
             }
             return result;
         }

@@ -73,6 +73,18 @@ namespace voting_api.Controllers
         }
 
         /// <summary>
+        /// Gets the vote statistics.
+        /// </summary>
+        /// <returns>A list of vote statistics.</returns>
+        [HttpGet("statistics/users")]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<ActionResult<IEnumerable<UserStatistics>>> GetUserStatistics()
+        {
+            var results = await _statisticsService.GetVoteUserStatisticsAsync();
+            return Ok(new { data = results });
+        }
+
+        /// <summary>
         /// Saves a new sub-article.
         /// </summary>
         /// <param name="subArticle">The sub-article to save.</param>

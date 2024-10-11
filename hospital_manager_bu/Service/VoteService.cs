@@ -51,10 +51,14 @@ namespace voting_bl.Service
             _unitOfWork.Save();
         }
 
+
+
         public void SaveVoteSubmit(VoteSubmit votingVote)
         {
             _unitOfWork.VoteSubmit.Add(votingVote);
             _unitOfWork.Save();
         }
+
+
     }
 }

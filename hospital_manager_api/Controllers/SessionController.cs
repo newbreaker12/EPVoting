@@ -25,6 +25,7 @@ namespace voting_api.Controllers
         /// Initialise une nouvelle instance de la classe <see cref="SessionController"/>.
         /// </summary>
         /// <param name="unitOfWork">L'unité de travail à utiliser par les services.</param>
+        /// <param name="configuration"></param>
         public SessionController(IUnitOfWork unitOfWork, IConfiguration configuration)
         {
             _sessionService = new VotingSessionService(unitOfWork);
